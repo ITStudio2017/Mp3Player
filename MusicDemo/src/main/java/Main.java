@@ -12,17 +12,18 @@ class Myplayer{
 
 public class Main {
     public static void main(String[] args) throws IOException, JavaLayerException, InterruptedException {
-        String in = Myplayer.musicFileList[0];
-        PlayerThread playerThread = new PlayerThread(in);
-        for (int i = 0; i < 5; i++) {
-            System.out.println("播放中...");
-            playerThread.startMusic();
-            TimeUnit.SECONDS.sleep(5);
-            playerThread.pause();
-            System.out.println("暂停中...");
-            TimeUnit.SECONDS.sleep(2);
-        }
-        playerThread.restart();
+//        String in = Myplayer.musicFileList[0];
+//        PlayerThread playerThread = new PlayerThread(in);
+//        for (int i = 0; i < 5; i++) {
+//            System.out.println("播放中...");
+//            playerThread.startMusic();
+//            TimeUnit.SECONDS.sleep(5);
+//            playerThread.pause();
+//            System.out.println("暂停中...");
+//            TimeUnit.SECONDS.sleep(2);
+//        }
+//        playerThread.restart();
+        System.out.println(Thread.currentThread().getName());
     }
 
 }

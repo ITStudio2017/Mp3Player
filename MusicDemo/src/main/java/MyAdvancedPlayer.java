@@ -17,9 +17,11 @@ public class MyAdvancedPlayer extends AdvancedPlayer implements Runnable {
         return super.decodeFrame();
     }
     public int getNowPosition(){
+
         return nowPosition;
     }
     public void setNowPosition(int nowPosition){
+
         this.nowPosition = nowPosition;
     }
     public void setClosed(){
@@ -43,6 +45,7 @@ public class MyAdvancedPlayer extends AdvancedPlayer implements Runnable {
                 e.printStackTrace();
             }
         }
+        System.out.println();
     }
 
 }
