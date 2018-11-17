@@ -1,5 +1,6 @@
 import javazoom.jl.decoder.JavaLayerException;
 import java.io.*;
+import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
 
 class Myplayer{
@@ -11,19 +12,14 @@ class Myplayer{
 }
 
 public class Main {
-    public static void main(String[] args) throws IOException, JavaLayerException, InterruptedException {
-//        String in = Myplayer.musicFileList[0];
-//        PlayerThread playerThread = new PlayerThread(in);
-//        for (int i = 0; i < 5; i++) {
-//            System.out.println("播放中...");
-//            playerThread.startMusic();
-//            TimeUnit.SECONDS.sleep(5);
-//            playerThread.pause();
-//            System.out.println("暂停中...");
-//            TimeUnit.SECONDS.sleep(2);
-//        }
-//        playerThread.restart();
-        System.out.println(Thread.currentThread().getName());
+    public static void main(String[] args) {
+        String sql = "insert into sheet (sheetName, createDate, image) " +
+                "values ('我喜欢的音乐','2018-11-11','/Users/sss/');";
+        try{
+           SqliteTools.executor(sql);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
 }
