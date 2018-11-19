@@ -10,9 +10,9 @@ class PlayerThread extends Thread {
     private static int nowMusic;
 
     static final String[] musicFileList = {
-            "/Users/alex/Program/git/Mp3Player/MusicPlayer/downloads/test1.mp3",
-            "/Users/alex/Program/git/Mp3Player/MusicPlayer/downloads/test2.mp3",
-            "/Users/alex/Program/git/Mp3Player/MusicPlayer/downloads/test3.mp3",
+            System.getProperty("user.dir") + "/downloads/test1.mp3",
+            System.getProperty("user.dir") + "/downloads/test2.mp3",
+            System.getProperty("user.dir") + "/downloads/test3.mp3",
 
     };
 
