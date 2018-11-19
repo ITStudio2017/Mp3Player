@@ -1,23 +1,31 @@
 import javazoom.jl.decoder.JavaLayerException;
 import java.io.*;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-class Myplayer{
-//    static Player player;
-    static final String[] musicFileList = {
-            "/Users/alex/Music/iTunes/iTunes Media/Music/毛不易/明日之子 第7期/消愁.mp3",
-            "/Users/alex/Music/iTunes/iTunes Media/Music/买辣椒也用券/起风了（Cover 高橋優-《ヤキモチ》）/1-01 起风了（Cover 高橋優）.mp3",
-    };
-}
 
 public class Main {
     public static void main(String[] args) {
-        String sql = "insert into sheet (sheetName, createDate, image) " +
-                "values ('我喜欢的音乐','2018-11-11','/Users/sss/');";
-        try{
-           SqliteTools.executor(sql);
-        }catch (Exception e){
+        try {
+            PlayerThread playerThread = new PlayerThread();
+            while (true) {
+                try{
+                    new Thread(playerThread).start();
+                    Thread.sleep(4000);
+                    System.out.println("暂停");
+                    playerThread.pause();
+                    Thread.sleep(1000);
+                    System.out.println("继续播放");
+                }catch (Exception e){
+                    break;
+                }
+
+            }
+
+        } catch (Exception e){
             e.printStackTrace();
         }
     }
