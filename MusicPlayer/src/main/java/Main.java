@@ -3,7 +3,7 @@ import java.util.Random;
 public class Main {
     public static void main(String[] args) {
         try {
-            PlayerThread playerThread = new PlayerThread(4,PlayerThread.musicFileList,Pattern.Sequence);
+            PlayerThread playerThread = new PlayerThread(4,PlayerThread.musicFileList,Pattern.Stochastic);
             playerThread.start();
             while (true){
                 System.out.println("总时长：" + playerThread.getMusicTime() + "秒");
@@ -11,7 +11,6 @@ public class Main {
                 Thread.sleep(300);
 
             }
-
         } catch (Exception e){
             e.printStackTrace();
         }
