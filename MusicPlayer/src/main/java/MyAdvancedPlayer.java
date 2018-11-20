@@ -4,36 +4,39 @@ import javazoom.jl.player.advanced.AdvancedPlayer;
 import java.io.InputStream;
 
 public class MyAdvancedPlayer extends AdvancedPlayer implements Runnable {
-    private int nowPosition;//当前解码的帧的位置
-    private volatile boolean close;//控制解码停止与否
-    private boolean frameEnd;//判断解码是否完成，即播放完毕
-    private Object lock;//锁
+    private volatile int nowFrame;              //当前解码的帧的位置
+    private volatile boolean close;             //控制解码停止与否
+    private boolean frameEnd;                   //判断解码是否完成，即播放是否完毕
+    private Object lock;                        //锁
 
     //初始化
-    MyAdvancedPlayer(InputStream in, Object lock) throws JavaLayerException {
+    public MyAdvancedPlayer(InputStream in, Object lock) throws JavaLayerException {
         super(in);
         this.lock = lock;
-        nowPosition = 0;
+        nowFrame = 0;
         close = true;
         frameEnd = false;
     }
 
+    @Override
+    public boolean skipFrame() throws JavaLayerException {
+        return super.skipFrame();
+    }
+
     //解码
     protected boolean decodeFrame() throws JavaLayerException {
-        nowPosition++;
+        nowFrame++;
         return super.decodeFrame();
     }
 
     //获取帧位置
-    public int getNowPosition(){
-
-        return nowPosition;
+    public int getNowFrame(){
+        return nowFrame;
     }
 
     //设置帧位置
-    public void setNowPosition(int nowPosition){
-
-        this.nowPosition = nowPosition;
+    public void setNowFrame(int nowFrame){
+        this.nowFrame = nowFrame;
     }
 
     //关闭或开启解码
@@ -44,7 +47,9 @@ public class MyAdvancedPlayer extends AdvancedPlayer implements Runnable {
     public void run(){
         this.frameEnd = false;
         this.close = false;
-        for (int i = 0; i < nowPosition; i++) {
+
+        //跳到当前帧位置再解码播放
+        for (int i = 0; i < nowFrame; i++) {
             try {
                 super.skipFrame();
             } catch (JavaLayerException e) {
@@ -56,9 +61,9 @@ public class MyAdvancedPlayer extends AdvancedPlayer implements Runnable {
                 try {
                     frameEnd = !this.decodeFrame();
                     if (frameEnd == true){
-                        this.nowPosition = 0;
+                        //播放完毕，停止解码、设置帧位置为0，通知控制线程，释放锁
+                        this.nowFrame = 0;
                         this.close = true;
-                        PlayerThread.setNowMusic(PlayerThread.getNowMusic()+1);
                         lock.notify();
                     }
                 } catch (JavaLayerException e) {
