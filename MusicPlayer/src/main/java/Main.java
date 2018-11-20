@@ -1,20 +1,13 @@
-import java.util.Random;
+import java.util.HashMap;
+import java.util.Vector;
 
 public class Main {
     public static void main(String[] args) {
-        try {
-            PlayerThread playerThread = new PlayerThread(4,PlayerThread.musicFileList,Pattern.Stochastic);
-            playerThread.start();
-            while (true){
-                System.out.println("总时长：" + playerThread.getMusicTime() + "秒");
-                System.out.println("当前播放时间：" + playerThread.getNowMusicTime() + "秒");
-                Thread.sleep(300);
-
-            }
-        } catch (Exception e){
-            e.printStackTrace();
+        Vector<HashMap<String,String>> musicList = SqliteTools.getMusicBySheet(4);
+        for (HashMap<String,String> music: musicList
+             ) {
+            System.out.println("id:" + music.get("id") + " filePath:" + music.get("filePath"));
         }
-
     }
 
 }
