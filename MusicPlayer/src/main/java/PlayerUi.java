@@ -1,4 +1,5 @@
 import javax.swing.*;
+import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.util.Vector;
 
@@ -20,6 +21,8 @@ public class PlayerUi {
     final JList mylist = new JList();   //我的歌单
     private JLabel othermenutitle = new JLabel("别人都在听");
     final JList otherlist = new JList(); //别人歌单
+    Vector<String> otherv = new Vector<String>(); //别人的歌单
+    Vector<String> myv = new Vector<String>(); //别my人的歌单
     public static void main(String[] args){
         PlayerUi playerui = new PlayerUi();
         JFrame frame = new JFrame("一个美丽的音乐播放器");
@@ -100,56 +103,16 @@ public class PlayerUi {
     //具体实现清单内部
     private void playerMymenu(JPanel panel){
 //        mymenu.setBackground(Color.white);
-        Vector<String> v = new Vector<String>();
-        v.add(new String("杂七杂八的民谣"));
-        v.add(new String("疯狂的摇滚情结"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语cccccccccccc力sssssssssssssssssssssssssssssssssssssssssssssssssssssss练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
-        v.add(new String("英语听力练练练"));
+
+        myv.add(new String("杂七杂八的民谣"));
+        mylist.setListData(myv);
 
         Box box1 = Box.createHorizontalBox();
         box1.add(mymenutitle);
         box1.add(Box.createHorizontalGlue());
         Box box2 = Box.createHorizontalBox();
         box2.add(mylist);
-        box2.add(Box.createHorizontalGlue());
+//        box2.add(Box.createHorizontalGlue());
         Box vbox = Box.createVerticalBox();
         vbox.add(box1);
         vbox.add(box2);
@@ -159,7 +122,7 @@ public class PlayerUi {
         mylist.setFixedCellWidth(400);
         mymenutitle.setFont(new Font("宋体",Font.BOLD,20));
         mymenu.setBackground(new Color(245,245,247));
-        mylist.setListData(v);
+
         mylist.setLayout(new GridLayout(1,1));
         mymenu.setLayout(new GridLayout(1,1));
         mylist.setBackground(new Color(245,245,247));
@@ -189,19 +152,19 @@ public class PlayerUi {
     }
     private void playerOthermenu(){
 //        othermenu.setBackground(Color.white);
-        Vector<String> v = new Vector<String>();
-        v.add("学号1702003100x的歌单");
-        v.add("学号1702003100x的歌单");
-        v.add("学号1702003100x的歌单");
-        v.add("学号1702003100x的歌单");
-        otherlist.setListData(v);
+
+        otherv.add("学号1702003100x的歌单");
+        otherv.add("学号1702003100x的歌单");
+        otherv.add("学号1702003100x的歌单");
+        otherv.add("学号1702003100x的歌单");
+        otherlist.setListData(otherv);
 
         Box box1 = Box.createHorizontalBox();
         box1.add(othermenutitle);
         box1.add(Box.createHorizontalGlue());
         Box box2 = Box.createHorizontalBox();
         box2.add(otherlist);
-        box2.add(Box.createHorizontalGlue());
+//        box2.add(Box.createHorizontalGlue());
         Box vbox = Box.createVerticalBox();
         vbox.add(box1);
         vbox.add(box2);
@@ -213,21 +176,63 @@ public class PlayerUi {
         otherlist.setBackground(new Color(245,245,247));
 
 
-        othermenu.setLayout(new FlowLayout(FlowLayout.LEFT));
-
+//        othermenu.setLayout(new FlowLayout(FlowLayout.LEFT));
+//        otherlist.setLayout(new GridLayout(1,1));
+//        othermenu.setLayout(new GridLayout(1,1));
+        otherlist.setFixedCellWidth(400);
 
     }
     private void playerContain(){
+        // 表头（列名）
+        String[] columnNames = {"序号", "姓名", "语文", "数学", "英语", "总分"};
+        // 表格所有行数据
+        Object[][] rowData = {
+                {1, "张三", 80, 80, 80, 240},
+                {2, "John", 70, 80, 90, 240},
+                {3, "Sue", 70, 70, 70, 210},
+                {4, "Jane", 80, 70, 60, 210},
+                {5, "Joe_05", 80, 70, 60, 210},
+                {6, "Joe_06", 80, 70, 60, 210},
+                {7, "Joe_07", 80, 70, 60, 210},
+                {8, "Joe_08", 80, 70, 60, 210},
+                {9, "Joe_09", 80, 70, 60, 210},
+                {10, "Joe_10", 80, 70, 60, 210},
+                {11, "Joe_11", 80, 70, 60, 210},
+                {12, "Joe_12", 80, 70, 60, 210},
+                {13, "Joe_13", 80, 70, 60, 210},
+                {14, "Joe_14", 80, 70, 60, 210},
+                {15, "Joe_15", 80, 70, 60, 210},
+                {16, "Joe_16", 80, 70, 60, 210},
+                {17, "Joe_17", 80, 70, 60, 210},
+                {18, "Joe_18", 80, 70, 60, 210},
+                {19, "Joe_19", 80, 70, 60, 210},
+                {20, "Joe_20", 80, 70, 60, 210}
+        };
+
         Box box1 = Box.createHorizontalBox();
         box1.add(containtop);
-        box1.add(Box.createHorizontalGlue());
+//        box1.add(Box.createHorizontalGlue());
         Box box2 = Box.createHorizontalBox();
         box2.add(containbottom);
-        box2.add(Box.createHorizontalGlue());
+//        box2.add(Box.createHorizontalGlue());
         Box vbox = Box.createVerticalBox();
         vbox.add(box1);
         vbox.add(box2);
         contain.add(vbox);
+
+        JTable detailtable = new JTable(rowData,columnNames);
+        //设置表格内容颜色
+        detailtable.setForeground(Color.BLACK);
+//        detailtable.setBackground(new co);
+        detailtable.setSelectionBackground(new Color(236,236,237));
+//        detailtable
+
+        //设置表头
+//        detailtable.getTableHeader().setFocusTraversalKe;
+
+        //设置行高
+        detailtable.setRowHeight(30);
+        containbottom.add(detailtable);
 
 
 
@@ -236,11 +241,35 @@ public class PlayerUi {
 
 
         containtop.setSize(700,600);
-        containtop.setBackground(Color.red);
+        containtop.setBackground(new Color(248,244,245));
 //        contain.add(containtop);
         containbottom.setSize(700,200);
         containbottom.setBackground(Color.green);
-//        contain.add(containbottom);
+        containbottom.setLayout(new GridLayout(1,1));
+
+//        containtop.setLayout();
+
+
+
+
+        //这是歌单具体内容的上部分
+        JPanel listcoverwrap = new JPanel();
+        listcoverwrap.setPreferredSize(new Dimension(140,140));
+        listcoverwrap.setBackground(Color.PINK);
+
+        JPanel containtopright = new JPanel();
+        JLabel covertitle = new JLabel("每日歌曲更新");
+        containtop.setLayout(new FlowLayout(FlowLayout.LEFT));
+
+        containtop.add(listcoverwrap);
+        containtop.add(covertitle);
+
+
+
+
+
+
+
 
 
         //
