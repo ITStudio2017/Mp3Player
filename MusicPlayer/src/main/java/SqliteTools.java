@@ -1,7 +1,11 @@
+import com.sun.xml.internal.fastinfoset.tools.FI_DOM_Or_XML_DOM_SAX_SAXEvent;
+
+import java.io.File;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 public class SqliteTools {
@@ -19,15 +23,17 @@ public class SqliteTools {
                 "  \"sheetID\" INTEGER NOT NULL,\n" +
                 "  \"musicImage\" TEXT(200),\n" +
                 "  \"lyric\" TEXT(1000),\n" +
+                "  \"artist\" TEXT(30),\n" +
+                "  \"album\" TEXT(50),\n" +
                 "  CONSTRAINT \"sheetID\" FOREIGN KEY (\"sheetID\") REFERENCES \"sheet\" (\"id\") ON DELETE NO ACTION ON UPDATE NO ACTION\n" +
-                ");";
+                ")";
         String createSheetTable = "CREATE TABLE \"sheet\" (\n" +
                 "  \"id\" integer NOT NULL PRIMARY KEY AUTOINCREMENT,\n" +
                 "  \"name\" text(100) NOT NULL,\n" +
                 "  \"createDate\" text(20) NOT NULL,\n" +
                 "  \"owner\" TEXT(11) NOT NULL DEFAULT 17020031002,\n" +
                 "  \"imagePath\" text(200) NOT NULL\n" +
-                ");";
+                ")";
         try{
             executor(createSheetTable);
             executor(createMusicTable);
@@ -43,15 +49,12 @@ public class SqliteTools {
         Date date = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         String dateString = formatter.format(date);
-        String sql = "insert into sheet(name,createDate,owner,imagePath) values("
-                + "\"" + name + "\",\"" + dateString + "\",\"17020031002\",\"" + imagePath
-                + "\")";
-        try {
-            executor(sql);
-        }catch (Exception e){
-            e.printStackTrace();
-            System.out.println("创建歌单失败");
-        }
+        HashMap<String,String> hashMap = new HashMap<String, String>();
+        hashMap.put("name",name);
+        hashMap.put("createDate",dateString);
+        hashMap.put("owner","17020031002");
+        hashMap.put("imagePath",imagePath);
+        insert("sheet",hashMap);
     }
 
     //修改歌单名
@@ -90,7 +93,7 @@ public class SqliteTools {
     //根据歌单ID查找音乐
     public static Vector<HashMap<String,String>> getMusicBySheet(int id) {
         Vector<HashMap<String,String>> musicList = new Vector<HashMap<String, String>>();
-        String sql = "select * from music where sheetID = " + id;
+        String sql = "select * from music where sheetID = " + id + " order by id desc ";
         try{
             connect();
             ResultSet rs = stmt.executeQuery(sql);
@@ -103,6 +106,8 @@ public class SqliteTools {
                 music.put("sheetID", rs.getString("sheetID"));
                 music.put("musicImage",rs.getString("musicImage"));
                 music.put("lyric",rs.getString("lyric"));
+                music.put("artist",rs.getString("artist"));
+                music.put("album",rs.getString("album"));
                 musicList.add(music);
             }
             rs.close();
@@ -116,16 +121,17 @@ public class SqliteTools {
     //创建音乐
     public static void createMusic(String name, String filePath,
                                    int sheetID, String musicImage,
-                                   String lyric){
-        String sql = "insert into music(name,filePath,sheetID,musicImage,lyric)"
-                + " values(\"" + name + "\",\"" + filePath + "\"," + sheetID + ",\""
-                + musicImage + "\"," + "\"" + lyric + "\")";
-        try {
-            executor(sql);
-        }catch (Exception e){
-            e.printStackTrace();
-            System.out.println("音乐插入数据库失败");
-        }
+                                   String lyric, String artist, String album){
+        HashMap<String, String> hashMap = new HashMap<String, String>();
+        hashMap.put("name",name);
+        hashMap.put("filePath",filePath);
+        hashMap.put("sheetID",Integer.toString(sheetID));
+        hashMap.put("misicImage",musicImage);
+        hashMap.put("lyric",lyric);
+        hashMap.put("artist",artist);
+        hashMap.put("album",album);
+        insert("music",hashMap);
+
     }
 
     //删除音乐
@@ -140,9 +146,37 @@ public class SqliteTools {
 
     }
 
+    public static void insert(String tableName, HashMap<String,String> hashMap){
+        String column = "(";
+        String values = "(";
+        for (Map.Entry<String,String> entry: hashMap.entrySet()
+             ) {
+            column += (entry.getKey() + ",");
+            values += ("\"" + entry.getValue() + "\",");
+        }
+        column = column.substring(0, column.length() - 1) + ")";
+        values = values.substring(0, values.length() - 1) + ")";
+        String sql = "insert into " + tableName + " " + column + " values " + values;
+        try {
+            executor(sql);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public static void checkDB(){
+        String DBpath = System.getProperty("user.dir") + "/SQLite3/MyMusic.db";
+        File file = new File(DBpath);
+        if(!file.exists()){
+            //数据库不存在则创建表
+            createTables();
+        }
+    }
+
     //连接数据库
     public static void connect() {
         try{
+            checkDB();//检查数据库文件
             Class.forName("org.sqlite.JDBC");
             conn = DriverManager.getConnection(url);
             conn.setAutoCommit(false);
