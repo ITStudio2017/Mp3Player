@@ -1,44 +1,45 @@
+package Ui;
+
 import Stylechange.NewButton;
 
-import javax.smartcardio.Card;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.Vector;
 
 public class PlayerUi {
-    JPanel panel = new JPanel(new BorderLayout());
+    public static JFrame frame = null;
+    public JPanel panel = new JPanel(new BorderLayout());
     public JPanel paneltop = new JPanel();
     public JPanel panelmainer = new JPanel();
     public JPanel panelfooter = new JPanel();
     public JPanel menu = new JPanel();
     public JPanel panelleft = new JPanel();
     public JScrollPane scrollmenu = null;
-    JTable detailtable = null;
-//            new JScrollPane( textArea, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER );
+    public JTable detailtable = null;
+
     public JPanel panellefttop = new JPanel();
     public JPanel panelleftmiddle = new JPanel();
     public JPanel panelleftbottom = new JPanel(); //左边栏分为上下两块
     public JPanel othermenu = new JPanel();    //别人的清单
     public JPanel mymenu = new JPanel();       //我的歌单
     public JPanel playnow = new JPanel(); //展示现在播放状态的区域
+    public JPanel playintroduce = new JPanel(); //展示推荐的区域
     public JPanel contain = new JPanel();      //歌曲内容
     public JPanel containwrap = new JPanel();  //歌单内容页，与此相对应的是详细内容
     public JPanel containwrap2 = new JPanel();  //歌词内容页
+    public JPanel editlist = new JPanel(); //编辑歌单相关信息
     public JPanel containtop = new JPanel();
     public JPanel containbottom = new JPanel(); //控制区
     public JLabel mymenutitle = new JLabel("我的歌单");
-    final JList mylist = new JList();   //我的歌单
+    public JList mylist = new JList();   //我的歌单
     public JLabel othermenutitle = new JLabel("别人都在听");
-    final JList otherlist = new JList(); //别人歌单
-    Vector<String> otherv = new Vector<String>(); //别人的歌单
-    Vector<String> myv = new Vector<String>(); //别my人的歌单
+    public JList otherlist = new JList(); //别人歌单
+    public Vector<String> otherv = new Vector<String>(); //别人的歌单
+    public Vector<String> myv = new Vector<String>(); //别my人的歌单
     public JPanel musicbuttons = new JPanel(); //所有的播放相关按键
     public JPanel pplaybutton = new JPanel();  //包裹播放按钮
 //    private JPanel pstopbutton = new JPanel();  //包裹暂停按钮
@@ -49,47 +50,57 @@ public class PlayerUi {
     public JButton lastbutton = new NewButton("上"); //上一首按钮
     public JButton nextbutton = new NewButton("下"); //下一首按钮
     public JButton stylebutton = new JButton(); //播放方式切换按钮
-    JPanel listcoverwrap = new JPanel(); //
+    public JPanel listcoverwrap = new JPanel(); //
 
-    JPanel containtopright = new JPanel();
-    JLabel covertitle = new JLabel("每日歌曲更新");
-    JPanel playnowcover = new JPanel();
-    CardLayout layout = null; //这是为了歌单以及内容切换展示而设置的一种卡片布局
-    JButton changelist = new JButton("歌单"); //切换为展示清单
-    JButton changecontent = new JButton("歌词"); //切换为展示内容
+    public JPanel containtopright = new JPanel();
+    public JLabel covertitle = new JLabel("每日歌曲更新");
+    public JPanel playnowcover = new JPanel();
+    public CardLayout layout = null; //这是为了歌单以及内容切换展示而设置的一种卡片布局
+    public JButton changelist = new JButton("歌单"); //切换为展示清单
+    public JButton changecontent = new JButton("歌词"); //切换为展示内容
     public int currentProgress = 0; //当前音乐播放进度
     public int maxmusicprogress = 100; //准确来说放的是歌曲的长度
     public int minmusicprogress = 0;
+    public JSlider musicslider = null; //播放进度控制
+    public JLabel progressnow = new JLabel("00:00");   //现在播放到的位置
+    public JLabel progresstotal = new JLabel("00:00"); //一共的播放长度
+    public JPanel musicsliders = new JPanel();  //包裹进度块
+//    JPanel test = new JPanel(); //包裹切换方式
+    public JLabel playstyle = null;  //包裹切换方式
+    public int clickstyle = 1; //记录点击播放方式的次数，对应播放方式
+    public ImageIcon playstyleicon = null; //放置播放方式
+    public String playstylestring;  //记录播放方式，以字符串的形式
+    public JLabel mymenuadd = null; //我的歌单的add按钮
+    public JLabel othermenuadd = null; //别人听的add按钮
 
-
-
-    public static void main(String[] args){
-        PlayerUi playerui = new PlayerUi();
-        JFrame frame = new JFrame("一个美丽的音乐播放器");
-        frame.setSize(1200,800);
-         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-
-
-
-
-//        placeComponents(panel);
-
-        playerui.initui(frame);
-        frame.setVisible(true);
-        System.out.println("xxx");
-    }
+//    public static void main(String[] args){
+//        PlayerUi playerui = new PlayerUi();
+//        JFrame frame = new JFrame("一个美丽的音乐播放器");
+//        frame.setSize(1200,800);
+//         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//
+//
+//
+//
+//
+////        placeComponents(panel);
+//
+//        playerui.initui(frame);
+//        frame.setVisible(true);
+//        System.out.println("xxx");
+//    }
     public void initui(JFrame frame){
-        layout(frame);
-        playerMymenu(panel);
+        layout();
+        playerMymenu();
         playerOthermenu();
         playerContain();
         playerFooter();
         playerNow();
-        playercontaindetal();
+        playercontaindetail();
+        playerlistedit();
     }
     //页面基本布局
-    public void layout(JFrame frame){
+    public void layout(){
         panel.setLayout(new BorderLayout(0,0));
         panel.setBackground(Color.BLUE);
 
@@ -111,13 +122,13 @@ public class PlayerUi {
         panel.add(panelleft,BorderLayout.WEST);
         panel.add(paneltop,BorderLayout.NORTH);
         panel.add(panelmainer,BorderLayout.CENTER);
-//        menu.setSize(150,700);
+
 
         //panelleft再分为上下
 //        panelleft.setLayout(null);
 //
-        panelleft.setLayout(new GridLayout(3,1));
-;
+        panelleft.setLayout(new GridLayout(4,1));
+;       panelleft.add(playintroduce);
         panelleft.add(panelleftmiddle);
         panelleft.add(panellefttop);
         panelleft.add(playnow);
@@ -147,6 +158,8 @@ public class PlayerUi {
 //        panelmainer.add(btn01, "btn01");
         panelmainer.add(containwrap, "list");
         panelmainer.add(containwrap2, "content"); // 先显示第二个
+        panelmainer.add(editlist,"editlist");
+//        layout.show(panelmainer, "editlist");
         layout.show(panelmainer, "content");
 
         //menu上下分隔
@@ -193,7 +206,7 @@ public class PlayerUi {
 
     }
     //具体实现歌单内部
-    public void playerMymenu(JPanel panel){
+    public void playerMymenu(){
         mymenu.setBackground(new Color(246,246,248));
         for(int i = 0;i<100;i++)
         myv.add(new String("杂七杂八的民谣"));
@@ -204,11 +217,15 @@ public class PlayerUi {
         mylist.setListData(myv);
 
         Box box1 = Box.createHorizontalBox();
-        box1.add(mymenutitle);
+        mymenuadd = new JLabel(new ImageIcon(System.getProperty("user.dir") + "/UIphotos/listadd.png"));
+        JPanel temp = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        temp.setOpaque(false);
+        temp.add(mymenutitle);
+        temp.add(mymenuadd);
+        box1.add(temp);
         box1.add(Box.createHorizontalGlue());
         Box box2 = Box.createHorizontalBox();
         box2.add(mylist);
-//        box2.add(Box.createHorizontalGlue());
         Box vbox = Box.createVerticalBox();
         vbox.add(box1);
         vbox.add(box2);
@@ -222,6 +239,7 @@ public class PlayerUi {
         mylist.setLayout(new GridLayout(1,1));
         mymenu.setLayout(new GridLayout(1,1));
         mylist.setBackground(new Color(245,245,247));
+        mylist.setFocusable(false);
 
 
 
@@ -256,7 +274,13 @@ public class PlayerUi {
         otherlist.setListData(otherv);
 
         Box box1 = Box.createHorizontalBox();
-        box1.add(othermenutitle);
+//        box1.add(othermenutitle);
+        othermenuadd = new JLabel(new ImageIcon(System.getProperty("user.dir") + "/UIphotos/listadd.png"));
+        JPanel temp = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        temp.setOpaque(false);
+        temp.add(othermenutitle);
+        temp.add(othermenuadd);
+        box1.add(temp);
         box1.add(Box.createHorizontalGlue());
         Box box2 = Box.createHorizontalBox();
         box2.add(otherlist);
@@ -272,12 +296,8 @@ public class PlayerUi {
         otherlist.setBackground(new Color(245,245,247));
         othermenu.setBackground(new Color(245,245,247));
         othermenutitle.setForeground(new Color(97,97,97));
-
-
-//        othermenu.setLayout(new FlowLayout(FlowLayout.LEFT));
-//        otherlist.setLayout(new GridLayout(1,1));
-//        othermenu.setLayout(new GridLayout(1,1));
         otherlist.setFixedCellWidth(400);
+        otherlist.setFocusable(false);
 
     }
     public void playerContain(){
@@ -367,15 +387,13 @@ public class PlayerUi {
 
 
         panelfooter.setBorder(BorderFactory.createLineBorder(new Color(225,225,226)));
+        panelfooter.setBackground(new Color(246,246,248));
 //        musicbuttons.setLayout(new GridLayout(1,3));
-        //按钮部分
+        //左边 按钮部分
 //        musicbuttons.setLayout(new BorderLayout());
         musicbuttons.setLayout(null);
         musicbuttons.setLayout(new GridLayout(1,3));
         musicbuttons.setOpaque(false);
-
-//        musicbuttons.L
-//        panelfooter.setLayout(new GridLayout(1,4));
         panelfooter.setLayout(new BorderLayout());
 
 
@@ -406,21 +424,25 @@ public class PlayerUi {
         pnextbutton.add(nextbutton);
         nextbutton.setBackground(new Color(232,60,60));
         nextbutton.setFocusPainted(false);
+//
+//        JLabel temp = new JLabel(new ImageIcon(System.getProperty("user.dir") + "/UIphotos/play.png"));
+//        playbutton.add(temp);
+//        temp.setLocation(50,50);
 //        panelfooter.add(nextbutton);
 
-        final JProgressBar musicprogressbar = new JProgressBar();
-        musicprogressbar.setMinimum(minmusicprogress);
-        musicprogressbar.setMaximum(maxmusicprogress);
-        musicprogressbar.setValue(10);
-        musicprogressbar.addChangeListener(new ChangeListener() {
-
-            public void stateChanged(ChangeEvent e) {
-              System.out.println("当前进度值："+musicprogressbar.getValue()+";"+"进度百分比:"+musicprogressbar.getPercentComplete());
-
-            }
-        });
-        panelfooter.add(musicprogressbar,BorderLayout.CENTER);
-        musicprogressbar.setStringPainted(true);
+//        final JProgressBar musicprogressbar = new JProgressBar();
+//        musicprogressbar.setMinimum(minmusicprogress);
+//        musicprogressbar.setMaximum(maxmusicprogress);
+//        musicprogressbar.setValue(10);
+//        musicprogressbar.addChangeListener(new ChangeListener() {
+//
+//            public void stateChanged(ChangeEvent e) {
+//              System.out.println("当前进度值："+musicprogressbar.getValue()+";"+"进度百分比:"+musicprogressbar.getPercentComplete());
+//
+//            }
+//        });
+//        panelfooter.add(musicprogressbar,BorderLayout.CENTER);
+//        musicprogressbar.setStringPainted(true);
 
 //        musicprogressbar.setBackground(Color.green);
 //        Timer timer = new Timer();
@@ -434,6 +456,25 @@ public class PlayerUi {
 //            }
 //
 //        },500);
+        //中间 播放进度控制部分
+
+        musicsliders.setLayout(new BorderLayout());
+
+        musicslider = new JSlider(minmusicprogress,maxmusicprogress,currentProgress);
+        musicslider.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+//                System.out.println("当前值"+musicslider.getValue());
+            }
+        });
+        musicslider.setBackground(new Color(246,246,248));
+        musicsliders.setOpaque(false);
+
+        panelfooter.add(musicsliders,BorderLayout.CENTER);
+        musicsliders.add(progressnow,BorderLayout.WEST);
+        musicsliders.add(musicslider,BorderLayout.CENTER);
+        musicsliders.add(progresstotal,BorderLayout.EAST);
+//        progressnow.setVerticalAlignment(SwingConstants.CENTER);
+
         new Thread(){
             public void run(){
                 for(int i = 0;i < 100; i++){
@@ -442,17 +483,31 @@ public class PlayerUi {
                     }catch (InterruptedException e){
                         e.printStackTrace();
                     }
-                    musicprogressbar.setValue(i);
+                    musicslider.setValue(i);
+                    int temp = i;
+                    progressnow.setText("00:"+i+"");
                 }
 
             }
         }.start();
 
 
-        JPanel test = new JPanel();
-        test.setPreferredSize(new Dimension(20,20));
-        test.setBackground(Color.green);
-        panelfooter.add(test,BorderLayout.EAST);
+        //右边 切换播放方式
+        playstyleicon = new ImageIcon(System.getProperty("user.dir") + "/UIphotos/xunhuan.png");
+        playstyle = new JLabel(playstyleicon);
+        playstyle.setPreferredSize(new Dimension(200,60));
+        panelfooter.add(playstyle,BorderLayout.EAST);
+
+
+//        test.add(te);
+//        System.getProperty("user.dir") + "/downloads/test1.mp3"
+
+
+
+
+//        test.setPreferredSize(new Dimension(20,20));
+//        test.setBackground(Color.green);
+
 
 
 
@@ -499,12 +554,83 @@ public class PlayerUi {
     }
 
     //这个函数是用于歌词具体内容页
-    public void playercontaindetal(){
+    public void playercontaindetail(){
 //        contain.setPreferredSize(new Dimension(0,0));
         JPanel bigmusiccover = new JPanel();
+        JLabel test = new JLabel(new ImageIcon(System.getProperty("user.dir") + "/downloads/cover.png"));
+        bigmusiccover.add(test);
         bigmusiccover.setPreferredSize(new Dimension(420,420));
         bigmusiccover.setBackground(Color.pink);
         containwrap2.add(bigmusiccover);
+
+
+
+
+    }
+
+    //这个函数用于编辑歌单相关信息,也就是listedit页
+
+    public void playerlistedit(){
+        JLabel title = new JLabel("编辑歌单信息"); //标题
+
+//        editlist.add();
+//        JPanel editcontent = new JPanel();
+//        JPanel editcontentleft = new JPanel();
+
+        JTextField editlistname = new JTextField();
+        JLabel editlistlabel = new JLabel("歌单名：");
+        JLabel indexcover = new JLabel(new ImageIcon(System.getProperty("user.dir") + "/UIphotos/indexcover.png"));
+        JButton editsave = new JButton("保存");
+        JButton editcancel = new JButton("取消");
+        JButton editcover = new JButton("编辑封面");
+
+
+        Box box1 = Box.createHorizontalBox();
+        box1.add(title);
+        box1.add(Box.createHorizontalGlue());
+        Box box2 = Box.createHorizontalBox();
+        box2.add(editlistlabel);
+        box2.add(editlistname);
+        Box box4 = Box.createHorizontalBox();
+        box4.add(indexcover);
+        box4.add(Box.createHorizontalGlue());
+        Box box5 = Box.createHorizontalBox();
+        box5.add(editcover);
+        box5.add(Box.createHorizontalGlue());
+        Box box3 = Box.createHorizontalBox();
+        box3.add(editsave);
+        box3.add(editcancel);
+        Box vbox = Box.createVerticalBox();
+        vbox.add(box1);
+        vbox.add(box4);
+        vbox.add(box5);
+        vbox.add(box2);
+        vbox.add(box3);
+        editlist.setBorder(BorderFactory.createLineBorder(new Color(250,250,250),50));
+        editlist.setOpaque(false);
+        vbox.setBackground(new Color(250,250,250));
+        box1.setOpaque(false);
+        vbox.setOpaque(false);
+        title.setOpaque(false);
+
+        editlist.setLayout(new FlowLayout(FlowLayout.LEFT));
+        editlist.add(vbox);
+
+
+
+
+        editcancel.setPreferredSize(new Dimension(110,40));
+        editsave.setPreferredSize(new Dimension(110,40));
+        editcover.setPreferredSize(new Dimension(110,30));
+        editlistname.setPreferredSize(new Dimension(110,40));
+        editcancel.setFocusPainted(false);
+        editsave.setFocusPainted(false);
+        editsave.setBackground(new Color(12,115,194));
+        editsave.setForeground(Color.white);
+        editcancel.setBackground(Color.white);
+        editcancel.setForeground(Color.BLACK);
+        editcover.setBackground(Color.white);
+        editcover.setForeground(Color.BLACK);
 
 
 
