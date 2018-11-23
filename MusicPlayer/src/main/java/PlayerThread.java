@@ -16,8 +16,8 @@ class PlayerThread extends Thread {
             System.getProperty("user.dir") + "/downloads/test1.mp3",    //春夏秋冬的您
             System.getProperty("user.dir") + "/downloads/test2.mp3",    //可能否
             System.getProperty("user.dir") + "/downloads/test3.mp3",    //山外小楼夜听雨
-            System.getProperty("user.dir") + "/downloads/test4.mp3",    //Darkside
-            System.getProperty("user.dir") + "/downloads/test5.mp3",    //Darkside
+            System.getProperty("user.dir") + "/downloads/周杰伦/周杰伦的床边故事/告白气球/告白气球 - 周杰伦.mp3",    //告白气球
+            System.getProperty("user.dir") + "/downloads/Alan Walker/Darkside/Darkside/Darkside - Alan Walker.mp3",    //Darkside
 
     };
 
