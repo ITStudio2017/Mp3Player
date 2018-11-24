@@ -26,6 +26,27 @@ import java.util.regex.Pattern;
  *
  */
 public class utilLrc {
+    public static void main(String[] args){
+        try{
+            utilLrc lrc = new utilLrc(System.getProperty("user.dir") + "/downloads/test.lrc");
+            String title = lrc.getTitle();
+
+            String artist = lrc.getArtist();
+            String album = lrc.getAlbum();
+
+//             get lrcmaker name: String lrcMaker = lrc.getLrcMaker();
+            List<Statement> list = lrc.getLrcList();
+
+            for(Statement o:list){
+                System.out.println(o.getLyric());
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
     private static String TAG = "utilLrc";
     public class Statement {
         private double time  = 0.0;		//time, 0.01s

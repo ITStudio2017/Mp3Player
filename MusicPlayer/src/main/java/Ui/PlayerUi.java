@@ -1,6 +1,9 @@
 package Ui;
 
+
 import Stylechange.NewButton;
+import Stylechange.JPanelBackground;
+import Test.GaussianBlur;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -72,6 +75,18 @@ public class PlayerUi {
     public String playstylestring;  //记录播放方式，以字符串的形式
     public JLabel mymenuadd = null; //我的歌单的add按钮
     public JLabel othermenuadd = null; //别人听的add按钮
+//    E:\图片素材\刘看山.png
+//    System.getProperty("user.dir") + "/UIphotos/indexcover.png")
+    //编辑菜单区域
+    public JTextField editlistname = new JTextField();
+    public JLabel editlistlabel = new JLabel("歌单名：");
+    public ImageIcon coverimage = new ImageIcon("E:/图片素材/刘看山.png");
+    public JLabel indexcover = new JLabel(coverimage);
+    public JButton editsave = new JButton("保存");
+    public JButton editcancel = new JButton("取消");
+    public JButton editcover = new JButton("编辑封面");
+
+    public JTextArea musicwords =  new JTextArea(); //歌词！！！！
 
 //    public static void main(String[] args){
 //        PlayerUi playerui = new PlayerUi();
@@ -555,13 +570,47 @@ public class PlayerUi {
 
     //这个函数是用于歌词具体内容页
     public void playercontaindetail(){
+        JPanelBackground jPanelBackground = new JPanelBackground();
+//        jPanelBackground.width = containwrap2.getWidth();
+//        jPanelBackground.height = containwrap2.getHeight();
+        jPanelBackground.width = 900;
+        jPanelBackground.height = 600;
+//        System.out.println(containwrap2.getWidth());
+        JPanel inner = new JPanel();
+        GaussianBlur gaosi = new GaussianBlur();
+
+        jPanelBackground.url = gaosi.playmain("downloads/test.jpg");
+        System.out.println(jPanelBackground.url);
+        inner = jPanelBackground.getJPanelBackground(inner);
+        inner.setPreferredSize(new Dimension(900,600));
+        containwrap2.add(inner);
+
+
+
+        String url = "/downloads/cover.png";
+        JLabel back = new JLabel(new ImageIcon("E:/图片素材/刘看山.png"));
+        back.setPreferredSize(new Dimension(containwrap2.getWidth(),containtop.getHeight()));
+
+
+
+        inner.setLayout(new FlowLayout(FlowLayout.LEFT));
 //        contain.setPreferredSize(new Dimension(0,0));
         JPanel bigmusiccover = new JPanel();
-        JLabel test = new JLabel(new ImageIcon(System.getProperty("user.dir") + "/downloads/cover.png"));
+        JLabel test = new JLabel(new ImageIcon(System.getProperty("user.dir") +url ));
+        inner.add(bigmusiccover);
         bigmusiccover.add(test);
-        bigmusiccover.setPreferredSize(new Dimension(420,420));
+        inner.add(musicwords);
+//        BackgroundPanel bp = new BackgroundPanel();
+
+
+
+        bigmusiccover.setPreferredSize(new Dimension(300,300));
+
         bigmusiccover.setBackground(Color.pink);
-        containwrap2.add(bigmusiccover);
+        musicwords.setPreferredSize(new Dimension(574,466));
+
+
+
 
 
 
@@ -573,16 +622,12 @@ public class PlayerUi {
     public void playerlistedit(){
         JLabel title = new JLabel("编辑歌单信息"); //标题
 
+
 //        editlist.add();
 //        JPanel editcontent = new JPanel();
 //        JPanel editcontentleft = new JPanel();
 
-        JTextField editlistname = new JTextField();
-        JLabel editlistlabel = new JLabel("歌单名：");
-        JLabel indexcover = new JLabel(new ImageIcon(System.getProperty("user.dir") + "/UIphotos/indexcover.png"));
-        JButton editsave = new JButton("保存");
-        JButton editcancel = new JButton("取消");
-        JButton editcover = new JButton("编辑封面");
+
 
 
         Box box1 = Box.createHorizontalBox();
@@ -608,6 +653,8 @@ public class PlayerUi {
         vbox.add(box3);
         editlist.setBorder(BorderFactory.createLineBorder(new Color(250,250,250),50));
         editlist.setOpaque(false);
+        indexcover.setPreferredSize(new Dimension(240,240));
+//        coverimage.setImage(coverimage.getImage().getScaledInstance(240, 240,Image.SCALE_DEFAULT ));
         vbox.setBackground(new Color(250,250,250));
         box1.setOpaque(false);
         vbox.setOpaque(false);

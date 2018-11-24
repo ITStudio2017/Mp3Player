@@ -1,4 +1,4 @@
-package Stylechange;
+package Test;
 
 
 import java.awt.Color;
