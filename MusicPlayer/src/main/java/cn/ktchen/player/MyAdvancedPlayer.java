@@ -1,3 +1,5 @@
+package cn.ktchen.player;
+
 import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.advanced.AdvancedPlayer;
 
@@ -7,7 +9,7 @@ public class MyAdvancedPlayer extends AdvancedPlayer implements Runnable {
     private volatile int nowFrame;              //当前解码的帧的位置
     private volatile boolean close;             //控制解码停止与否
     private boolean frameEnd;                   //判断解码是否完成，即播放是否完毕
-    private Object lock;                        //锁
+    private final Object lock;                        //锁
 
     //初始化
     public MyAdvancedPlayer(InputStream in, Object lock) throws JavaLayerException {
