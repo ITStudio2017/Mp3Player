@@ -1,8 +1,8 @@
-package Stylechange;
+package Test;
 
-import java.awt.*;
-import java.awt.geom.*;
 import javax.swing.*;
+import java.awt.*;
+import java.awt.geom.Ellipse2D;
 
 class RButton extends JButton {
     public RButton(String label) {
@@ -61,10 +61,10 @@ class RButton extends JButton {
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         //frame.getContentPane().setBackground(Color.GRAY);
-        frame.getContentPane().add(button);
+        frame.add(button);
         frame.getContentPane().add(button2);
         frame.getContentPane().setLayout(new FlowLayout());
-        frame.setSize(200, 200);
+        frame.setSize(700, 200);
         frame.setVisible(true);
     }
 }
