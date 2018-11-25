@@ -1,6 +1,7 @@
 package cn.ktchen.http;
 
 import cn.ktchen.sqlite.SqliteTools;
+import cn.ktchen.utils.DownloadUtils;
 import javazoom.jl.player.advanced.AdvancedPlayer;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -36,7 +37,10 @@ public class HttpTools {
     }
 
     //API接口
-    private static String mainUrl = "https://music_api.dns.24mz.cn/index.php";
+    public static String mainUrl = "https://music_api.dns.24mz.cn/index.php";
+
+    //下载位置
+    public static String downloadPath = System.getProperty("user.dir") + "/downloads/";
 
     //搜索功能
     public static Vector<HashMap<String, String>> search(
@@ -81,49 +85,69 @@ public class HttpTools {
     //下载歌曲
     public static boolean downloadMusic(
             HashMap<String, String> music, HashMap<String,String> sheet) {
+        //目标路径
+        String filePath = downloadPath +
+                music.get("artist") + "/" + music.get("album") +
+                "/" + music.get("name") + "/" ;
+        String fileName = music.get("name") + " - " + music.get("artist");
 
-        //检查本地是否下载
+        //检查数据库是否有记录
         if(SqliteTools.musicExist(music))
             return true;
 
-        //目标路径
-        String targetPath = System.getProperty("user.dir") + "/downloads/" +
-                music.get("artist") + "/" + music.get("album") +
-                "/" + music.get("name") + "/" + music.get("name") +
-                " - " + music.get("artist");
-        boolean downloadFile = downloadMusicFile(music, targetPath + ".mp3");
-        boolean downloadPic = downloadPic(music, targetPath + ".jpg");
-        boolean downloadLrc = downloadLyric(music, targetPath + ".lrc");
-
-        if (downloadFile && downloadPic && downloadLrc) {//下载成功
-
-            //写入数据库
-            SqliteTools.createMusic(music.get("name"), targetPath + ".mp3",
-                    Integer.parseInt(sheet.get("id")), targetPath + ".jpg",
-                    targetPath + ".lrc", music.get("artist"),music.get("album"));
+        //检查是否缓存
+        File musicFile = new File(filePath + fileName + ".mp3");
+        if (musicFile.exists()) {//已下载
+            SqliteTools.createMusic(music.get("name"), filePath + fileName  + ".mp3",
+                    Integer.parseInt(sheet.get("id")), filePath + fileName  + ".jpg",
+                    filePath + fileName  + ".lrc", music.get("artist"),music.get("album"));
             return true;
+        }else{//开始下载
+            String musicUrl = getMusicUrl(music);
+            String imageUrl = getImageUrl(music);
+            try {
+                makeParentFolder(filePath + fileName);
+                DownloadUtils.download(musicUrl, fileName  + ".mp3",filePath,5);
+                DownloadUtils.download(imageUrl,fileName + ".jpg", filePath,5);
+            }catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+            boolean downloadLrc = downloadLyric(music, filePath + fileName + ".lrc");
+            if (downloadLrc) {//下载成功
+                //写入数据库
+                SqliteTools.createMusic(music.get("name"), filePath + fileName  + ".mp3",
+                        Integer.parseInt(sheet.get("id")), filePath + fileName  + ".jpg",
+                        filePath + fileName  + ".lrc", music.get("artist"),music.get("album"));
+                return true;
+            }
         }
         return false;
     }
 
-    //下载音乐文件
-    private static boolean downloadMusicFile(
-            HashMap<String, String> hashMap, String targetPath) {
-        //获取音乐url,此url可能为空
+    //获取音乐文件url
+    public static String getMusicUrl(HashMap<String, String> hashMap) {
         List<NameValuePair> list = new ArrayList<NameValuePair>();
         list.add(new BasicNameValuePair("types", "url"));
         list.add(new BasicNameValuePair("id", hashMap.get("id")));
         list.add(new BasicNameValuePair("source", hashMap.get("source")));
         String url = new JSONObject(doGet(mainUrl, list)).getString("url");
+        return url;
+    }
 
+    //下载音乐文件
+    private static boolean downloadMusicFile(
+            HashMap<String, String> hashMap, String targetPath) {
+        //获取音乐url
+        String url = getMusicUrl(hashMap);
         //下载
         return getForDownload(url, targetPath);
 
     }
 
-    //下载封面
-    private static boolean downloadPic(
-            HashMap<String, String> hashMap, String targetPath) {
+    //获取封面url
+
+    public static String getImageUrl(HashMap<String, String> hashMap) {
         List<NameValuePair> list = new ArrayList<NameValuePair>();
         list.add(new BasicNameValuePair("types", "pic"));
         list.add(new BasicNameValuePair("id", hashMap.get("pic_id")));
@@ -137,12 +161,19 @@ public class HttpTools {
         if (hashMap.get("source").toString().equals(Sources.xiami.toString())) {
             imgUrl = imgUrl.split("@")[0];
         }
+        return imgUrl;
+    }
+
+    //下载封面
+    private static boolean downloadPic(
+            HashMap<String, String> hashMap, String targetPath) {
+        String imgUrl = getImageUrl(hashMap);
         return getForDownload(imgUrl, targetPath);
 
     }
 
     //下载歌词
-    private static boolean downloadLyric(
+    public static boolean downloadLyric(
             HashMap<String, String> hashMap, String targetPath) {
         List<NameValuePair> list = new ArrayList<NameValuePair>();
         list.add(new BasicNameValuePair("types", "lyric"));
@@ -253,7 +284,7 @@ public class HttpTools {
         return s;
     }
 
-    private static String doGet(String url, List<NameValuePair> list) {
+    public static String doGet(String url, List<NameValuePair> list) {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         String s = null;
         HttpGet httpGet = new HttpGet(url + "?" + URLEncodedUtils.format(list,"utf-8"));

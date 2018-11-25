@@ -141,7 +141,7 @@ public class SqliteTools {
                 HashMap<String, String> music = new HashMap<String, String>();
                 music.put("id", rs.getObject("id").toString());
                 music.put("name", rs.getObject("name").toString());
-                music.put("hash", rs.getObject("hash").toString());
+                //music.put("hash", rs.getObject("hash").toString());
                 music.put("filePath", rs.getObject("filePath").toString());
                 music.put("sheetID", rs.getObject("sheetID").toString());
                 music.put("musicImage", rs.getObject("musicImage").toString());
