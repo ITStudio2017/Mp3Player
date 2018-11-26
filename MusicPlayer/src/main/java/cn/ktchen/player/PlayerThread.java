@@ -23,7 +23,7 @@ public class PlayerThread implements Runnable {
     private int startPosition;                                  //起始位置
     private Pattern nowPattern;                                 //当前播放模式
     private volatile boolean isPaused;                          //当前是否已暂停
-    private int musicIndex;//当前播放单曲
+    private int musicIndex;                                     //当前播放单曲
 
     public Vector<HashMap<String, String>> getMusicList() {
         return musicList;
@@ -285,7 +285,7 @@ public class PlayerThread implements Runnable {
     //下一首歌
     public void nextMusic(){
         this.pause();
-
+        this.startPosition = 0;
         switch (nowPattern) {
             case Sequence:
             case Single:
@@ -308,18 +308,22 @@ public class PlayerThread implements Runnable {
     //上一首歌
     public void previousMusic() {
         this.pause();
+        this.startPosition = 0;
         switch (nowPattern) {
             case Sequence:
             case Single:
                 this.musicIndex--;
                 if (musicIndex < 0)
                     musicIndex = musicList.size() - 1;
+                break;
             case Stochastic:
                 this.musicIndex = new Random().nextInt(musicList.size());
+                break;
             default:
                     this.musicIndex = 0;
         }
         this.myAdvancedPlayer.setNowFrame(0);
+        new Thread(this).start();
     }
 
     private void checkExist(boolean block, File file, long milliseconds){

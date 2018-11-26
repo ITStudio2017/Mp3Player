@@ -97,7 +97,8 @@ public class SqliteTools {
     }
 
     //修改歌单名
-    public static void updateSheetName(int id, String name) {
+    public static void updateSheetName(HashMap<String,String> sheet, String name) {
+        String id = sheet.get("id");
         String sql = "update sheet set name = \"" + name + "\" where id = " + id;
         try {
             executor(sql);
@@ -108,8 +109,9 @@ public class SqliteTools {
     }
 
     //修改歌单封面
-    public static void updateSheetImage(int id, String imagePage) {
-        String sql = "update sheet set imagePath = \"" + imagePage + "\" where id = " + id;
+    public static void updateSheetImage(HashMap<String,String> sheet, String imagePath) {
+        String id = sheet.get("id");
+        String sql = "update sheet set imagePath = \"" + imagePath + "\" where id = " + id;
         try {
             executor(sql);
         } catch (Exception e) {
@@ -119,7 +121,8 @@ public class SqliteTools {
     }
 
     //删除歌单
-    public static void deleteSheet(int id) {
+    public static void deleteSheet(HashMap<String, String> sheet) {
+        String id = sheet.get("id");
         String sql = "delete from sheet where id = " + id;
         try {
             executor(sql);
@@ -141,7 +144,6 @@ public class SqliteTools {
                 HashMap<String, String> music = new HashMap<String, String>();
                 music.put("id", rs.getObject("id").toString());
                 music.put("name", rs.getObject("name").toString());
-                //music.put("hash", rs.getObject("hash").toString());
                 music.put("filePath", rs.getObject("filePath").toString());
                 music.put("sheetID", rs.getObject("sheetID").toString());
                 music.put("musicImage", rs.getObject("musicImage").toString());
@@ -173,6 +175,14 @@ public class SqliteTools {
         hashMap.put("album", album);
         insert("music", hashMap);
 
+    }
+
+    //音乐更新md5
+    public static void updateMd5(HashMap<String, String> music, String md5){
+        String sql = "update music set hash = \"" + md5 + "\" where name = \"" + music.get("name") +
+                "\" and artist = \"" + music.get("artist") + "\" and album = \"" + music.get("album")
+                + "\"";
+        executor(sql);
     }
 
     //删除音乐

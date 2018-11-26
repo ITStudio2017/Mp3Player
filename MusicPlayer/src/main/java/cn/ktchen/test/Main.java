@@ -16,44 +16,55 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         //查询
-        Vector<HashMap<String,String>> searchSet =  HttpTools.search("你一生的故事",1, HttpTools.Sources.netease.toString());
-        for (HashMap music:searchSet
-             ) {
-            System.out.println(music);
-        }
+        Vector<HashMap<String,String>> searchSet =  HttpTools.search("可能否",1,20, HttpTools.Sources.netease.toString());
+//        for (HashMap music:searchSet
+//             ) {
+//            System.out.println(music);
+//        }
 
         //创建歌单
 //        SqliteTools.createSheet("纯民谣");
 
         //查询歌单
-//        Vector<HashMap<String,String>> sheetList = SqliteTools.getSheetList();
-//        for (HashMap<String,String> sheet: sheetList
-//             ) {
-//            System.out.println(sheet);
-//        }
+        Vector<HashMap<String,String>> sheetList = SqliteTools.getSheetList();
+//        HttpTools.downloadMusic(searchSet.get(0), sheetList.get(0));
+        Vector<HashMap<String, String>> musicList = SqliteTools.getMusicBySheet(sheetList.get(0));
+
+
+
+        PlayerThread playerThread = new PlayerThread(0,musicList, PlayerThread.Pattern.Sequence);
+
+        new Thread(playerThread).start();
+
+        while (true){
+            new Scanner(System.in).next();
+            playerThread.previousMusic();
+        }
+
 //        HttpTools.downloadMusic(searchSet.get(0), sheetList.get(0));
 //        Vector<HashMap<String,String>> musicList = SqliteTools.getMusicBySheet(
 //                sheetList.get(0));
-        final PlayerThread playerThread = new PlayerThread(0,searchSet, PlayerThread.Pattern.Sequence);
-        new Thread(playerThread).start();
-        new Thread(){
-            @Override
-            public void run() {
-                while (true) {
-                    System.out.println("当前时间:" + playerThread.getNowMusicTime());
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }.start();
-        Scanner scanner = new Scanner(System.in);
-        while (true){
-            int second = scanner.nextInt();
-            playerThread.setTime(second);
-        }
+//        final PlayerThread playerThread = new PlayerThread(0,searchSet, PlayerThread.Pattern.Sequence);
+//        new Thread(playerThread).start();
+//        new Thread(){
+//            @Override
+//            public void run() {
+//                while (true) {
+//                    System.out.println("当前时间:" + playerThread.getNowMusicTime());
+//                    try {
+//                        Thread.sleep(1000);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }
+//        }.start();
+//        Scanner scanner = new Scanner(System.in);
+//        while (true){
+//            int second = scanner.nextInt();
+//            playerThread.setTime(second);
+//        }
+//        HttpTools.downloadMusic(searchSet.get(0),sheetList.get(0));
 
     }
 

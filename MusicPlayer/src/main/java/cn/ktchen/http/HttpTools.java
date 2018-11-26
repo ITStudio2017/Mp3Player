@@ -2,8 +2,7 @@ package cn.ktchen.http;
 
 import cn.ktchen.download.DownloadSingle;
 import cn.ktchen.sqlite.SqliteTools;
-import cn.ktchen.utils.DownloadUtils;
-import javazoom.jl.player.advanced.AdvancedPlayer;
+import cn.ktchen.utils.GetFileMD5;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -56,19 +55,19 @@ public class HttpTools {
 
     //搜索功能
     public static Vector<HashMap<String, String>> search(
-            String keyWord, int page) {
+            String keyWord, int page, int count) {
         //默认网易云搜索
-        return search(keyWord, page, Sources.netease.toString());
+        return search(keyWord, page, count, Sources.netease.toString());
     }
 
     public static Vector<HashMap<String, String>> search(
-            String keyWord, int page, String source) {
+            String keyWord, int page, int count, String source) {
 
         //构造post请求
         Vector<HashMap<String, String>> vector = new Vector<HashMap<String, String>>();
         List<NameValuePair> list = new ArrayList<NameValuePair>();
         list.add(new BasicNameValuePair("types", "search"));
-        list.add(new BasicNameValuePair("count", "20"));
+        list.add(new BasicNameValuePair("count", Integer.toString(count)));
         list.add(new BasicNameValuePair("source", source));
         list.add(new BasicNameValuePair("pages", Integer.toString(page)));
         list.add(new BasicNameValuePair("name", keyWord));
@@ -100,7 +99,7 @@ public class HttpTools {
      * @param sheet 歌单
      * @return
      */
-    public static boolean downloadMusic(
+    public static void downloadMusic(
             HashMap<String, String> music, HashMap<String,String> sheet) {
         //目标路径
         String filePath = filePath(music);
@@ -108,15 +107,16 @@ public class HttpTools {
 
         //检查数据库是否有记录
         if(SqliteTools.musicExist(music))
-            return true;
+            return;
 
         //检查是否缓存
         File musicFile = new File(filePath + fileName + ".mp3");
         if (musicFile.exists()) {//已下载
+            new Thread(new GetFileMD5(filePath + fileName + ".mp3", music)).start();
             SqliteTools.createMusic(music.get("name"), filePath + fileName  + ".mp3",
                     Integer.parseInt(sheet.get("id")), filePath + fileName  + ".jpg",
                     filePath + fileName  + ".lrc", music.get("artist"),music.get("album"));
-            return true;
+            return;
         }else{//开始下载
             String musicUrl = getMusicUrl(music);
             String imageUrl = getImageUrl(music);
@@ -125,18 +125,19 @@ public class HttpTools {
                 new DownloadSingle(imageUrl, filePath + fileName + ".jpg", new Object()).start();
             }catch (Exception e) {
                 e.printStackTrace();
-                return false;
+                return;
             }
             boolean downloadLrc = downloadLyric(music, filePath + fileName + ".lrc");
             if (downloadLrc) {//下载成功
+                new Thread(new GetFileMD5(filePath + fileName + ".mp3", music)).start();
                 //写入数据库
                 SqliteTools.createMusic(music.get("name"), filePath + fileName  + ".mp3",
                         Integer.parseInt(sheet.get("id")), filePath + fileName  + ".jpg",
                         filePath + fileName  + ".lrc", music.get("artist"),music.get("album"));
-                return true;
+                return;
             }
         }
-        return false;
+        return;
     }
 
     //获取音乐文件url
@@ -160,7 +161,6 @@ public class HttpTools {
     }
 
     //获取封面url
-
     public static String getImageUrl(HashMap<String, String> hashMap) {
         List<NameValuePair> list = new ArrayList<NameValuePair>();
         list.add(new BasicNameValuePair("types", "pic"));
@@ -348,52 +348,5 @@ public class HttpTools {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    public static void main(String[] args) throws Exception {
-//        String musicUrl = "https://m7.music.126.net/20181124123018/49d0ecf1aca3cfece55a0f96c95c28ce/ymusic/931b/c2a2/9662/df3b7e6cbff7acaf30a32bfb9df824c2.mp3";
-//        URL urlfile = new URL(musicUrl);
-//        URLConnection conn = urlfile.openConnection();
-//        // 设置连接超时时间为10000ms
-//        conn.setConnectTimeout(10 * 1000);
-//        // 设置读取数据超时时间为10000ms
-//        conn.setReadTimeout(10 * 1000);
-//        int b = conn.getContentLength();
-//        BufferedInputStream bis = new BufferedInputStream(conn.getInputStream());
-//        JavaSoundAudioDevice javaSoundAudioDevice = new JavaSoundAudioDevice();
-//        Bitstream bitstream = new Bitstream(bis);
-//        Header h = bitstream.readFrame();
-//        InputStream stream = conn.getInputStream();
-//        int Size = 800 * (h.framesize + 5);
-//        int index = 0;
-//        byte[] bts = new byte[b];
-//        while (true) {
-//            byte[] bt = new byte[1024];
-//            if (stream.read(bt) != -1) {
-//                for (int i = 0; i < 1024; i++) {
-//                    bts[index] = bt[i];
-//                    index++;
-//                }
-//                continue;
-//            }
-//            break;
-//        }
-//        System.out.println(b /Size);
-//        for (int i = 0; i < b / Size - 2; i++) {
-//            OutputStream outputStream = new FileOutputStream(
-//                            new File(System.getProperty("user.dir") + "/test/" + i + ".mp3"));
-//            outputStream.write(bts,Size * i,Size);
-//
-//        }
-        Vector<InputStream> vector = new Vector<InputStream>();
-        for (int i = 0; i < 6; i++) {
-            InputStream inputStream = new FileInputStream(
-                    new File(System.getProperty("user.dir") + "/test/" + i + ".mp3"));
-
-            vector.add(inputStream);
-        }
-        Enumeration<InputStream> e = vector.elements();
-        SequenceInputStream sis = new SequenceInputStream(e);
-        new AdvancedPlayer(sis).play();
     }
 }
