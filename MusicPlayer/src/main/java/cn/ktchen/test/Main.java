@@ -4,17 +4,19 @@ import cn.ktchen.http.HttpTools;
 import cn.ktchen.player.PlayerThread;
 import cn.ktchen.sqlite.SqliteTools;
 import javazoom.jl.player.advanced.AdvancedPlayer;
+import org.omg.Messaging.SYNC_WITH_TRANSPORT;
 
 import java.io.*;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.Vector;
 
 public class Main {
     public static void main(String[] args) throws Exception {
 
         //查询
-        Vector<HashMap<String,String>> searchSet =  HttpTools.search("春夏秋冬的你",1, HttpTools.Sources.netease.toString());
+        Vector<HashMap<String,String>> searchSet =  HttpTools.search("你一生的故事",1, HttpTools.Sources.netease.toString());
         for (HashMap music:searchSet
              ) {
             System.out.println(music);
@@ -32,12 +34,27 @@ public class Main {
 //        HttpTools.downloadMusic(searchSet.get(0), sheetList.get(0));
 //        Vector<HashMap<String,String>> musicList = SqliteTools.getMusicBySheet(
 //                sheetList.get(0));
-        PlayerThread playerThread = new PlayerThread(0,searchSet, PlayerThread.Pattern.Sequence);
-        playerThread.setTime(83);
-        playerThread.run();
-        Thread.sleep(3 * 1000);
-        System.out.println(playerThread.getImagePath());
-        System.out.println(playerThread.getLrcPath());
+        final PlayerThread playerThread = new PlayerThread(0,searchSet, PlayerThread.Pattern.Sequence);
+        new Thread(playerThread).start();
+        new Thread(){
+            @Override
+            public void run() {
+                while (true) {
+                    System.out.println("当前时间:" + playerThread.getNowMusicTime());
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }.start();
+        Scanner scanner = new Scanner(System.in);
+        while (true){
+            int second = scanner.nextInt();
+            playerThread.setTime(second);
+        }
+
     }
 
 }

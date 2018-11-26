@@ -11,7 +11,7 @@ public class MyAdvancedPlayer extends AdvancedPlayer implements Runnable {
     private volatile int nowFrame;                  //当前解码的帧的位置
     private volatile boolean close;                 //控制解码停止与否
     private boolean isEnd;                          //判断解码是否完成，即播放是否完毕
-    private volatile Object lock;                   //锁
+    private final Object lock;                      //锁
 
     private Header header = null;
 
@@ -75,7 +75,6 @@ public class MyAdvancedPlayer extends AdvancedPlayer implements Runnable {
                     e.printStackTrace();
                 }
             }
-            System.out.println("结束了😂");
         }
     }
 

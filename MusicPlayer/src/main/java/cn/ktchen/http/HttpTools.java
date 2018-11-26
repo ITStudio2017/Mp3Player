@@ -1,5 +1,6 @@
 package cn.ktchen.http;
 
+import cn.ktchen.download.DownloadSingle;
 import cn.ktchen.sqlite.SqliteTools;
 import cn.ktchen.utils.DownloadUtils;
 import javazoom.jl.player.advanced.AdvancedPlayer;
@@ -42,6 +43,17 @@ public class HttpTools {
     //下载位置
     public static String downloadPath = System.getProperty("user.dir") + "/downloads/";
 
+    //默认文件路径
+    public static String filePath(HashMap<String,String> music){
+        return downloadPath + music.get("artist") + "/" + music.get("album") +
+                "/" + music.get("name") + "/";
+    }
+
+    //默认文件名
+    public static String fileName(HashMap<String,String> music){
+        return music.get("name") + " - " + music.get("artist");
+    }
+
     //搜索功能
     public static Vector<HashMap<String, String>> search(
             String keyWord, int page) {
@@ -82,14 +94,17 @@ public class HttpTools {
         return vector;
     }
 
-    //下载歌曲
+    /**
+     *
+     * @param music search搜索结果中的值
+     * @param sheet 歌单
+     * @return
+     */
     public static boolean downloadMusic(
             HashMap<String, String> music, HashMap<String,String> sheet) {
         //目标路径
-        String filePath = downloadPath +
-                music.get("artist") + "/" + music.get("album") +
-                "/" + music.get("name") + "/" ;
-        String fileName = music.get("name") + " - " + music.get("artist");
+        String filePath = filePath(music);
+        String fileName = fileName(music);
 
         //检查数据库是否有记录
         if(SqliteTools.musicExist(music))
@@ -106,9 +121,8 @@ public class HttpTools {
             String musicUrl = getMusicUrl(music);
             String imageUrl = getImageUrl(music);
             try {
-                makeParentFolder(filePath + fileName);
-                DownloadUtils.download(musicUrl, fileName  + ".mp3",filePath,5);
-                DownloadUtils.download(imageUrl,fileName + ".jpg", filePath,5);
+                new DownloadSingle(musicUrl, filePath + fileName + ".mp3", new Object()).start();
+                new DownloadSingle(imageUrl, filePath + fileName + ".jpg", new Object()).start();
             }catch (Exception e) {
                 e.printStackTrace();
                 return false;
