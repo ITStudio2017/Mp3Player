@@ -3,7 +3,7 @@ package Ui;
 
 import Stylechange.NewButton;
 import Stylechange.JPanelBackground;
-import Test.GaussianBlur;
+import Tools.GaussianBlur;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;

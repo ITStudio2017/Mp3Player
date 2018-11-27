@@ -35,6 +35,12 @@ public class Basicevent extends PlayerUi {
     Basicevent(PlayerUi playerUi){
         this.playerUi = playerUi;
     }
+
+
+
+    public void getlist(){
+        
+    }
     @Override
     public void playerFooter() {
         super.playerFooter();
