@@ -37,7 +37,85 @@ public class HttpTools {
     }
 
     //API接口
-    public static String mainUrl = "https://music_api.dns.24mz.cn/index.php";
+    public static final String mliAPI = "https://music_api.dns.24mz.cn/index.php";
+    public static final String bzqllAPI = "https://api.bzqll.com/music/netease/hotSongList";
+    public static final String itmxueAPI = "https://music.itmxue.cn/api.php";
+
+
+    /**
+     * 获取网络歌单
+     * @param count     每页的数量
+     * @param page      页数
+     * @return
+     */
+    public static Vector<HashMap<String,String>> getInternetPlaylist(int count, int page){
+
+        //首页固定了四个歌单
+        if (page == 1)
+            count -= 4;
+
+        //构造参数
+        List<NameValuePair> list = new ArrayList<NameValuePair>();
+        list.add(new BasicNameValuePair("key","579621905"));
+        list.add(new BasicNameValuePair("cat","全部"));
+        list.add(new BasicNameValuePair("limit",Integer.toString(count)));
+        list.add(new BasicNameValuePair("offset",Integer.toString(page)));
+        JSONObject jsonObject = new JSONObject(doGet(bzqllAPI,list));
+
+        Vector<HashMap<String,String>> playList = (page == 1)
+                ? RawPlaylist.getRawPlaylist() : new Vector<HashMap<String, String>>();
+
+        try{
+            String code = jsonObject.get("code").toString();
+            if (code.equals("200")){
+                JSONArray jsonList = jsonObject.getJSONArray("data");
+                for (int i = 0; i < jsonList.length(); i++) {
+                    JSONObject jsonSheet = jsonList.getJSONObject(i);
+                    HashMap<String, String> sheet = new HashMap<String, String>();
+                    sheet.put("id", jsonSheet.get("id").toString());
+                    sheet.put("title", jsonSheet.get("title").toString());
+                    sheet.put("description", jsonSheet.get("description").toString());
+                    sheet.put("coverImgUrl", jsonSheet.get("coverImgUrl").toString());
+                    playList.add(sheet);
+                }
+                return playList;
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static Vector<HashMap<String,String>> getMusicListByInternetPlaylist(
+            HashMap<String, String> playlist){
+
+        //构造参数，获取音乐列表
+        List<NameValuePair> list = new ArrayList<NameValuePair>();
+        list.add(new BasicNameValuePair("types","playlist"));
+        list.add(new BasicNameValuePair("id", playlist.get("id")));
+        JSONObject result = new JSONObject(doPost(itmxueAPI, list));
+        String code = result.get("code").toString();
+        if (!code.equals("200"))
+            return null;
+        JSONArray tracks = result.getJSONObject("playlist").getJSONArray("tracks");
+
+        Vector<HashMap<String, String>> musicList = new Vector<HashMap<String, String>>();
+        for (int i = 0; i < tracks.length(); i++) {
+            HashMap<String, String> music = new HashMap<String, String>();
+            JSONObject jsonMusic = tracks.getJSONObject(i);
+            music.put("id", jsonMusic.get("id").toString());
+            music.put("name", jsonMusic.get("name").toString());
+            music.put("artist", jsonMusic.getJSONArray("ar").getJSONObject(0).get("name").toString());
+            music.put("url_id", jsonMusic.get("id").toString());
+            music.put("lyric_id", jsonMusic.get("id").toString());
+            music.put("source", Sources.netease.toString());
+            music.put("album", jsonMusic.getJSONObject("al").get("name").toString());
+            music.put("pic_id", jsonMusic.getJSONObject("al").get("pic").toString());
+            musicList.add(music);
+        }
+        return musicList;
+    }
 
     //下载位置
     public static String downloadPath = System.getProperty("user.dir") + "/downloads/";
@@ -73,7 +151,7 @@ public class HttpTools {
         list.add(new BasicNameValuePair("name", keyWord));
 
         //获取查询集
-        JSONArray jsonArray = new JSONArray(doGet(mainUrl, list));
+        JSONArray jsonArray = new JSONArray(doGet(mliAPI, list));
         if (jsonArray != null) {
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
@@ -104,10 +182,6 @@ public class HttpTools {
         //目标路径
         String filePath = filePath(music);
         String fileName = fileName(music);
-
-        //检查数据库是否有记录
-        if(SqliteTools.musicExist(music))
-            return;
 
         //检查是否缓存
         File musicFile = new File(filePath + fileName + ".mp3");
@@ -146,7 +220,7 @@ public class HttpTools {
         list.add(new BasicNameValuePair("types", "url"));
         list.add(new BasicNameValuePair("id", hashMap.get("id")));
         list.add(new BasicNameValuePair("source", hashMap.get("source")));
-        String url = new JSONObject(doGet(mainUrl, list)).getString("url");
+        String url = new JSONObject(doGet(mliAPI, list)).getString("url");
         return url;
     }
 
@@ -166,7 +240,7 @@ public class HttpTools {
         list.add(new BasicNameValuePair("types", "pic"));
         list.add(new BasicNameValuePair("id", hashMap.get("pic_id")));
         list.add(new BasicNameValuePair("source", hashMap.get("source")));
-        JSONObject jsonObject = new JSONObject(doGet(mainUrl, list));
+        JSONObject jsonObject = new JSONObject(doGet(mliAPI, list));
         String imgUrl = jsonObject.getString("url");
         if (hashMap.get("source").toString().equals(Sources.netease.toString())) {
             //网易云封面url处理,下载高清版😄😄
@@ -193,7 +267,7 @@ public class HttpTools {
         list.add(new BasicNameValuePair("types", "lyric"));
         list.add(new BasicNameValuePair("id", hashMap.get("id")));
         list.add(new BasicNameValuePair("source", hashMap.get("source")));
-        JSONObject jsonObject = new JSONObject(doGet(mainUrl, list));
+        JSONObject jsonObject = new JSONObject(doGet(mliAPI, list));
         if (jsonObject != null) {
             String lyric = jsonObject.getString("lyric");
             makeParentFolder(targetPath);
@@ -309,7 +383,6 @@ public class HttpTools {
         }catch (Exception e){
             e.printStackTrace();
         }finally {
-            System.out.println(s);
             return s;
         }
 

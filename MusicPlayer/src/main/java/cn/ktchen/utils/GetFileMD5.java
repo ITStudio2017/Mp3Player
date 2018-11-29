@@ -39,11 +39,6 @@ public class GetFileMD5 implements Runnable{
     }
 
     public void run(){
-        try {//先睡10秒
-            Thread.sleep(3 * 1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         while (!file.exists()) {//文件不存在则循环
             try {
                 Thread.sleep(1000);
