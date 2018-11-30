@@ -37,18 +37,12 @@ public class HttpTools {
     }
 
     //API接口
-    public static final String mliAPI = "https://music_api.dns.24mz.cn/index.php";
-    public static final String bzqllAPI = "https://api.bzqll.com/music/netease/hotSongList";
-    public static final String itmxueAPI = "https://music.itmxue.cn/api.php";
+    private static final String mliAPI = "https://music_api.dns.24mz.cn/index.php";
+    private static final String bzqllAPI = "https://api.bzqll.com/music/netease/hotSongList";
+    private static final String itmxueAPI = "https://music.itmxue.cn/api.php";
 
 
-    /**
-     * 获取网络歌单
-     * @param count     每页的数量
-     * @param page      页数
-     * @return
-     */
-    public static Vector<HashMap<String,String>> getInternetPlaylist(int count, int page){
+    public static Vector<HashMap<String,String>> getInternetPlaylist(int page, int count){
 
         //首页固定了四个歌单
         if (page == 1)
@@ -118,7 +112,7 @@ public class HttpTools {
     }
 
     //下载位置
-    public static String downloadPath = System.getProperty("user.dir") + "/downloads/";
+    private static String downloadPath = System.getProperty("user.dir") + "/downloads/";
 
     //默认文件路径
     public static String filePath(HashMap<String,String> music){
@@ -152,31 +146,23 @@ public class HttpTools {
 
         //获取查询集
         JSONArray jsonArray = new JSONArray(doGet(mliAPI, list));
-        if (jsonArray != null) {
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonObject = jsonArray.getJSONObject(i);
-                HashMap<String, String> hashMap = new HashMap<String, String>();
-                hashMap.put("id", jsonObject.get("id").toString());
-                hashMap.put("name", jsonObject.get("name").toString());
-                hashMap.put("artist", jsonObject.getJSONArray("artist").get(0).toString());
-                hashMap.put("url_id", jsonObject.get("url_id").toString());
-                hashMap.put("lyric_id", jsonObject.get("lyric_id").toString());
-                hashMap.put("source", jsonObject.get("source").toString());
-                hashMap.put("album", jsonObject.get("album").toString());
-                hashMap.put("pic_id", jsonObject.get("pic_id").toString());
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+            HashMap<String, String> hashMap = new HashMap<String, String>();
+            hashMap.put("id", jsonObject.get("id").toString());
+            hashMap.put("name", jsonObject.get("name").toString());
+            hashMap.put("artist", jsonObject.getJSONArray("artist").get(0).toString());
+            hashMap.put("url_id", jsonObject.get("url_id").toString());
+            hashMap.put("lyric_id", jsonObject.get("lyric_id").toString());
+            hashMap.put("source", jsonObject.get("source").toString());
+            hashMap.put("album", jsonObject.get("album").toString());
+            hashMap.put("pic_id", jsonObject.get("pic_id").toString());
 
-                vector.add(hashMap);
-            }
+            vector.add(hashMap);
         }
         return vector;
     }
 
-    /**
-     *
-     * @param music search搜索结果中的值
-     * @param sheet 歌单
-     * @return
-     */
     public static void downloadMusic(
             HashMap<String, String> music, HashMap<String,String> sheet) {
         //目标路径
@@ -186,11 +172,17 @@ public class HttpTools {
         //检查是否缓存
         File musicFile = new File(filePath + fileName + ".mp3");
         if (musicFile.exists()) {//已下载
+            //数据库有记录
+            if(SqliteTools.musicExist(music)) {
+                System.out.println("当前歌曲已下载");
+                return;
+            }
             new Thread(new GetFileMD5(filePath + fileName + ".mp3", music)).start();
             SqliteTools.createMusic(music.get("name"), filePath + fileName  + ".mp3",
                     Integer.parseInt(sheet.get("id")), filePath + fileName  + ".jpg",
                     filePath + fileName  + ".lrc", music.get("artist"),music.get("album"));
-            return;
+
+            System.out.println("下载完成");
         }else{//开始下载
             String musicUrl = getMusicUrl(music);
             String imageUrl = getImageUrl(music);
@@ -208,10 +200,8 @@ public class HttpTools {
                 SqliteTools.createMusic(music.get("name"), filePath + fileName  + ".mp3",
                         Integer.parseInt(sheet.get("id")), filePath + fileName  + ".jpg",
                         filePath + fileName  + ".lrc", music.get("artist"),music.get("album"));
-                return;
             }
         }
-        return;
     }
 
     //获取音乐文件url
@@ -220,8 +210,7 @@ public class HttpTools {
         list.add(new BasicNameValuePair("types", "url"));
         list.add(new BasicNameValuePair("id", hashMap.get("id")));
         list.add(new BasicNameValuePair("source", hashMap.get("source")));
-        String url = new JSONObject(doGet(mliAPI, list)).getString("url");
-        return url;
+        return new JSONObject(doGet(mliAPI, list)).getString("url");
     }
 
     //下载音乐文件
@@ -242,11 +231,11 @@ public class HttpTools {
         list.add(new BasicNameValuePair("source", hashMap.get("source")));
         JSONObject jsonObject = new JSONObject(doGet(mliAPI, list));
         String imgUrl = jsonObject.getString("url");
-        if (hashMap.get("source").toString().equals(Sources.netease.toString())) {
+        if (hashMap.get("source").equals(Sources.netease.toString())) {
             //网易云封面url处理,下载高清版😄😄
             imgUrl = imgUrl.split("\\?")[0];
         }
-        if (hashMap.get("source").toString().equals(Sources.xiami.toString())) {
+        if (hashMap.get("source").equals(Sources.xiami.toString())) {
             imgUrl = imgUrl.split("@")[0];
         }
         return imgUrl;
@@ -268,23 +257,21 @@ public class HttpTools {
         list.add(new BasicNameValuePair("id", hashMap.get("id")));
         list.add(new BasicNameValuePair("source", hashMap.get("source")));
         JSONObject jsonObject = new JSONObject(doGet(mliAPI, list));
-        if (jsonObject != null) {
-            String lyric = jsonObject.getString("lyric");
-            makeParentFolder(targetPath);
-            try {
-                OutputStream outputStream = new BufferedOutputStream(
-                        new FileOutputStream(
-                                new File(targetPath)));
-                byte[] buffer = lyric.getBytes();
-                outputStream.write(buffer);
-                outputStream.close();
-                return true;
+        String lyric = jsonObject.getString("lyric");
+        makeParentFolder(targetPath);
+        try {
+            OutputStream outputStream = new BufferedOutputStream(
+                    new FileOutputStream(
+                            new File(targetPath)));
+            byte[] buffer = lyric.getBytes();
+            outputStream.write(buffer);
+            outputStream.close();
+            return true;
 
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return false;
     }
@@ -372,7 +359,7 @@ public class HttpTools {
         return s;
     }
 
-    public static String doGet(String url, List<NameValuePair> list) {
+    private static String doGet(String url, List<NameValuePair> list) {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         String s = null;
         HttpGet httpGet = new HttpGet(url + "?" + URLEncodedUtils.format(list,"utf-8"));
@@ -382,10 +369,8 @@ public class HttpTools {
             s = EntityUtils.toString(response.getEntity());
         }catch (Exception e){
             e.printStackTrace();
-        }finally {
-            return s;
         }
-
+        return s;
     }
 
 
@@ -393,12 +378,11 @@ public class HttpTools {
     public static void makeParentFolder(String Path) {
         File file = new File(Path);
         File parentFile = new File(file.getParent());
-        if (parentFile != null) {
-            while (!parentFile.exists()) {
-                //批量生成全部的父文件路径
-                parentFile.mkdirs();
-            }
+        while (!parentFile.exists()) {
+            //批量生成全部的父文件路径
+            parentFile.mkdirs();
         }
+
     }
 
     public static void playMusic(String url) {

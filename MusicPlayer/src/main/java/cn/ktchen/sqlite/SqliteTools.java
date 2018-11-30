@@ -197,7 +197,7 @@ public class SqliteTools {
 
     }
 
-    //检查音乐是否在本地,判断标准为音乐名、歌手、专辑是否相同
+    //检查音乐是否在数据库中,判断标准为音乐名、歌手、专辑是否相同
     public static boolean musicExist(HashMap<String, String> music) {
         String sql = "select * from music where name = \"" +
                 music.get("name") + "\" and artist = \"" + music.get("artist") +

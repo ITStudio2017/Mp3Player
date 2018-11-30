@@ -20,8 +20,18 @@ public class PlayerThread implements Runnable {
     private final Object playerLock;                            //线程锁
     private final Object fileDownloadLock;                      //音乐文件下载锁
     private final Object imageDownloadLock;                     //图片文件下载锁
+
+    public void setStartPosition(int startPosition) {
+        this.startPosition = startPosition;
+    }
+
     private int startPosition;                                  //起始位置
     private Pattern nowPattern;                                 //当前播放模式
+
+    public boolean isPaused() {
+        return isPaused;
+    }
+
     private volatile boolean isPaused;                          //当前是否已暂停
     private int musicIndex;                                     //当前播放单曲
 
@@ -88,7 +98,12 @@ public class PlayerThread implements Runnable {
     }
 
     private InputStream getInputStream(int startPos, boolean autoDownload){
-        HashMap<String, String> music = musicList.get(musicIndex);
+        HashMap<String, String> music = null;
+        try {
+            music = musicList.get(musicIndex);
+        }catch (Exception e){
+            return null;
+        }
         String filePath = HttpTools.filePath(music);
         String fileName = HttpTools.fileName(music);
         InputStream inputStream = null;
@@ -145,6 +160,8 @@ public class PlayerThread implements Runnable {
 
     //自动播放结束后返回下首歌索引，根据播放模式确定
     private int autoNextMusicIndex(){
+        if (musicList == null)
+            return 0;
         //判断播放模式
         switch (nowPattern){
             //顺序播放
@@ -259,9 +276,9 @@ public class PlayerThread implements Runnable {
     private int getStartPosition(double seconds) {
         int position = 0;
         InputStream stream = getInputStream(0,false);
-        Bitstream bitstream = new Bitstream(stream);
         if (stream != null){
             try{
+                Bitstream bitstream = new Bitstream(stream);
                 Header header = bitstream.readFrame();
                 //先求得帧数，再算出位置
                 int frameNum = (int)(seconds * 1000 / header.ms_per_frame());
@@ -280,6 +297,14 @@ public class PlayerThread implements Runnable {
         this.isPaused = true;
         if (myAdvancedPlayer != null)
             myAdvancedPlayer.setClosed(true);
+    }
+
+    public void indexMusic(int index){
+        this.pause();
+        this.startPosition = 0;
+        this.musicIndex = index;
+        this.myAdvancedPlayer.setNowFrame(0);
+        new Thread(this).start();
     }
 
     //下一首歌
@@ -346,11 +371,11 @@ public class PlayerThread implements Runnable {
     public String getLrcPath(){
         return getLrcPath(false);
     }
-    public String getLrcPath(boolean block){
+    private String getLrcPath(boolean block){
         return getLrcPath(block,Integer.MAX_VALUE);
     }
 
-    public String getLrcPath(boolean block, long milliseconds){
+    private String getLrcPath(boolean block, long milliseconds){
         try {
             Thread.sleep(milliseconds);
         }catch (Exception e){
