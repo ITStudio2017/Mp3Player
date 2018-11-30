@@ -6,6 +6,7 @@ import cn.jade.Ui.PlayerUi;
 import cn.ktchen.http.HttpTools;
 import cn.ktchen.player.PlayerThread;
 import cn.ktchen.sqlite.SqliteTools;
+import org.apache.http.impl.client.SystemDefaultCredentialsProvider;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -35,8 +36,10 @@ public class Basicevent extends PlayerUi {
     public PlayerThread playerThread = new PlayerThread(-1,mymusicsheet);
     public int tableflag = 0;//判断此时有没有列表
     public int focusrowindex = -1;
-    public Thread thread = null;
+    public Thread thread = null;   //这个是播放音乐的线程
+    public Thread threadscroll = null; //这个是滚动条的线程
     public int playflag = 0;//判断有没有歌正在播放
+    public double stoptime = 0; // 记录现在停止时的时间
     public static void main(String[] args){
         Basicevent playerui = new Basicevent(playerUi);
         frame = new JFrame("一个美丽的音乐播放器");
@@ -193,10 +196,17 @@ public class Basicevent extends PlayerUi {
 
             public void actionPerformed(ActionEvent e) {
 
+
                 if(playbutton.getText() == "播放"){
                     playbutton.setText("暂停");
+
+
+
                     if(playflag == 1) {
                         playerThread.pause();
+//                        //暂停拖动条的线程，isINterrupt不会清除，而
+//                        threadscroll.interrupt();
+//                        System.out.println("stop11"+threadscroll.isInterrupted());
 
                     }else if(playflag == 0 && focusrowindex == -1){
                         //初次播放的时候设置默认值
@@ -212,8 +222,17 @@ public class Basicevent extends PlayerUi {
 
                     //播放按钮变成暂停
                     playbutton.setText("暂停");
+                    System.out.println("现在播放到的时间"+playerThread.getNowMusicTime());
 
                 }else{
+
+                    //暂停拖动条的线程，isINterrupt不会清除，而
+                    threadscroll.interrupt();
+
+                    //记录下这时候的时间，以便下一次开始'
+                    stoptime = playerThread.getNowMusicTime();
+//                    System.out.println("stop22"+threadscroll.interrupted());
+
                     playbutton.setText("播放");
                     playerThread.pause();
                     playflag = 0;
@@ -229,7 +248,8 @@ public class Basicevent extends PlayerUi {
                 if(focusrowindex!=mymusicsheet.size()){
                     focusrowindex++;
                 }
-
+                threadscroll.interrupt();
+                stoptime = 0;
                 settime();
             }
         });
@@ -239,7 +259,8 @@ public class Basicevent extends PlayerUi {
                 if(focusrowindex!=0){
                     focusrowindex--;
                 }
-
+                stoptime = 0;
+                threadscroll.interrupt();
                 settime();
             }
         });
@@ -255,22 +276,53 @@ public class Basicevent extends PlayerUi {
     public void setotherfooter(){
         //设置拖动条的速度
         final double pinjun = playerThread.getMusicTime()/100;
-
-        new Thread(){
+//        if(playflag == 1){
+//            threadscroll.currentThread().interrupt();
+//            System.out.println("stop1"+thread.interrupted());
+//            System.out.println("stop2"+thread.interrupted());
+//        }
+        threadscroll = new Thread(){
             public void run(){
-                for(int i = 0;i < 100; i++){
-                    try{
-                        Thread.sleep((long) pinjun*1000);
-                    }catch (InterruptedException e){
-                        e.printStackTrace();
-                    }
-                    musicslider.setValue(i);
-                    int temp = i;
-                    progressnow.setText("00:"+i+"");
-                }
+//                System.out.println();
+                try{
+                        int now =(int)(stoptime/pinjun);
+                        System.out.println("now"+now);
+
+                        for(int i = now;i < 100; i++){
+
+                            if(this.interrupted()){
+                                System.out.println("线程已经终止， for循环不再执行");
+                                throw new InterruptedException();
+                            }
+                            System.out.println("i="+(i+1));
+
+
+
+                                Thread.sleep((long) pinjun*1000);
+                                musicslider.setValue(i);
+                                int temp = i;
+                                Time t = new Time(i);
+                                progressnow.setText(t.getTime());
+                            }
+
+                            //假如播完了怎么办?现在正常停止了并且应该重新开始,那么就应该根据播放模式进行切换
+
+
+
+
+                        }catch (InterruptedException e){
+                            System.out.println("本次拖动条线程已暂停");
+//                            e.printStackTrace();
+                        }
+
+
+
+
+
 
             }
-        }.start();
+        };
+        threadscroll.start();
     }
     public void settime(){
         Time t = new Time(playerThread.getMusicTime());
@@ -535,32 +587,71 @@ public class Basicevent extends PlayerUi {
 //
 //            }
 //        });
+
+
         play.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+//                if(playflag == 1) {
+//                    playerThread.pause();
+//
+//                }
+//                playerThread.setMusicIndex(focusrowindex);
+//                playerThread.setMusicList(mymusicsheet);
+//                playflag = 1;
+//                thread = new Thread(playerThread);
+//                thread.start();
+//
+//                //播放按钮变成暂停
+//                playbutton.setText("暂停");
+//                settime();
+                playbutton.setText("暂停");
+
+
+
                 if(playflag == 1) {
+                    threadscroll.interrupt();
+                    stoptime = 0;
                     playerThread.pause();
+//                        //暂停拖动条的线程，isINterrupt不会清除，而
+//                        threadscroll.interrupt();
+//                        System.out.println("stop11"+threadscroll.isInterrupted());
 
                 }
-                playerThread.setMusicIndex(focusrowindex);
+                 playerThread.setMusicIndex(focusrowindex);
                 playerThread.setMusicList(mymusicsheet);
+                settime();
+
                 playflag = 1;
                 thread = new Thread(playerThread);
                 thread.start();
 
                 //播放按钮变成暂停
                 playbutton.setText("暂停");
-                settime();
+                System.out.println("现在播放到的时间"+playerThread.getNowMusicTime());
             }
         });
         stop.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                playflag = 0;
-                playerThread.pause();
+//                playflag = 0;
+//                playerThread.pause();
+//                playbutton.setText("播放");
+
+                //暂停拖动条的线程，isINterrupt不会清除，而
+                threadscroll.interrupt();
+
+                //记录下这时候的时间，以便下一次开始'
+                stoptime = playerThread.getNowMusicTime();
+//                    System.out.println("stop22"+threadscroll.interrupted());
+
                 playbutton.setText("播放");
+                playerThread.pause();
+                playflag = 0;
             }
         });
 
     }
+
+
 
     //设置表格相关参数,因为着急就先这样了
     public void settable(final JTable detailtable){
@@ -632,5 +723,9 @@ public class Basicevent extends PlayerUi {
         });
 
     }
+
+
+
+
 
 }
