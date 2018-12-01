@@ -8,8 +8,8 @@ import java.util.Vector;
 
 public class playControl {
 
-    private enum commands {play, pause, next, pre, time, info, pattern, quit, help, list, index}
-    private enum shortCommands {p, pu, n, pr, t, i, pa, q, h, l, in}
+    private enum commands {play, pause, next, pre, time, info, pattern, quit, help, list, index, stop}
+    private enum shortCommands {p, pu, n, pr, t, i, pa, q, h, l, in, s}
 
     private static void help(){
         System.out.println("Command:play     Abbr:p    Play music");
@@ -21,8 +21,13 @@ public class playControl {
         System.out.println("Command:pattern  Abbr:pa   Set play mode");
         System.out.println("Command:list     Abbr:l    list the music sheet");
         System.out.println("Command:index    Abbr:in   play the music of index");
+        System.out.println("Command:stop     Abbr:s    stop the play");
         System.out.println("Command:quit     Abbr:q    Exit play control mode");
         System.out.println("Command:help     Abbr:h    View help");
+    }
+
+    private static void stop(){
+        cmdMain.playerThread.stop();
     }
 
     private static void index(){
@@ -142,8 +147,11 @@ public class playControl {
             init();
 
         //如果已暂停
-        if (cmdMain.playerThread.isPaused())
-        new Thread(cmdMain.playerThread).start();
+        if (cmdMain.playerThread.isPaused()){
+            cmdMain.playerThread.setPlayThread(new Thread(cmdMain.playerThread));
+            cmdMain.playerThread.getPlayThread().start();
+        }
+
     }
 
     private static void init(){
@@ -155,6 +163,11 @@ public class playControl {
 
         //获取歌单索引
         list = SqliteTools.getSheetList();
+        if (list.size() == 0){
+            //歌单无歌曲
+            System.out.println("No music sheet!");
+            return;
+        }
         System.out.println("Please choose a sheet to play by type in sheet ID:");
         System.out.print(">>>");
         sheetIndex = getInt(list.size());
@@ -174,7 +187,9 @@ public class playControl {
         cmdMain.playerThread.setMusicList(SqliteTools.getMusicBySheet(SqliteTools.getSheetList().get(sheetIndex)));
         cmdMain.playerThread.setMusicIndex(musicIndex);
         cmdMain.playerThread.pause();
-        new Thread(cmdMain.playerThread).start();
+
+        cmdMain.playerThread.setPlayThread(new Thread(cmdMain.playerThread));
+        cmdMain.playerThread.getPlayThread().start();
         printMusicInfo();
         System.out.println("Playing...");
     }
@@ -224,6 +239,11 @@ public class playControl {
             //通过index播放
             if (cmd.equals(commands.index.toString()) || cmd.equals(shortCommands.in.toString())){
                 index();
+                continue;
+            }
+            //stop
+            if (cmd.equals(commands.stop.toString()) || cmd.equals(shortCommands.s.toString())) {
+                stop();
                 continue;
             }
             //帮助

@@ -59,6 +59,13 @@ public class Search {
 
     //下载音乐
     public static void download(){
+        //检查数据库中是否存在歌单
+        Vector<HashMap<String, String>> sheetList = SqliteTools.getSheetList();
+        if (sheetList.size() == 0) {
+            System.out.println("Non music sheet, please create a sheet first");
+            return;
+        }
+
         printResult(result);
         System.out.println("Please choose a song by ID to download");
         System.out.print(">>>");
@@ -66,7 +73,6 @@ public class Search {
         SheetManager.printAllSheet();
         System.out.println("Please choose a sheet to download to it");
         System.out.print(">>>");
-        Vector<HashMap<String, String>> sheetList = SqliteTools.getSheetList();
         int sheetIndex = playControl.getInt(sheetList.size());
         HttpTools.downloadMusic(result.get(musicIndex),sheetList.get(sheetIndex));
         System.out.println("downloading asynchronously...");
@@ -85,7 +91,8 @@ public class Search {
             cmdMain.playerThread.pause();
         cmdMain.playerThread.setMusicList(result);
         cmdMain.playerThread.setMusicIndex(index);
-        new Thread(cmdMain.playerThread).start();
+        cmdMain.playerThread.setPlayThread(new Thread(cmdMain.playerThread));
+        cmdMain.playerThread.getPlayThread().start();
     }
 
     private static void prePage(String keyword){
@@ -182,6 +189,7 @@ public class Search {
     }
 
     public static void main(String[] args) {
+        quit = false;
         while (!quit){
             search();
         }

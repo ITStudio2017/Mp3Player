@@ -1,9 +1,11 @@
 package cn.ktchen.sqlite;
 
+import cn.ktchen.http.HttpTools;
 import com.sun.xml.internal.fastinfoset.tools.FI_DOM_Or_XML_DOM_SAX_SAXEvent;
 import org.apache.http.entity.StringEntity;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -245,8 +247,14 @@ public class SqliteTools {
         String DBpath = System.getProperty("user.dir") + "/SQLite3/MyMusic.db";
         File file = new File(DBpath);
         if(!file.exists()){
-            //数据库不存在则创建表
-            createTables();
+            try{
+                //数据库不存在则创建表
+                HttpTools.makeParentFolder(DBpath);
+                file.createNewFile();
+                createTables();
+            }catch (IOException e){
+                e.printStackTrace();
+            }
         }
     }
 

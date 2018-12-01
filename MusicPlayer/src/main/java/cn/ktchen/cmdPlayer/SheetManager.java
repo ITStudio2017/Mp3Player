@@ -104,10 +104,15 @@ public class SheetManager {
 
     //删除歌单
     private static void deleteSheet(){
+        int size = SqliteTools.getSheetList().size();
+        if (size == 0){
+            System.out.println("Non music sheet");
+            return;
+        }
         printAllSheet();
         System.out.println("Please enter the ID of sheet to delete:");
         System.out.print(">>>");
-        int index = getInt(SqliteTools.getSheetList().size());
+        int index = getInt(size);
         SqliteTools.deleteSheet(SqliteTools.getSheetList().get(index));
         System.out.println("\ndelete successfully\n");
         printAllSheet();

@@ -10,11 +10,17 @@ public class cmdMain {
     private enum commands {search, manager, control, exit, help, about,}
     private enum shortCommands {s, m, c, h}
 
-    //打印开始提示语
+    //开始提示语
     private static void printStartwords(){
         System.out.println("ISong 1.0 (Author:Alex Lee)");
         System.out.println("Welcome to use ISong Player");
         System.out.println("Type \"help\", \"about\" for more information.");
+    }
+
+    //结束提示语
+    private static void printEndwords() {
+        System.out.println("Thanks for use!");
+        System.out.println("Goodbye!");
     }
 
     private static void help() {
@@ -90,6 +96,10 @@ public class cmdMain {
 
             //关闭
             if (cmd.equals(commands.exit.toString())){
+                cmdMain.playerThread.stop();
+                if (cmdMain.playerThread.getPlayThread() != null)
+                    cmdMain.playerThread.getPlayThread().stop();
+                printEndwords();
                 break;
             }
 

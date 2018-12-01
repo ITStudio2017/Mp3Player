@@ -20,6 +20,16 @@ public class PlayerThread implements Runnable {
     private final Object playerLock;                            //线程锁
     private final Object fileDownloadLock;                      //音乐文件下载锁
     private final Object imageDownloadLock;                     //图片文件下载锁
+    private Thread playThread;
+    private Thread AdvancedPlayerThread;
+
+    public Thread getPlayThread() {
+        return playThread;
+    }
+
+    public void setPlayThread(Thread playThread) {
+        this.playThread = playThread;
+    }
 
     public void setStartPosition(int startPosition) {
         this.startPosition = startPosition;
@@ -194,8 +204,8 @@ public class PlayerThread implements Runnable {
                     InputStream inputStream = getInputStream(startPosition);
                     if(inputStream != null){
                         myAdvancedPlayer = new MyAdvancedPlayer(inputStream, playerLock);
-                        new Thread(myAdvancedPlayer).start();
-
+                        this.AdvancedPlayerThread = new Thread(myAdvancedPlayer);
+                        AdvancedPlayerThread.start();
                         //等待解码完毕
                         playerLock.wait();
                     }
@@ -291,6 +301,18 @@ public class PlayerThread implements Runnable {
         return position;
     }
 
+    //停止播放
+    public void stop(){
+        startPosition = 0;
+        this.isPaused = true;
+        if (myAdvancedPlayer != null){
+            myAdvancedPlayer.setClosed(true);
+            this.myAdvancedPlayer.setNowFrame(0);
+        }
+        this.musicIndex = 0;
+        this.musicList = null;
+    }
+
     //暂停播放
     public void pause(){
         startPosition = getStartPosition(getNowMusicTime());
@@ -304,7 +326,8 @@ public class PlayerThread implements Runnable {
         this.startPosition = 0;
         this.musicIndex = index;
         this.myAdvancedPlayer.setNowFrame(0);
-        new Thread(this).start();
+        this.playThread = new Thread(this);
+        playThread.start();
     }
 
     //下一首歌
@@ -327,7 +350,8 @@ public class PlayerThread implements Runnable {
 
         }
         this.myAdvancedPlayer.setNowFrame(0);
-        new Thread(this).start();
+        this.playThread = new Thread(this);
+        playThread.start();
     }
 
     //上一首歌
@@ -348,7 +372,8 @@ public class PlayerThread implements Runnable {
                     this.musicIndex = 0;
         }
         this.myAdvancedPlayer.setNowFrame(0);
-        new Thread(this).start();
+        this.playThread = new Thread(this);
+        playThread.start();
     }
 
     private void checkExist(boolean block, File file, long milliseconds){
