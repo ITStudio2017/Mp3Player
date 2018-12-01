@@ -2,28 +2,35 @@ package cn.ktchen.cmdPlayer;
 
 import cn.ktchen.player.PlayerThread;
 import cn.ktchen.sqlite.SqliteTools;
+
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.Vector;
 
 public class playControl {
 
-    private enum commands {play, pause, next, pre, time, info, pattern, quit, help, list, index, stop}
-    private enum shortCommands {p, pu, n, pr, t, i, pa, q, h, l, in, s}
+    private static boolean isQuit;
 
+    private static void quit(){
+        isQuit = true;
+        System.out.println("------Exit play control mode------");
+    }
     private static void help(){
-        System.out.println("Command:play     Abbr:p    Play music");
-        System.out.println("Command:pause    Abbr:pu   Pause play");
-        System.out.println("Command:next     Abbr:n    Play the next song");
-        System.out.println("Command:pre      Abbr:pr   Play the previous song");
-        System.out.println("Command:time     Abbr:t    Set the current music play time");
-        System.out.println("Command:info     Abbr:i    View current music information");
-        System.out.println("Command:pattern  Abbr:pa   Set play mode");
-        System.out.println("Command:list     Abbr:l    list the music sheet");
-        System.out.println("Command:index    Abbr:in   play the music of index");
-        System.out.println("Command:stop     Abbr:s    stop the play");
-        System.out.println("Command:quit     Abbr:q    Exit play control mode");
-        System.out.println("Command:help     Abbr:h    View help");
+        System.out.printf("%-12s %-10s %s\n",   "Command",  "Abbr", "Description");
+        System.out.printf("%-12s %-10s %s\n",   "-------",  "----", "-----------");
+        System.out.printf("%-12s %-10s %s\n",   "play ",    "p    ","Play music");
+        System.out.printf("%-12s %-10s %s\n",   "pause",    "pu   ","Pause play");
+        System.out.printf("%-12s %-10s %s\n",   "next",     "n    ","Play the next song");
+        System.out.printf("%-12s %-10s %s\n",   "pre",      "pr   ","Play the previous song");
+        System.out.printf("%-12s %-10s %s\n",   "time",     "t    ","Set the current music play time");
+        System.out.printf("%-12s %-10s %s\n",   "info",     "i    ","View current music information");
+        System.out.printf("%-12s %-10s %s\n",   "pattern",  "pa   ","Set play mode");
+        System.out.printf("%-12s %-10s %s\n",   "list",     "l    ","list the music sheet");
+        System.out.printf("%-12s %-10s %s\n",   "index",    "in   ","play the music of index");
+        System.out.printf("%-12s %-10s %s\n",   "stop",     "s    ","stop the play");
+        System.out.printf("%-12s %-10s %s\n",   "quit",     "q    ","Exit play control mode");
+        System.out.printf("%-12s %-10s %s\n",   "help",     "h    ","View help");
     }
 
     private static void stop(){
@@ -195,72 +202,40 @@ public class playControl {
     }
 
     public static void main(String[] args){
+
+        //命令-函数哈希映射
+        HashMap<String, String> hashCmds = new HashMap<String, String>();
+        hashCmds.put("play", "play");           hashCmds.put("p", "play");
+        hashCmds.put("pause","pause");          hashCmds.put("pu","pause");
+        hashCmds.put("next", "next");           hashCmds.put("n", "next");
+        hashCmds.put("pre",  "pre");            hashCmds.put("pr","pre");
+        hashCmds.put("time", "setTime");        hashCmds.put("t", "setTime");
+        hashCmds.put("info", "printMusicInfo"); hashCmds.put("i", "printMusicInfo");
+        hashCmds.put("pattern", "setPattern");  hashCmds.put("pa", "setPattern");
+        hashCmds.put("quit", "quit");           hashCmds.put("q", "quit");
+        hashCmds.put("help","help");            hashCmds.put("h", "help");
+        hashCmds.put("list", "listMusic");      hashCmds.put("l", "listMusic");
+        hashCmds.put("index", "index");         hashCmds.put("in","index");
+        hashCmds.put("stop", "stop");           hashCmds.put("s", "stop");
+
+        Method method;
         Scanner scanner = new Scanner(System.in);
         String cmd;
-        while (true){
+        isQuit = false;
+        while (!isQuit){
             System.out.print(">>>");
             cmd = scanner.next();
+            if (hashCmds.get(cmd) != null){
+                try {
+                    method = playControl.class.getDeclaredMethod(hashCmds.get(cmd));
+                    method.setAccessible(true);
+                    method.invoke(playControl.class.newInstance());
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
 
-            //当前音乐信息
-            if (cmd.equals(commands.info.toString()) || cmd.equals(shortCommands.i.toString())) {
-                printMusicInfo();
-                continue;
-            }
-            //下一首歌
-            if (cmd.equals(commands.next.toString()) || cmd.equals(shortCommands.n.toString())) {
-                next();
-                continue;
-            }
-            //上一首歌
-            if (cmd.equals(commands.pre.toString()) || cmd.equals(shortCommands.pr.toString())) {
-                pre();
-                continue;
-            }
-            //控制播放进度
-            if (cmd.equals(commands.time.toString()) || cmd.equals(shortCommands.t.toString())) {
-                setTime();
-                continue;
-            }
-            //播放
-            if (cmd.equals(commands.play.toString()) || cmd.equals(shortCommands.p.toString())) {
-                play();
-                continue;
-            }
-            //暂停
-            if (cmd.equals(commands.pause.toString()) || cmd.equals(shortCommands.pu.toString())) {
-                pause();
-                continue;
-            }
-            //打印音乐列表
-            if (cmd.equals(commands.list.toString()) ||cmd.equals(shortCommands.l.toString())) {
-                listMusic();
-                continue;
-            }
-            //通过index播放
-            if (cmd.equals(commands.index.toString()) || cmd.equals(shortCommands.in.toString())){
-                index();
-                continue;
-            }
-            //stop
-            if (cmd.equals(commands.stop.toString()) || cmd.equals(shortCommands.s.toString())) {
-                stop();
-                continue;
-            }
-            //帮助
-            if (cmd.equals(commands.help.toString()) || cmd.equals(shortCommands.h.toString())){
-                help();
-                continue;
-            }
-            //模式
-            if (cmd.equals(commands.pattern.toString()) || cmd.equals(shortCommands.pa.toString())){
-                setPattern();
-                continue;
-            }
-            //退出
-            if (cmd.equals(commands.quit.toString()) || cmd.equals(shortCommands.q.toString())){
-                System.out.println("Exit play control mode");
-                break;
-            }
+
         }
     }
 }

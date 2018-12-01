@@ -2,17 +2,20 @@ package cn.ktchen.cmdPlayer;
 
 import cn.ktchen.player.PlayerThread;
 
+import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class cmdMain {
     static PlayerThread playerThread = new PlayerThread(0,null);
+    private static boolean exit = false;
 
-    private enum commands {search, manager, control, exit, help, about,}
-    private enum shortCommands {s, m, c, h}
+    //版本号
+    private static String Version = "1.2";
 
     //开始提示语
     private static void printStartwords(){
-        System.out.println("ISong 1.0 (Author:Alex Lee)");
+        System.out.println("ISong "+ Version +" (Author:Alex Lee)");
         System.out.println("Welcome to use ISong Player");
         System.out.println("Type \"help\", \"about\" for more information.");
     }
@@ -24,12 +27,14 @@ public class cmdMain {
     }
 
     private static void help() {
-        System.out.println("Command:search       Abbr:s     Enter search mode");
-        System.out.println("Command:manager      Abbr:m     Enter music manager mode");
-        System.out.println("Command:control      Abbr:c     Enter play control mode");
-        System.out.println("Command:help         Abbr:h     View help");
-        System.out.println("Command:exit                    Exit the program");
-        System.out.println("Command:about                   View software information");
+        System.out.printf("%-12s %-10s %s\n",   "Command",  "Abbr", "Description");
+        System.out.printf("%-12s %-10s %s\n",   "-------",  "----", "-----------");
+        System.out.printf("%-12s %-10s %s\n",  "search",       "s",    "Enter search mode");
+        System.out.printf("%-12s %-10s %s\n",  "manager",      "m" ,   "Enter music manager mode");
+        System.out.printf("%-12s %-10s %s\n",  "control",      "c",    "Enter play control mode");
+        System.out.printf("%-12s %-10s %s\n",  "help",         "h",    "View help");
+        System.out.printf("%-12s %-10s %s\n",  "exit",         "",          "Exit the program");
+        System.out.printf("%-12s %-10s %s\n",  "about",        "",          "View software information");
         System.out.println();
         System.out.println("Search Mode: search, download songs");
         System.out.println("Music Manager Mode: Manage local music sheet and songs");
@@ -38,7 +43,7 @@ public class cmdMain {
 
     private static void about() {
         System.out.println("ISong Player");
-        System.out.println("Version:    1.0");
+        System.out.println("Version:    " + Version);
         System.out.println("Author:     Alex Lee");
         System.out.println("Email:      chenktmail@gmail.com");
         System.out.println("Blog:       https://www.ktchen.cn");
@@ -54,55 +59,52 @@ public class cmdMain {
         );
     }
 
+    private static void enterSearch(){
+        System.out.println("------Enter search mode------");
+        Search.main(null);
+    }
+
+    private static void enterControl(){
+        System.out.println("------Enter play control mode------");
+        playControl.main(null);
+    }
+
+    private static void enterManager(){
+        System.out.println("------Enter music manager mode------");
+        SheetManager.main(null);
+    }
+
+    private static void exit(){
+        cmdMain.playerThread.stop();
+        printEndwords();
+        exit = true;
+    }
     public static void main(String[] args) {
+        HashMap<String, String> hashCmds = new HashMap<String, String>();
+        hashCmds.put("search", "enterSearch"); hashCmds.put("s", "enterSearch");
+        hashCmds.put("control", "enterControl"); hashCmds.put("c", "enterControl");
+        hashCmds.put("manager", "enterManager"); hashCmds.put("m", "enterManager");
+        hashCmds.put("help", "help");           hashCmds.put("h", "help");
+        hashCmds.put("about", "about");
+        hashCmds.put("exit", "exit");
         printStartwords();
+        //利用反射调用函数
+        Method method;
         Scanner scanner = new Scanner(System.in);
         String cmd;
-        while (true){
+        exit = false;
+        while (!exit){
             System.out.print(">>>");
             cmd = scanner.next();
-
-            //搜索
-            if (cmd.equals(commands.search.toString()) || cmd.equals(shortCommands.s.toString())){
-                System.out.println("Enter search mode");
-                Search.main(null);
-                continue;
+            if (hashCmds.get(cmd) != null){
+                try {
+                    method = cmdMain.class.getDeclaredMethod(hashCmds.get(cmd));
+                    method.setAccessible(true);
+                    method.invoke(cmdMain.class.newInstance());
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             }
-
-            //播放控制
-            if (cmd.equals(commands.control.toString()) || cmd.equals(shortCommands.c.toString())) {
-                System.out.println("Enter play control mode");
-                playControl.main(null);
-                continue;
-            }
-
-            //信息管理
-            if (cmd.equals(commands.manager.toString()) || cmd.equals(shortCommands.m.toString())){
-                System.out.println("Enter music manager mode");
-                SheetManager.main(null);
-            }
-
-            //帮助
-            if (cmd.equals(commands.help.toString()) || cmd.equals(shortCommands.h.toString())){
-                help();
-                continue;
-            }
-
-            //关于
-            if (cmd.equals(commands.about.toString())) {
-                about();
-                continue;
-            }
-
-            //关闭
-            if (cmd.equals(commands.exit.toString())){
-                cmdMain.playerThread.stop();
-                if (cmdMain.playerThread.getPlayThread() != null)
-                    cmdMain.playerThread.getPlayThread().stop();
-                printEndwords();
-                break;
-            }
-
         }
     }
 }

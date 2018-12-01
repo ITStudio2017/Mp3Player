@@ -2,6 +2,7 @@ package cn.ktchen.cmdPlayer;
 
 import cn.ktchen.sqlite.SqliteTools;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.Vector;
@@ -10,18 +11,25 @@ import static cn.ktchen.cmdPlayer.playControl.getInt;
 
 public class SheetManager {
 
-    private enum cmds {sheet, music, create, deleteSheet, deleteMusic, quit, help}
-    private enum shortCmds {s, m, c, ds, dm, q, h}
+    private static boolean isquit;
+
+    //退出
+    private static void quit(){
+        System.out.println("------Exit music manager mode------");
+        isquit = true;
+    }
 
     //帮助
-    private static void help(){
-        System.out.println("Command:sheet        Abbr:s        View all music sheet");
-        System.out.println("Command:music        Abbr:m        View the list of music under the music sheet");
-        System.out.println("Command:create       Abbr:c        Create music sheet");
-        System.out.println("Command:deleteSheet  Abbr:ds       Delete music sheet");
-        System.out.println("Command:deleteMusic  Abbr:dm       Delete the song");
-        System.out.println("Command:quit         Abbr:q        Exit music manager mode");
-        System.out.println("Command:help         Abbr:h        View help");
+    private static void help() {
+        System.out.printf("%-15s %-10s %s\n",   "Command",  "Abbr", "Description");
+        System.out.printf("%-15s %-10s %s\n",   "-------",  "----", "-----------");
+        System.out.printf("%-15s %-10s %s\n",   "sheet",    "s",    "View all music sheet");
+        System.out.printf("%-15s %-10s %s\n",   "music",    "m",    "View the list of music under the music sheet");
+        System.out.printf("%-15s %-10s %s\n",   "create",   "c",    "Create music sheet");
+        System.out.printf("%-15s %-10s %s\n",   "deleteSheet","ds", "Delete music sheet");
+        System.out.printf("%-15s %-10s %s\n",   "deleteMusic","dm", "Delete the song");
+        System.out.printf("%-15s %-10s %s\n",   "quit",     "q",    "Exit music manager mode");
+        System.out.printf("%-15s %-10s %s\n",   "help",     "h",    "View help");
     }
 
     //删除音乐
@@ -41,6 +49,7 @@ public class SheetManager {
         System.out.print(">>>");
         index = getInt(list.size());
         SqliteTools.deleteMusic(list.get(index));
+        System.out.println("delete successfully");
     }
 
     //打印全部歌单信息
@@ -120,54 +129,34 @@ public class SheetManager {
     }
 
     public static void main(String[] args) {
+
+        //命令-函数哈希映射
+        HashMap<String, String> hashCmds = new HashMap<String, String>();
+        hashCmds.put("create", "createSheet");      hashCmds.put("c", "createSheet");
+        hashCmds.put("deleteSheet", "deleteSheet"); hashCmds.put("ds", "deleteSheet");
+        hashCmds.put("music", "music");             hashCmds.put("m", "music");
+        hashCmds.put("sheet", "printAllSheet");     hashCmds.put("s", "printAllSheet");
+        hashCmds.put("deleteMusic", "deleteMusic"); hashCmds.put("dm", "deleteMusic");
+        hashCmds.put("help", "help");               hashCmds.put("h", "help");
+        hashCmds.put("quit", "quit");               hashCmds.put("q", "quit");
+
+        //利用反射调用函数
+        Method method;
         Scanner scanner = new Scanner(System.in);
         String cmd;
-        while (true){
+        isquit = false;
+        while (!isquit){
             System.out.print(">>>");
             cmd = scanner.next();
-
-            //创建歌单
-            if (cmd.equals(cmds.create.toString()) || cmd.equals(shortCmds.c.toString())) {
-                createSheet();
-                continue;
+            if (hashCmds.get(cmd) != null){
+                try {
+                    method = SheetManager.class.getDeclaredMethod(hashCmds.get(cmd));
+                    method.setAccessible(true);
+                    method.invoke(SheetManager.class.newInstance());
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             }
-
-            //删除歌单
-            if (cmd.equals(cmds.deleteSheet.toString()) || cmd.equals(shortCmds.ds.toString())){
-                deleteSheet();
-                continue;
-            }
-
-            //查看音乐列表
-            if (cmd.equals(cmds.music.toString()) || cmd.equals(shortCmds.m.toString())){
-                music();
-                continue;
-            }
-
-            //查看歌单列表
-            if (cmd.equals(cmds.sheet.toString()) || cmd.equals(shortCmds.s.toString())){
-                printAllSheet();
-                continue;
-            }
-
-            //删除音乐
-            if (cmd.equals(cmds.deleteMusic.toString()) || cmd.equals(shortCmds.dm.toString())){
-                deleteMusic();
-                continue;
-            }
-
-            //帮助
-            if (cmd.equals(cmds.help.toString()) || cmd.equals(shortCmds.h.toString())){
-                help();
-                continue;
-            }
-
-            //退出
-            if (cmd.equals(cmds.quit.toString()) || cmd.equals(shortCmds.q.toString())){
-                System.out.println("Exit music manager mode");
-                break;
-            }
-
         }
     }
 
