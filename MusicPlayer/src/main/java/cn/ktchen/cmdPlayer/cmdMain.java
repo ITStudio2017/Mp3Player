@@ -42,7 +42,7 @@ public class cmdMain {
         System.out.println("Author:     Alex Lee");
         System.out.println("Email:      chenktmail@gmail.com");
         System.out.println("Blog:       https://www.ktchen.cn");
-        System.out.println("The program uses the API as follows:");
+        System.out.println("The program uses the APIs as follows:");
         System.out.println("1、https://music.itmxue.cn/api.php");
         System.out.println("2、https://music_api.dns.24mz.cn/index.php");
         System.out.println("3、https://api.bzqll.com/");

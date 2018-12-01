@@ -31,10 +31,6 @@ public class PlayerThread implements Runnable {
         this.playThread = playThread;
     }
 
-    public void setStartPosition(int startPosition) {
-        this.startPosition = startPosition;
-    }
-
     private int startPosition;                                  //起始位置
     private Pattern nowPattern;                                 //当前播放模式
 
@@ -311,6 +307,12 @@ public class PlayerThread implements Runnable {
         }
         this.musicIndex = 0;
         this.musicList = null;
+        try {
+            this.playThread.stop();
+            this.AdvancedPlayerThread.stop();
+        }catch (NullPointerException e){
+        }
+
     }
 
     //暂停播放
@@ -319,6 +321,11 @@ public class PlayerThread implements Runnable {
         this.isPaused = true;
         if (myAdvancedPlayer != null)
             myAdvancedPlayer.setClosed(true);
+        try {
+            this.playThread.stop();
+            this.AdvancedPlayerThread.stop();
+        }catch (NullPointerException e){
+        }
     }
 
     public void indexMusic(int index){

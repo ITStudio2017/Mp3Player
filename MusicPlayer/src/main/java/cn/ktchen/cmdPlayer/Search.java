@@ -43,7 +43,7 @@ public class Search {
         System.out.print(">>>");
         int index = playControl.getInt(HttpTools.Sources.values().length);
         source = HttpTools.Sources.values()[index];
-        System.out.println("The search source has been replaced with" + source.toString());
+        System.out.println("The search source has been replaced with " + source.toString());
     }
 
     //打印搜索结果
