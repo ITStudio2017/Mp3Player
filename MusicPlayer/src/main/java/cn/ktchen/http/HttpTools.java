@@ -135,7 +135,7 @@ public class HttpTools {
     public static Vector<HashMap<String, String>> search(
             String keyWord, int page, int count, String source) {
 
-        //构造post请求
+        //构造请求
         Vector<HashMap<String, String>> vector = new Vector<HashMap<String, String>>();
         List<NameValuePair> list = new ArrayList<NameValuePair>();
         list.add(new BasicNameValuePair("types", "search"));
@@ -145,7 +145,10 @@ public class HttpTools {
         list.add(new BasicNameValuePair("name", keyWord));
 
         //获取查询集
-        JSONArray jsonArray = new JSONArray(doGet(mliAPI, list));
+        String result = doGet(mliAPI, list);
+        if (result == null)
+            return null;
+        JSONArray jsonArray = new JSONArray(result);
         for (int i = 0; i < jsonArray.length(); i++) {
             JSONObject jsonObject = jsonArray.getJSONObject(i);
             HashMap<String, String> hashMap = new HashMap<String, String>();
@@ -328,7 +331,7 @@ public class HttpTools {
                 return EntityUtils.toString(response.getEntity());
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("请求失败，请检查网络连接");
         }
         return null;
     }
@@ -348,13 +351,12 @@ public class HttpTools {
                 HttpEntity entity = httpResponse.getEntity();
                 if (entity != null) {
                     s = EntityUtils.toString(entity);
-
                 }
             } finally {
                 httpClient.close();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("请求失败，请检查网络连接");
         }
         return s;
     }
@@ -368,7 +370,7 @@ public class HttpTools {
             HttpResponse response = httpClient.execute(httpGet);
             s = EntityUtils.toString(response.getEntity());
         }catch (Exception e){
-            e.printStackTrace();
+            System.out.println("请求失败，请检查网络连接");
         }
         return s;
     }

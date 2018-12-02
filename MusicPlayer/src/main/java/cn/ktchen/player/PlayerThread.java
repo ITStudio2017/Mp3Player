@@ -332,7 +332,8 @@ public class PlayerThread implements Runnable {
         this.pause();
         this.startPosition = 0;
         this.musicIndex = index;
-        this.myAdvancedPlayer.setNowFrame(0);
+        if (this.myAdvancedPlayer != null)
+            this.myAdvancedPlayer.setNowFrame(0);
         this.playThread = new Thread(this);
         playThread.start();
     }

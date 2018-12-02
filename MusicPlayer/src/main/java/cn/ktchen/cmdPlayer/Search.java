@@ -56,6 +56,8 @@ public class Search {
 
     //打印搜索结果
     private static void printResult(Vector<HashMap<String, String>> result){
+        if (result == null)
+            return;
         System.out.println("Current " + "page " + nowPage);
         System.out.printf("%-3s %-30s %-20s %-20s\n", "ID", "Name", "Artist", "Album");
         for (int i = 0; i < result.size(); i++) {
@@ -85,8 +87,8 @@ public class Search {
         System.out.println("Please choose a sheet to download to it");
         System.out.print(">>>");
         int sheetIndex = playControl.getInt(sheetList.size());
-        HttpTools.downloadMusic(result.get(musicIndex),sheetList.get(sheetIndex));
         System.out.println("downloading asynchronously...");
+        HttpTools.downloadMusic(result.get(musicIndex),sheetList.get(sheetIndex));
     }
 
     //在线播放
@@ -99,12 +101,10 @@ public class Search {
         System.out.print(">>>");
         int index = playControl.getInt(result.size());
         if (playControl.validate())
-            cmdMain.playerThread.pause();
+            cmdMain.playerThread.stop();
         cmdMain.playerThread.setMusicList(result);
-        cmdMain.playerThread.setMusicIndex(index);
-        cmdMain.playerThread.setPlayThread(new Thread(cmdMain.playerThread));
-        cmdMain.playerThread.getPlayThread().start();
-    }
+        cmdMain.playerThread.indexMusic(index);
+}
 
     private static void prePage(){
         if (nowPage == 1) {

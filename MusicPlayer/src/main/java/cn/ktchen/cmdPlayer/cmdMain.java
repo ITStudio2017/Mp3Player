@@ -11,7 +11,7 @@ public class cmdMain {
     private static boolean exit = false;
 
     //版本号
-    private static String Version = "1.2";
+    private static String Version = "1.3";
 
     //开始提示语
     private static void printStartwords(){
