@@ -24,7 +24,13 @@ public class PlayerUi {
     public JPanel panelleft = new JPanel();
     public JScrollPane scrollmenu = null;
     public DefaultTableModel defaultdetailtable = null;
-    public JTable detailtable = null;
+//    public JTable detailtable = new JTable(){
+//        @Override
+//        public boolean isCellEditable(int row, int column) {
+//            return false;
+//        }
+//
+//    };
 
     public JPanel panellefttop = new JPanel();
     public JPanel panelleftmiddle = new JPanel();
@@ -56,6 +62,7 @@ public class PlayerUi {
     public JButton nextbutton = new NewButton("下"); //下一首按钮
     public JButton stylebutton = new JButton(); //播放方式切换按钮
     public JPanel listcoverwrap = new JPanel(); //
+    public JLabel listcover = new JLabel(); //歌单封面！！！！！
 
     public JPanel containtopright = new JPanel();
     public JLabel covertitle = new JLabel("每日歌曲更新");
@@ -98,6 +105,11 @@ public class PlayerUi {
 //    public Vector<Object> rowData = new Vector<Object>();
     public String[] columnNames = {"序号", "音乐标题", "歌手"};   //那个音乐列表的表格！！！
     public JLabel downloadbutton =  new JLabel(new ImageIcon(System.getProperty("user.dir")+"/UIphotos/downloadmusic.png"));
+    public JButton nextpage = new JButton("下一页");  //点击之后跳转到下一页！
+    public JButton lastpage = new JButton("上一页"); //
+    public JPanel pagewrap = new JPanel();
+
+    public JComboBox searchsource = new JComboBox();   //设置搜索来源！！
 
 //    public static void main(String[] args){
 //        PlayerUi playerui = new PlayerUi();
@@ -251,11 +263,14 @@ public class PlayerUi {
     //实现上面的头
     public void playerNav(){
 
+        Object[] sources = {"网易云音乐","QQ音乐","酷我音乐"};
+        searchsource = new JComboBox(sources);
         searchinput.setPreferredSize(new Dimension(300,30));
 //        searchbutton.setFocusable(false);
 //        searchinput.setFocusable(false);
         paneltop.add(searchinput);
         paneltop.add(searchbutton);
+        paneltop.add(searchsource);
 
 
     }
@@ -285,33 +300,14 @@ public class PlayerUi {
 
 
         mylist.setFixedCellWidth(400);
-        mymenutitle.setFont(new Font("宋体",Font.BOLD,20));
+//        mymenutitle.setFont(new Font("宋体",Font.BOLD,20));
+        mymenutitle.setFont(new Font("微软雅黑",Font.BOLD,16));
         mymenu.setBackground(new Color(245,245,247));
 
         mylist.setLayout(new GridLayout(1,1));
         mymenu.setLayout(new GridLayout(1,1));
         mylist.setBackground(new Color(245,245,247));
         mylist.setFocusable(false);
-
-
-
-
-
-//        JButton button = new JButton("歌单管理");
-//        button.setLocation(180,300);
-//        button.setSize(100,30);
-//        mymenu.add(button);
-//        Box box3 = Box.createHorizontalBox();
-//        box3.add(button);
-//        Box vBox = Box.createVerticalBox();
-//        vBox.add(box2);
-//        vBox.add(box3);
-
-//        othermenu.add(vBox);
-
-
-        //        list.
-
 
 
 
@@ -356,28 +352,7 @@ public class PlayerUi {
         // 表头（列名）
 
         // 表格所有行数据
-//        Object[][] rowData = {
-//                {1, "张三", 80, 80, 80, 240},
-//                {2, "John", 70, 80, 90, 240},
-//                {3, "Sue", 70, 70, 70, 210},
-//                {4, "Jane", 80, 70, 60, 210},
-//                {5, "Joe_05", 80, 70, 60, 210},
-//                {6, "Joe_06", 80, 70, 60, 210},
-//                {7, "Joe_07", 80, 70, 60, 210},
-//                {8, "Joe_08", 80, 70, 60, 210},
-//                {9, "Joe_09", 80, 70, 60, 210},
-//                {10, "Joe_10", 80, 70, 60, 210},
-//                {11, "Joe_11", 80, 70, 60, 210},
-//                {12, "Joe_12", 80, 70, 60, 210},
-//                {13, "Joe_13", 80, 70, 60, 210},
-//                {14, "Joe_14", 80, 70, 60, 210},
-//                {15, "Joe_15", 80, 70, 60, 210},
-//                {16, "Joe_16", 80, 70, 60, 210},
-//                {17, "Joe_17", 80, 70, 60, 210},
-//                {18, "Joe_18", 80, 70, 60, 210},
-//                {19, "Joe_19", 80, 70, 60, 210},
-//                {20, "Joe_20", 80, 70, 60, 210}
-//        };
+
 
         Box box1 = Box.createHorizontalBox();
         box1.add(containtop);
@@ -392,11 +367,6 @@ public class PlayerUi {
 
 
         //设置表格内容颜色
-
-//        detailtable.setForeground(Color.BLACK);
-//        detailtable.setBackground(new co);
-//        detailtable.setSelectionBackground(new Color(236,236,237));
-//        detailtable
 
         //设置表头
 //        detailtable.getTableHeader().setFocusTraversalKe;
@@ -421,6 +391,9 @@ public class PlayerUi {
         containbottom.setLayout(new BorderLayout());
 //        containtop.setLayout();
 
+        lastpage.setPreferredSize(new Dimension(100,30));
+        nextpage.setPreferredSize(new Dimension(100,30));
+
 
 
 
@@ -434,6 +407,7 @@ public class PlayerUi {
 
         containtop.add(listcoverwrap);
         containtop.add(covertitle);
+        listcoverwrap.add(listcover);
         //
 //        containwrap.add(contain);
     }
