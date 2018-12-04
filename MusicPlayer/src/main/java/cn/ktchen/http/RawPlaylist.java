@@ -7,8 +7,8 @@ import java.util.Vector;
 /**
  *
  */
-public class RawPlaylist {
-    public static Vector<HashMap<String, String>> getRawPlaylist(){
+class RawPlaylist {
+    static Vector<HashMap<String, String>> getRawPlaylist(){
         Vector<HashMap<String, String>> rawPlaylist = new Vector<HashMap<String, String>>();
         HashMap<String, String> hotPlaylist = new HashMap<String, String>();        // 云音乐热歌榜
         HashMap<String, String> upPlaylist = new HashMap<String, String>();         // 云音乐飙升榜
@@ -46,8 +46,5 @@ public class RawPlaylist {
         rawPlaylist.add(originalPlaylist);
 
         return rawPlaylist;
-
-
-
     }
 }

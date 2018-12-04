@@ -42,7 +42,7 @@ public class MyAdvancedPlayer extends AdvancedPlayer implements Runnable {
     }
 
     //获取帧位置
-    public int getNowFrame(){
+    int getNowFrame(){
         return nowFrame;
     }
 

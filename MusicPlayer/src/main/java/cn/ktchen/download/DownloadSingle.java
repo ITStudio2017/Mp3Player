@@ -35,7 +35,6 @@ public class DownloadSingle extends Thread {
                 if (file.exists())
                     return;
 
-                System.out.println("开始异步下载：" + url);
                 URL url = new URL(this.url);
                 HttpURLConnection conn = (HttpURLConnection)url.openConnection();
                 // 设置连接超时时间为10000ms
@@ -63,7 +62,6 @@ public class DownloadSingle extends Thread {
                 OutputStream outputStream = new FileOutputStream(
                         new File(filePath));
                 outputStream.write(byteContent, 0, index);
-                System.out.println("下载完毕----" + filePath);
             }
         }catch (Exception e){
             e.printStackTrace();

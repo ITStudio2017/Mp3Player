@@ -1,9 +1,11 @@
 package cn.ktchen.sqlite;
 
+import cn.ktchen.http.HttpTools;
 import com.sun.xml.internal.fastinfoset.tools.FI_DOM_Or_XML_DOM_SAX_SAXEvent;
 import org.apache.http.entity.StringEntity;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -197,7 +199,7 @@ public class SqliteTools {
 
     }
 
-    //检查音乐是否在本地,判断标准为音乐名、歌手、专辑是否相同
+    //检查音乐是否在数据库中,判断标准为音乐名、歌手、专辑是否相同
     public static boolean musicExist(HashMap<String, String> music) {
         String sql = "select * from music where name = \"" +
                 music.get("name") + "\" and artist = \"" + music.get("artist") +
@@ -245,8 +247,14 @@ public class SqliteTools {
         String DBpath = System.getProperty("user.dir") + "/SQLite3/MyMusic.db";
         File file = new File(DBpath);
         if(!file.exists()){
-            //数据库不存在则创建表
-            createTables();
+            try{
+                //数据库不存在则创建表
+                HttpTools.makeParentFolder(DBpath);
+                file.createNewFile();
+                createTables();
+            }catch (IOException e){
+                e.printStackTrace();
+            }
         }
     }
 
