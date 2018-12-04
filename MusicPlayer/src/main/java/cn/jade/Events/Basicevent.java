@@ -6,7 +6,6 @@ import cn.jade.Ui.PlayerUi;
 import cn.ktchen.http.HttpTools;
 import cn.ktchen.player.PlayerThread;
 import cn.ktchen.sqlite.SqliteTools;
-import org.apache.http.impl.client.SystemDefaultCredentialsProvider;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -20,6 +19,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 //import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -42,6 +43,8 @@ public class Basicevent extends PlayerUi {
     public int playflag = 0;//判断有没有歌正在播放
     public double stoptime = 0; // 记录现在停止时的时间
     public int nowpage = 0; //记录当前所在页
+
+    String url=""; //保存修改过后的歌单路径
     public static void main(String[] args){
         Basicevent playerui = new Basicevent(playerUi);
         frame = new JFrame("一个美丽的音乐播放器");
@@ -76,6 +79,9 @@ public class Basicevent extends PlayerUi {
 
 //    System.out.println(image);
 
+        //初始化歌单名称！！！
+
+
 
 
         //初始化歌单封面！！！;
@@ -84,9 +90,27 @@ public class Basicevent extends PlayerUi {
         layout.show(panelmainer, "list");
         if(musiclist.size()!=0){
             mymusicsheet = sqliteTools.getMusicBySheet(musiclist.get(index));
-            String image = playerThread.getImagePath();
-            listcover.setIcon(new ImageIcon(image));
+            covertitle.setText(musiclist.get(index).get("name"));
+
         }
+        playerThread = new PlayerThread(0,mymusicsheet);
+        if(mymusicsheet.size()!=0){
+//            String image = mymusicsheet.get(0).get("musicImage");
+            String image = playerThread.getImagePath();
+            System.out.println(image);
+//            String image = playerThread.getImagePath();
+
+            iconlist = new ImageIcon(image);
+            iconlist.setImage(iconlist.getImage().getScaledInstance(140, 140,Image.SCALE_DEFAULT ));
+            listcover.setIcon(iconlist);
+        }else{
+
+            iconlist = new ImageIcon("E:/图片素材/刘看山.png");
+            iconlist.setImage(iconlist.getImage().getScaledInstance(140, 140,Image.SCALE_DEFAULT ));
+            listcover.setIcon(iconlist);
+        }
+//        String image = playerThread.getImagePath();
+//            listcover.setIcon(new ImageIcon(image));
 
 
 
@@ -97,6 +121,7 @@ public class Basicevent extends PlayerUi {
             Object[] temp = new Object[4];
             temp[0] = new Integer(i + 1);
             temp[1] = new String(mymusicsheet.get(i).get("name"));
+            temp[2] = new String(mymusicsheet.get(i).get("artist"));
             rowData[i] = temp;
         }
 //        detailtable = new JTable(rowData,columnNames);
@@ -255,16 +280,24 @@ public class Basicevent extends PlayerUi {
                         playerThread.setMusicIndex(0);
                         playerThread.setMusicList(mymusicsheet);
                         System.out.println("我运行啦");
+                        focusrowindex = playerThread.getMusicIndex();
                     }
 //
                     settime();
                     playflag = 1;
-                    thread = new Thread(playerThread);
-                    thread.start();
+//                    thread = new Thread(playerThread);
+//                    thread.start();
+                    playerThread.setPlayThread(new Thread(playerThread));
+                    playerThread.getPlayThread().start();
 
                     //播放按钮变成暂停
                     playbutton.setText("暂停");
                     System.out.println("现在播放到的时间"+playerThread.getNowMusicTime());
+
+
+
+
+
 
                 }else{
 
@@ -287,9 +320,9 @@ public class Basicevent extends PlayerUi {
             public void actionPerformed(ActionEvent e) {
 
                 playerThread.nextMusic();
-                if(focusrowindex!=mymusicsheet.size()){
-                    focusrowindex++;
-                }
+//                if(focusrowindex!=mymusicsheet.size()){
+                    focusrowindex = playerThread.getMusicIndex();
+//                }
                 threadscroll.interrupt();
                 stoptime = 0;
                 settime();
@@ -298,9 +331,9 @@ public class Basicevent extends PlayerUi {
         lastbutton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 playerThread.previousMusic();
-                if(focusrowindex!=0){
-                    focusrowindex--;
-                }
+//                if(focusrowindex!=0){
+                    focusrowindex = playerThread.getMusicIndex();
+//                }
                 stoptime = 0;
                 threadscroll.interrupt();
                 settime();
@@ -315,37 +348,80 @@ public class Basicevent extends PlayerUi {
 
 
     }
+    //切换新歌的一些东东
+    public void setnew(){
+        //设置playnow的封面
+        //首先获取当前播放歌曲的相关信息
+        String image = mymusicsheet.get(focusrowindex).get("musicImage");
+        iconnow = new ImageIcon(image);
+        iconnow.setImage(iconnow.getImage().getScaledInstance(80, 80,Image.SCALE_DEFAULT ));
+        playnowcover.setIcon(iconnow);
+
+        //设置歌单页的封面
+        icondetail = new ImageIcon(image);
+        icondetail.setImage(icondetail.getImage().getScaledInstance(300, 300,Image.SCALE_DEFAULT ));
+        detailcover.setIcon(icondetail);
+        //设置背景
+        String str = "downloaddd";
+        Pattern p = Pattern.compile("\\download.*");
+        Matcher m = p.matcher(str);
+        System.out.println(m.group(1));
+//        jPanelBackground.url = gaosi.playmain(image);
+
+        //设置歌词
+        musicwords.setText("");
+        String word = playerThread.getLrcPath();
+//                    System.out.println(word);
+        LrcAnalyze l = new LrcAnalyze(word);
+        List<LrcAnalyze.LrcData> list = l.LrcGetList();
+
+        for(LrcAnalyze.LrcData o:list){
+            System.out.println(o.Time);
+            musicwords.append(o.LrcLine+"\n");
+
+        }
+
+        playbutton.setText("暂停");
+    }
     public void setotherfooter(){
         //设置拖动条的速度
         final double pinjun = playerThread.getMusicTime()/100;
-//        if(playflag == 1){
-//            threadscroll.currentThread().interrupt();
-//            System.out.println("stop1"+thread.interrupted());
-//            System.out.println("stop2"+thread.interrupted());
-//        }
+        System.out.println("pinjun"+pinjun);
+        System.out.println("totaltime"+playerThread.getMusicTime());
         threadscroll = new Thread(){
             public void run(){
-//                System.out.println();
                 try{
                         int now =(int)(stoptime/pinjun);
                         System.out.println("now"+now);
 
-                        for(int i = now;i < 100; i++){
+                    double m = playerThread.getMusicTime();
+                    for(double i = now;i < m; i=i+1){
+                        System.out.println(playerThread.getNowMusicTime());
 
-                            if(this.interrupted()){
-                                System.out.println("线程已经终止， for循环不再执行");
-                                throw new InterruptedException();
-                            }
-                            System.out.println("i="+(i+1));
+                        if(this.interrupted()){
+                            System.out.println("线程已经终止， for循环不再执行");
+                            throw new InterruptedException();
+                        }
+                        System.out.println("i="+(i+1));
 
 
 
-                                Thread.sleep((long) pinjun*1000);
-                                musicslider.setValue(i);
-                                int temp = i;
-                                Time t = new Time(i);
-                                progressnow.setText(t.getTime());
-                            }
+                        Thread.sleep(1000);
+                        musicslider.setValue((int)(i/pinjun));
+//                        int temp = i;
+                        Time t = new Time(playerThread.getNowMusicTime());
+
+                        progressnow.setText(t.getTime());
+                        if(Math.ceil(i)==(int)m){
+                            System.out.println("切换啊冲啊！！！");
+                            playerThread.nextMusic();
+                            focusrowindex = playerThread.getMusicIndex();
+                            stoptime = 0;
+                            threadscroll.interrupt();
+                            settime();
+
+                        }
+                    }
 
                             //假如播完了怎么办?现在正常停止了并且应该重新开始,那么就应该根据播放模式进行切换
 
@@ -358,24 +434,21 @@ public class Basicevent extends PlayerUi {
                         }
 
 
-
-
-
-
             }
         };
         threadscroll.start();
     }
     public void settime(){
         Time t = new Time(playerThread.getMusicTime());
-
         progresstotal.setText(t.getTime());
         setotherfooter();
+        setnew();
     }
     @Override
     public void playerMymenu() {
         super.playerMymenu();
         getmymusiclist();
+
 
 
         //鼠标右键出现对歌单的删除和编辑
@@ -531,10 +604,11 @@ public class Basicevent extends PlayerUi {
 
     }
 
-
+//编辑歌单信息
     @Override
     public void playerlistedit() {
         super.playerlistedit();
+
         editcover.addActionListener(new ActionListener(){
 //            @Override
             public void actionPerformed(ActionEvent e) {
@@ -561,17 +635,25 @@ public class Basicevent extends PlayerUi {
 
                     //接下来修改选中封面的默认照片
                     //但是首先要替换一下路径！！！
-                    String url = file.getAbsolutePath();
+                    url = file.getAbsolutePath();
 //                    String url = "E:\\mp3player3\\Mp3Player\\MusicPlayer\\UIphotos\\indexcover.png";
 //                    String url2 = url.replace("\\","/");
 //                    System.out.println(url2);
                     indexcover.setIcon(new ImageIcon(url));
+                    //修改歌单封面
+                    //public static void updateSheetImage(HashMap<String,String> sheet, String imagePath)
 
                 }
 
 
             }
     });
+        editsave.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                sqliteTools.updateSheetImage(musiclist.get(focusmymenuindex),url);
+
+            }
+        });
     }
 
     //设置表格相关参数,因为着急就先这样了
@@ -681,9 +763,9 @@ public class Basicevent extends PlayerUi {
                 settime();
 
                 playflag = 1;
-                thread = new Thread(playerThread);
-                thread.start();
-
+//
+                playerThread.setPlayThread(new Thread(playerThread));
+                playerThread.getPlayThread().start();
                 //播放按钮变成暂停
                 playbutton.setText("暂停");
                 System.out.println("现在播放到的时间"+playerThread.getNowMusicTime());
@@ -748,6 +830,28 @@ public class Basicevent extends PlayerUi {
     }
 
     @Override
+    public void playerNow() {
+        //切换歌单的封面，这时候
+        super.playerNow();
+        changecontent.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+
+                layout.show(panelmainer, "content");
+
+            }
+        });
+        changelist.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+
+                layout.show(panelmainer, "list");
+
+            }
+        });
+    }
+
+    @Override
     public void playerContain() {
         super.playerContain();
         getmusicsheet(0);
@@ -755,6 +859,10 @@ public class Basicevent extends PlayerUi {
 
     //设置表格相关参数,因为着急就先这样了
     public void settable(final JTable detailtable){
+
+        //歌单封面大小
+
+        iconlist.setImage(iconlist.getImage().getScaledInstance(140, 140,Image.SCALE_DEFAULT ));
         //设置表格内容颜色
 
         detailtable.setForeground(Color.BLACK);
@@ -864,6 +972,8 @@ public class Basicevent extends PlayerUi {
 
 
     }
+
+
 
 
 
