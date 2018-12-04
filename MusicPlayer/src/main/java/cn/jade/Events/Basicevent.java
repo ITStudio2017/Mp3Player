@@ -33,7 +33,7 @@ public class Basicevent extends PlayerUi {
     public Vector<HashMap<String,String>> musiclist = new  Vector<HashMap<String,String>>();    //我的所有歌单
     public Vector<HashMap<String,String>> searchmusicsheet = new  Vector<HashMap<String,String>>();   //我的网络搜索下的所有歌曲
     public Vector<HashMap<String,String>> mymusicsheet = new  Vector<HashMap<String,String>>();   //我的某一个歌单下的所有歌曲
-    public PlayerThread playerThread = new PlayerThread(-1,mymusicsheet);
+    public PlayerThread playerThread = new PlayerThread(0,mymusicsheet);
     public int tableflag = 0;//判断此时有没有列表
     public int focusrowindex = -1;  //歌单内音乐当前选中项
     public int focusmymenuindex = 0;
@@ -56,7 +56,7 @@ public class Basicevent extends PlayerUi {
 
         playerui.initui(frame);
 //        playerui.setmytable(detailtable);
-        playerui.getmusicsheet(0);
+
 //        settime();
 
         frame.setVisible(true);
@@ -74,25 +74,29 @@ public class Basicevent extends PlayerUi {
     public void getmusicsheet(int index){
         //        public static Vector<HashMap<String, String>> getMusicBySheet(HashMap<String, String> sheet)
 
-        //初始化歌单封面！！！;
-//        String image = playerThread.getImagePath();
-//        listcover.setIcon(new ImageIcon(image));
 //    System.out.println(image);
+
+
+
+        //初始化歌单封面！！！;
+
         containbottom.removeAll();
-//        playerUi.containshowlist();
         layout.show(panelmainer, "list");
-        mymusicsheet = sqliteTools.getMusicBySheet(musiclist.get(index));
+        if(musiclist.size()!=0){
+            mymusicsheet = sqliteTools.getMusicBySheet(musiclist.get(index));
+            String image = playerThread.getImagePath();
+            listcover.setIcon(new ImageIcon(image));
+        }
+
 
 
 //
         Object[][] rowData = new Object[mymusicsheet.size()][];
         for(int i=0;i<mymusicsheet.size();i++) {
-////            temp[0]
+
             Object[] temp = new Object[4];
             temp[0] = new Integer(i + 1);
             temp[1] = new String(mymusicsheet.get(i).get("name"));
-            temp[2] = new String(mymusicsheet.get(i).get("artist"));
-//                temp[3] = new Label("下载");
             rowData[i] = temp;
         }
 //        detailtable = new JTable(rowData,columnNames);
@@ -743,7 +747,11 @@ public class Basicevent extends PlayerUi {
 
     }
 
-
+    @Override
+    public void playerContain() {
+        super.playerContain();
+        getmusicsheet(0);
+    }
 
     //设置表格相关参数,因为着急就先这样了
     public void settable(final JTable detailtable){

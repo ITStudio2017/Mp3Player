@@ -299,13 +299,13 @@ public class PlayerUi {
         mymenu.add(vbox);
 
 
-        mylist.setFixedCellWidth(400);
+        mylist.setFixedCellWidth(360);
 //        mymenutitle.setFont(new Font("宋体",Font.BOLD,20));
         mymenutitle.setFont(new Font("微软雅黑",Font.BOLD,16));
         mymenu.setBackground(new Color(245,245,247));
 
-        mylist.setLayout(new GridLayout(1,1));
-        mymenu.setLayout(new GridLayout(1,1));
+//        mylist.setLayout(new GridLayout(1,1));
+//        mymenu.setLayout(new GridLayout(1,1));
         mylist.setBackground(new Color(245,245,247));
         mylist.setFocusable(false);
 
@@ -344,7 +344,7 @@ public class PlayerUi {
         otherlist.setBackground(new Color(245,245,247));
         othermenu.setBackground(new Color(245,245,247));
         othermenutitle.setForeground(new Color(97,97,97));
-        otherlist.setFixedCellWidth(400);
+        otherlist.setFixedCellWidth(360);
         otherlist.setFocusable(false);
 
     }
