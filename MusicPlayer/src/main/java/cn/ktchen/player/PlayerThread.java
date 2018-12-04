@@ -409,11 +409,6 @@ public class PlayerThread implements Runnable {
     }
 
     private String getLrcPath(boolean block, long milliseconds){
-        try {
-            Thread.sleep(milliseconds);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
         HashMap<String, String> music = musicList.get(musicIndex);
         String LrcPath = HttpTools.filePath(music) + HttpTools.fileName(music) + ".lrc";
         File file = new File(LrcPath);
@@ -432,7 +427,7 @@ public class PlayerThread implements Runnable {
         return getImagePath(false);
     }
     public String getImagePath(boolean block){
-        return getLrcPath(block,Integer.MAX_VALUE);
+        return getImagePath(block,Integer.MAX_VALUE);
     }
     public String getImagePath(boolean block, long milliseconds){
         HashMap<String, String> music = musicList.get(musicIndex);
