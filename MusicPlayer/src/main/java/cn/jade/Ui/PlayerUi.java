@@ -10,8 +10,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Vector;
 
 public class PlayerUi {
@@ -24,13 +22,6 @@ public class PlayerUi {
     public JPanel panelleft = new JPanel();
     public JScrollPane scrollmenu = null;
     public DefaultTableModel defaultdetailtable = null;
-//    public JTable detailtable = new JTable(){
-//        @Override
-//        public boolean isCellEditable(int row, int column) {
-//            return false;
-//        }
-//
-//    };
 
     public JPanel panellefttop = new JPanel();
     public JPanel panelleftmiddle = new JPanel();
@@ -62,11 +53,17 @@ public class PlayerUi {
     public JButton nextbutton = new NewButton("下"); //下一首按钮
     public JButton stylebutton = new JButton(); //播放方式切换按钮
     public JPanel listcoverwrap = new JPanel(); //
-    public JLabel listcover = new JLabel(); //歌单封面！！！！！
+    public ImageIcon iconlist = new ImageIcon("E:/图片素材/刘看山.png");
+    public JLabel listcover = new JLabel(iconlist); //歌单封面！！！！！
+
 
     public JPanel containtopright = new JPanel();
     public JLabel covertitle = new JLabel("每日歌曲更新");
-    public JPanel playnowcover = new JPanel();
+
+    public ImageIcon iconnow = new ImageIcon("E:/图片素材/刘看山.png");
+    public JLabel playnowcover = new JLabel(iconnow);
+
+
     public CardLayout layout = null; //这是为了歌单以及内容切换展示而设置的一种卡片布局
     public JButton changelist = new JButton("歌单"); //切换为展示清单
     public JButton changecontent = new JButton("歌词"); //切换为展示内容
@@ -95,10 +92,16 @@ public class PlayerUi {
     public JButton editcancel = new JButton("取消");
     public JButton editcover = new JButton("编辑封面");
 
+    //歌单详情页
+    public ImageIcon icondetail = new ImageIcon("E:/图片素材/刘看山.png"); //歌单详情页放
+    public JLabel detailcover = new JLabel();  //歌词详情页的歌单封面！！
     public JTextArea musicwords =  new JTextArea(); //歌词！！！！
 
     public JTextField searchinput = new JTextField();  //搜索框
     public JButton searchbutton = new JButton("搜索");  //搜索按钮
+
+    public JPanelBackground jPanelBackground = new JPanelBackground();  //歌词页！！！！的背景
+    public GaussianBlur gaosi = new GaussianBlur();
 
 //    public Object[][] rowData = null;
 
@@ -111,22 +114,7 @@ public class PlayerUi {
 
     public JComboBox searchsource = new JComboBox();   //设置搜索来源！！
 
-//    public static void main(String[] args){
-//        PlayerUi playerui = new PlayerUi();
-//        JFrame frame = new JFrame("一个美丽的音乐播放器");
-//        frame.setSize(1200,800);
-//         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//
-//
-//
-//
-//
-////        placeComponents(panel);
-//
-//        playerui.initui(frame);
-//        frame.setVisible(true);
-//        System.out.println("xxx");
-//    }
+
     public void initui(JFrame frame){
         layout();
         playerNav();
@@ -139,20 +127,7 @@ public class PlayerUi {
         playerlistedit();
     }
     //切换内容页的方法
-//            panelmainer.add(containwrap, "list");
-//        panelmainer.add(containwrap2, "content"); // 先显示第二个
-//        panelmainer.add(editlist,"editlist");
-////        layout.show(panelmainer, "editlist");
-//        layout.show(panelmainer, "content");
-//    public void containshowlist(){
-//        layout.show(panelmainer, "list");
-//    }
-//    public void containshowcontent(){
-//        layout.show(panelmainer, "content");
-//    }
-//    public void containshowedit(){
-//        layout.show(panelmainer, "editlist");
-//    }
+
 
     //页面基本布局
     public void layout(){
@@ -299,14 +274,15 @@ public class PlayerUi {
         mymenu.add(vbox);
 
 
-        mylist.setFixedCellWidth(400);
+        mylist.setFixedCellWidth(300);
 //        mymenutitle.setFont(new Font("宋体",Font.BOLD,20));
         mymenutitle.setFont(new Font("微软雅黑",Font.BOLD,16));
         mymenu.setBackground(new Color(245,245,247));
 
-        mylist.setLayout(new GridLayout(1,1));
-        mymenu.setLayout(new GridLayout(1,1));
+//        mylist.setLayout(new GridLayout(1,1));
+//        mymenu.setLayout(new GridLayout(1,1));
         mylist.setBackground(new Color(245,245,247));
+        mymenutitle.setForeground(new Color(97,97,97));
         mylist.setFocusable(false);
 
 
@@ -344,7 +320,7 @@ public class PlayerUi {
         otherlist.setBackground(new Color(245,245,247));
         othermenu.setBackground(new Color(245,245,247));
         othermenutitle.setForeground(new Color(97,97,97));
-        otherlist.setFixedCellWidth(400);
+        otherlist.setFixedCellWidth(360);
         otherlist.setFocusable(false);
 
     }
@@ -378,6 +354,8 @@ public class PlayerUi {
 
 
 
+
+
         contain.setBackground(new Color(249,246,247));
         contain.setLayout(new GridLayout(1,1));
 
@@ -399,15 +377,17 @@ public class PlayerUi {
 
         //这是歌单具体内容的上部分
 
-        listcoverwrap.setPreferredSize(new Dimension(140,140));
-        listcoverwrap.setBackground(Color.PINK);
+        listcover.setPreferredSize(new Dimension(140,140));
+        //设置歌单封面大小
+        iconlist.setImage(iconlist.getImage().getScaledInstance(140, 140,Image.SCALE_DEFAULT ));
+//        listcoverwrap.setBackground(Color.PINK);
 
 
         containtop.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-        containtop.add(listcoverwrap);
+        containtop.add(listcover);
         containtop.add(covertitle);
-        listcoverwrap.add(listcover);
+//        listcoverwrap.add(listcover);
         //
 //        containwrap.add(contain);
     }
@@ -537,6 +517,8 @@ public class PlayerUi {
 
         playnowcover.setBackground(Color.PINK);
         playnowcover.setPreferredSize(new Dimension(80,80));
+
+        iconnow.setImage(iconnow.getImage().getScaledInstance(80, 80,Image.SCALE_DEFAULT ));
         playnow.add(playnowcover);
         playnow.setBackground(new Color(245,245,247));
 
@@ -544,22 +526,9 @@ public class PlayerUi {
         playnow.add(changelist);
         changecontent.setFocusPainted(false);
         changelist.setFocusPainted(false);
-        changecontent.addActionListener(new ActionListener() {
 
-            public void actionPerformed(ActionEvent e) {
 
-                layout.show(panelmainer, "content");
 
-            }
-        });
-        changelist.addActionListener(new ActionListener() {
-
-            public void actionPerformed(ActionEvent e) {
-
-                layout.show(panelmainer, "list");
-
-            }
-        });
 
 //
 
@@ -569,14 +538,14 @@ public class PlayerUi {
 
     //这个函数是用于歌词具体内容页
     public void playercontaindetail(){
-        JPanelBackground jPanelBackground = new JPanelBackground();
+
 //        jPanelBackground.width = containwrap2.getWidth();
 //        jPanelBackground.height = containwrap2.getHeight();
         jPanelBackground.width = 900;
         jPanelBackground.height = 600;
 //        System.out.println(containwrap2.getWidth());
         JPanel inner = new JPanel();
-        GaussianBlur gaosi = new GaussianBlur();
+
 
         jPanelBackground.url = gaosi.playmain("downloads/test.jpg");
         System.out.println(jPanelBackground.url);
@@ -595,17 +564,18 @@ public class PlayerUi {
         inner.setLayout(new FlowLayout(FlowLayout.LEFT));
 //        contain.setPreferredSize(new Dimension(0,0));
         JPanel bigmusiccover = new JPanel();
-        JLabel test = new JLabel(new ImageIcon(System.getProperty("user.dir") +url ));
+        detailcover = new JLabel(new ImageIcon(System.getProperty("user.dir") +url ));
         inner.add(bigmusiccover);
-        bigmusiccover.add(test);
+        bigmusiccover.add(detailcover);
         inner.add(musicwords);
 //        BackgroundPanel bp = new BackgroundPanel();
 
 
 
         bigmusiccover.setPreferredSize(new Dimension(300,300));
+        icondetail.setImage(icondetail.getImage().getScaledInstance(300, 300,Image.SCALE_DEFAULT ));
 
-        bigmusiccover.setBackground(Color.pink);
+//        bigmusiccover.setBackground(Color.pink);
         musicwords.setPreferredSize(new Dimension(574,466));
 
 
@@ -650,7 +620,7 @@ public class PlayerUi {
         vbox.add(box5);
         vbox.add(box2);
         vbox.add(box3);
-        editlist.setBorder(BorderFactory.createLineBorder(new Color(250,250,250),50));
+        editlist.setBorder(BorderFactory.createLineBorder(new Color(238,238,238),50));
         editlist.setOpaque(false);
         indexcover.setPreferredSize(new Dimension(240,240));
 //        coverimage.setImage(coverimage.getImage().getScaledInstance(240, 240,Image.SCALE_DEFAULT ));

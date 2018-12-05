@@ -9,6 +9,7 @@ public class Scrollthread extends Thread {
     public JLabel progressnow = null;
     public double stoptime = 0; // 记录现在停止时的时间
     public double pinjun = 1;
+    Object playlock = 1;
 
     Scrollthread(JSlider jSlider,JLabel progress,double p){
         this.musicslider = jSlider;
@@ -18,41 +19,37 @@ public class Scrollthread extends Thread {
     }
     public void run(){
 //                System.out.println();
-        try{
-            int now =(int)(stoptime/pinjun);
-            System.out.println("now"+now);
+        synchronized(playlock){
 
-            for(int i = now;i < 100; i++){
+//                System.out.println();
+                try {
+                    int now = (int) (stoptime / pinjun);
+                    System.out.println("now" + now);
 
-                if(this.interrupted()){
-                    System.out.println("线程已经终止， for循环不再执行");
-                    throw new InterruptedException();
-                }
-                System.out.println("i="+(i+1));
+                    for (int i = now; i < 100; i++) {
 
-
-
-                Thread.sleep((long) pinjun*1000);
-                musicslider.setValue(i);
-                int temp = i;
-                Time t = new Time(i);
-                progressnow.setText(t.getTime());
-            }
-
-            //假如播完了怎么办?现在正常停止了并且应该重新开始,那么就应该根据播放模式进行切换
+                        if (this.interrupted()) {
+                            System.out.println("线程已经终止， for循环不再执行");
+                            throw new InterruptedException();
+                        }
+                        System.out.println("i=" + (i + 1));
 
 
+                        Thread.sleep((long) pinjun * 1000);
+                        musicslider.setValue(i);
+                        int temp = i;
+                        Time t = new Time(i);
+                        progressnow.setText(t.getTime());
+                    }
+
+                    //假如播完了怎么办?现在正常停止了并且应该重新开始,那么就应该根据播放模式进行切换
 
 
-        }catch (InterruptedException e){
-            System.out.println("本次拖动条线程已暂停");
+                } catch (InterruptedException e) {
+                    System.out.println("本次拖动条线程已暂停");
 //                            e.printStackTrace();
-        }
-
-
-
-
-
+                }
+            }
 
     }
 }
