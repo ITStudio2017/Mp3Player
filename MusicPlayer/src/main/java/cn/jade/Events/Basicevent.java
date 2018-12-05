@@ -246,13 +246,13 @@ public class Basicevent extends PlayerUi {
                         playstyleicon = new ImageIcon(System.getProperty("user.dir") + "/UIphotos/danqu.png");
                         playstyle.setToolTipText("单曲循环");
                         playstyle.setIcon(playstyleicon);
-                        playerThread.setNowPattern(PlayerThread.Pattern.Stochastic);
+                        playerThread.setNowPattern(PlayerThread.Pattern.Single);
                         break;
                     case 2:
                         playstyleicon = new ImageIcon(System.getProperty("user.dir") + "/UIphotos/suiji.png");
                         playstyle.setToolTipText("随机播放");
                         playstyle.setIcon(playstyleicon);
-                        playerThread.setNowPattern(PlayerThread.Pattern.Single);
+                        playerThread.setNowPattern(PlayerThread.Pattern.Stochastic);
                         break;
 
                 }
@@ -340,16 +340,63 @@ public class Basicevent extends PlayerUi {
 
 
         //然后我需要知道，呸，我要拖动滑动条
+
 //        musicslider.addChangeListener(new ChangeListener() {
 //            public void stateChanged(ChangeEvent e) {
 //                //首先 很明显我应该先把线程给停了
-//                threadscroll.interrupt();
-//                //再开一个新的
-//                settime();
+//
+//
+//
+//
 //            }
 //        });
 
+        musicslider.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                super.mousePressed(e);
+                System.out.println("你按下了我");
+                threadscroll.interrupt();
+                playerThread.pause();
+                //当然拖的过程中当然要显示现在的时间啦
+                musicslider.addChangeListener(new ChangeListener() {
+                    public void stateChanged(ChangeEvent e) {
+                        int temp = musicslider.getValue();
+                        int pinjun = (int)(playerThread.getMusicTime())/100;
+                        temp = pinjun*temp;
+                        Time t = new Time(temp);
+                        progressnow.setText(t.getTime());
 
+                    }
+                });
+
+
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                super.mouseReleased(e);
+
+
+
+                //然后拖哇拖，知道获得了vale
+                int temp = musicslider.getValue();
+
+                //获得value之后再重新设置
+                //但是首先这个value需要转换一下
+                int pinjun = (int)(playerThread.getMusicTime())/100;
+                temp = pinjun*temp;
+               // public boolean setTime(int seconds)
+                playerThread.setTime(temp,true);
+//                playerThread.getPlayThread().start();
+                //再开一个新的
+                settime();
+                setnew();
+
+            }
+
+
+        });
 
 
 
@@ -408,11 +455,11 @@ public class Basicevent extends PlayerUi {
             public void run(){
                 try{
 
-                        int now = (int)(playerThread.getNowMusicTime()/pinjun);
-                        System.out.println("now"+now);
 
                     double m = playerThread.getMusicTime();
-                    for(double i = now;i < m; ){
+                    musicslider.setMaximum((int)m);
+                    int now = (int)(playerThread.getNowMusicTime());
+                    for(double i = now;i < m+15; ){
                         System.out.println("现在播放到的时间"+playerThread.getNowMusicTime());
                         //因为文件解码需要一些时间，所以前面一段时间或许要等待一下
 
@@ -421,23 +468,30 @@ public class Basicevent extends PlayerUi {
                             System.out.println("线程已经终止， for循环不再执行");
                             throw new InterruptedException();
                         }
-                        System.out.println("i="+(i+1));
-
+//                        System.out.println("i="+(i+1));
+                        musicslider.setValue((int)i);
                         Thread.sleep(1000);
-                        musicslider.setValue((int)(i/pinjun));
+//                        musicslider.setValue((int)(i/pinjun));
+
                         i =  playerThread.getNowMusicTime();
                         Time t = new Time(i);
 
                         progressnow.setText(t.getTime());
-                        if((int)Math.ceil(i) == (int)m){
-                            System.out.println("切换啊冲啊！！！");
-                            threadscroll.interrupt();
-                            playerThread.nextMusic();
-                            focusrowindex = playerThread.getMusicIndex();
-                            stoptime = 0;
 
+                        if(Math.ceil(i) == (int)m){
+
+                            System.out.println("切换啊冲啊！！！");
+
+                            playerThread.nextMusic();
+
+                            threadscroll.interrupt();
+//                            Thread.sleep(200);
+//                            focusrowindex = playerThread.getMusicIndex();
+                            stoptime = 0;
                             settime();
                             setnew();
+
+
 
                         }
                     }
