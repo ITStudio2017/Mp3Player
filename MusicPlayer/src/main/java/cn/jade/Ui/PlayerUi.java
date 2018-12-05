@@ -113,7 +113,37 @@ public class PlayerUi {
     public JPanel pagewrap = new JPanel();
 
     public JComboBox searchsource = new JComboBox();   //设置搜索来源！！
+    //热歌榜部分！！！是的你没有看错这全都是热歌榜的
+    public JPanel hotslist = new JPanel(); //这个里面放的就是一块一块的
 
+    public JLabel hotmenutitle = new JLabel("热歌榜");  //热歌榜的题目
+    public ImageIcon hotcover1 = new ImageIcon();
+    public ImageIcon hotcover2 = new ImageIcon();
+    public ImageIcon hotcover3 = new ImageIcon();
+    public ImageIcon hotcover4 = new ImageIcon();
+    public ImageIcon hotcover5 = new ImageIcon();
+    public ImageIcon hotcover6 = new ImageIcon();
+    //        ImageIcon hotcover1 = new ImageIcon();
+    public JLabel hotlabel1 = new JLabel();
+    public JLabel hotlabel2 = new JLabel();
+    public JLabel hotlabel3 = new JLabel();
+    public JLabel hotlabel4 = new JLabel();
+    public JLabel hotlabel5 = new JLabel();
+    public JLabel hotlabel6 = new JLabel();
+
+    public JLabel hotlabelword1 = new JLabel("这是一段示范文字");
+    public JLabel hotlabelword2 = new JLabel("这是一段示范文字");
+    public JLabel hotlabelword3 = new JLabel("这是一段示范文字");
+    public JLabel hotlabelword4 = new JLabel("这是一段示范文字");
+    public JLabel hotlabelword5 = new JLabel("这是一段示范文字");
+    public JLabel hotlabelword6 = new JLabel("这是一段示范文字");
+
+    public JPanel hotlabelwrap1 = new JPanel();
+    public JPanel hotlabelwrap2 = new JPanel();
+    public JPanel hotlabelwrap3 = new JPanel();
+    public JPanel hotlabelwrap4 = new JPanel();
+    public JPanel hotlabelwrap5 = new JPanel();
+    public JPanel hotlabelwrap6 = new JPanel();
 
     public void initui(JFrame frame){
         layout();
@@ -125,6 +155,8 @@ public class PlayerUi {
         playerNow();
         playercontaindetail();
         playerlistedit();
+        playerhotlist();
+        layout.show(panelmainer,"hotslist") ;//先显示快快
     }
     //切换内容页的方法
 
@@ -163,6 +195,14 @@ public class PlayerUi {
         panelleft.add(panellefttop);
         panelleft.add(playnow);
 
+        //关于热歌榜部分的标题
+        playintroduce.setLayout(new FlowLayout(FlowLayout.LEFT));
+//        playintroduce = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        playintroduce.add(hotmenutitle);
+        hotmenutitle.setFont(new Font("微软雅黑",Font.BOLD,16));
+
+
+
 
 
 
@@ -189,8 +229,10 @@ public class PlayerUi {
         panelmainer.add(containwrap, "list");
         panelmainer.add(containwrap2, "content"); // 先显示第二个
         panelmainer.add(editlist,"editlist");
+        panelmainer.add(hotslist,"hotslist");
 //        layout.show(panelmainer, "editlist");
-        layout.show(panelmainer, "content");
+//        layout.show(panelmainer, "content");
+        layout.show(panelmainer,"hotslist") ;//先显示快快
 
         //menu上下分隔
         menu.setLayout(new GridLayout(1,1));
@@ -589,6 +631,8 @@ public class PlayerUi {
     //这个函数用于编辑歌单相关信息,也就是listedit页
 
     public void playerlistedit(){
+
+
         JLabel title = new JLabel("编辑歌单信息"); //标题
 
 
@@ -647,6 +691,87 @@ public class PlayerUi {
         editcancel.setForeground(Color.BLACK);
         editcover.setBackground(Color.white);
         editcover.setForeground(Color.BLACK);
+
+
+
+
+    }
+
+    public void playerhotlist(){
+
+
+
+        hotlabelwrap1.setPreferredSize(new Dimension(240,320));
+        hotlabelwrap2.setPreferredSize(new Dimension(240,320));
+        hotlabelwrap3.setPreferredSize(new Dimension(240,320));
+        hotlabelwrap4.setPreferredSize(new Dimension(240,320));
+        hotlabelwrap5.setPreferredSize(new Dimension(240,320));
+        hotlabelwrap6.setPreferredSize(new Dimension(240,320));
+
+        hotlabel1.setPreferredSize(new Dimension(240,240));
+        hotlabel2.setPreferredSize(new Dimension(240,240));
+        hotlabel3.setPreferredSize(new Dimension(240,240));
+        hotlabel4.setPreferredSize(new Dimension(240,240));
+        hotlabel5.setPreferredSize(new Dimension(240,240));
+        hotlabel6.setPreferredSize(new Dimension(240,240));
+        hotslist.setLayout(new GridLayout(2,3));
+//        hotslist.setBackground(Color.red);
+//        hotlabelwrap1.setBackground(Color.black);
+
+
+
+        hotcover1 = new ImageIcon("E:/图片素材/刘看山.png");
+        hotcover2 = new ImageIcon("E:/图片素材/刘看山.png");
+        hotcover3 = new ImageIcon("E:/图片素材/刘看山.png");
+        hotcover4 = new ImageIcon("E:/图片素材/刘看山.png");
+        hotcover5 = new ImageIcon("E:/图片素材/刘看山.png");
+        hotcover6 = new ImageIcon("E:/图片素材/刘看山.png");
+        hotcover1.setImage(hotcover1.getImage().getScaledInstance(240, 240,Image.SCALE_DEFAULT ));
+        hotcover2.setImage(hotcover2.getImage().getScaledInstance(240, 240,Image.SCALE_DEFAULT ));
+        hotcover3.setImage(hotcover3.getImage().getScaledInstance(240, 240,Image.SCALE_DEFAULT ));
+        hotcover4.setImage(hotcover4.getImage().getScaledInstance(240, 240,Image.SCALE_DEFAULT ));
+        hotcover5.setImage(hotcover5.getImage().getScaledInstance(240, 240,Image.SCALE_DEFAULT ));
+        hotcover6.setImage(hotcover6.getImage().getScaledInstance(240, 240,Image.SCALE_DEFAULT ));
+
+        hotlabel1.setIcon(hotcover1);
+        hotlabel2.setIcon(hotcover2);
+        hotlabel3.setIcon(hotcover3);
+        hotlabel4.setIcon(hotcover4);
+        hotlabel5.setIcon(hotcover5);
+        hotlabel6.setIcon(hotcover6);
+
+        hotlabelwrap1.setLayout(new BorderLayout());
+        hotlabelwrap2.setLayout(new BorderLayout());
+        hotlabelwrap3.setLayout(new BorderLayout());
+        hotlabelwrap4.setLayout(new BorderLayout());
+        hotlabelwrap5.setLayout(new BorderLayout());
+        hotlabelwrap6.setLayout(new BorderLayout());
+
+        hotlabelwrap1.add(hotlabel1,BorderLayout.NORTH);
+        hotlabelwrap2.add(hotlabel2,BorderLayout.NORTH);
+        hotlabelwrap3.add(hotlabel3,BorderLayout.NORTH);
+        hotlabelwrap4.add(hotlabel4,BorderLayout.NORTH);
+        hotlabelwrap5.add(hotlabel5,BorderLayout.NORTH);
+        hotlabelwrap6.add(hotlabel6,BorderLayout.NORTH);
+        hotlabelwrap1.add(hotlabelword1,BorderLayout.SOUTH);
+        hotlabelwrap2.add(hotlabelword2,BorderLayout.SOUTH);
+        hotlabelwrap3.add(hotlabelword3,BorderLayout.SOUTH);
+        hotlabelwrap4.add(hotlabelword4,BorderLayout.SOUTH);
+        hotlabelwrap5.add(hotlabelword5,BorderLayout.SOUTH);
+        hotlabelwrap6.add(hotlabelword6,BorderLayout.SOUTH);
+//        hotlabelwrap1
+
+        hotslist.add(hotlabelwrap1);
+        hotslist.add(hotlabelwrap2);
+        hotslist.add(hotlabelwrap3);
+        hotslist.add(hotlabelwrap4);
+        hotslist.add(hotlabelwrap5);
+        hotslist.add(hotlabelwrap6);
+
+
+
+
+
 
 
 

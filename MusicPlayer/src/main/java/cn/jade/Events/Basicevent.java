@@ -36,6 +36,8 @@ public class Basicevent extends PlayerUi {
     public Vector<HashMap<String,String>> searchmusicsheet = new  Vector<HashMap<String,String>>();   //我的网络搜索下的所有歌曲
     public Vector<HashMap<String,String>> mymusicsheet = new  Vector<HashMap<String,String>>();   //我的某一个歌单下的所有歌曲
     public Vector<HashMap<String,String>> nowplaysheet = new Vector<HashMap<String,String>>(); //现在正在播放的歌单
+
+    public Vector<HashMap<String,String>> hostslist = new Vector<HashMap<String, String>>();  //存放热门榜单相关
     public PlayerThread playerThread = new PlayerThread(0,mymusicsheet);
     public PlayerThread playerThreadnet = null;  //网络歌单那边的
     public int tableflag = 0;//判断此时有没有列表
@@ -57,13 +59,8 @@ public class Basicevent extends PlayerUi {
 
 
 
-
-//        placeComponents(panel);
-
         playerui.initui(frame);
-//        playerui.setmytable(detailtable);
 
-//        settime();
 
         frame.setVisible(true);
         System.out.println("xxx");
@@ -353,6 +350,11 @@ public class Basicevent extends PlayerUi {
 
         musicslider.addMouseListener(new MouseAdapter() {
             @Override
+            public void mouseClicked(MouseEvent e) {
+//                super.mouseClicked(e);
+            }
+
+            @Override
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e);
                 System.out.println("你按下了我");
@@ -459,7 +461,7 @@ public class Basicevent extends PlayerUi {
                     double m = playerThread.getMusicTime();
                     musicslider.setMaximum((int)m);
                     int now = (int)(playerThread.getNowMusicTime());
-                    for(double i = now;i < m+15; ){
+                    for(double i = now;i < m+30; ){
                         System.out.println("现在播放到的时间"+playerThread.getNowMusicTime());
                         //因为文件解码需要一些时间，所以前面一段时间或许要等待一下
 
@@ -482,7 +484,7 @@ public class Basicevent extends PlayerUi {
 
                             System.out.println("切换啊冲啊！！！");
 
-                            playerThread.nextMusic();
+//                            playerThread.nextMusic();
 
                             threadscroll.interrupt();
 //                            Thread.sleep(200);
@@ -1089,11 +1091,18 @@ public class Basicevent extends PlayerUi {
 
 
     }
+//关于榜单的部分，一点点
+    @Override
+    public void playerhotlist() {
+        super.playerhotlist();
 
+        //public static Vector<HashMap<String,String>> getInternetPlaylist(int page, int count)
+         hostslist = httpTools.getInternetPlaylist(1,6);
+         for(int i = 0;i<6;i++) {
+             hotlabelword1.setText(hostslist.get(0).get("title"));
+             hotcover1 = new ImageIcon(hostslist.get(0).get("coverImgUrl"));
+             hotlabel1.setIcon(hotcover1);
+         }
 
-
-
-
-
-
+    }
 }
