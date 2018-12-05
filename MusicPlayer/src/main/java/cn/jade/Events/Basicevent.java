@@ -19,8 +19,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 //import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -35,6 +33,7 @@ public class Basicevent extends PlayerUi {
     public Vector<HashMap<String,String>> searchmusicsheet = new  Vector<HashMap<String,String>>();   //我的网络搜索下的所有歌曲
     public Vector<HashMap<String,String>> mymusicsheet = new  Vector<HashMap<String,String>>();   //我的某一个歌单下的所有歌曲
     public PlayerThread playerThread = new PlayerThread(0,mymusicsheet);
+    public PlayerThread playerThreadnet = null;  //网络歌单那边的
     public int tableflag = 0;//判断此时有没有列表
     public int focusrowindex = -1;  //歌单内音乐当前选中项
     public int focusmymenuindex = 0;
@@ -87,7 +86,7 @@ public class Basicevent extends PlayerUi {
         //初始化歌单封面！！！;
 
         containbottom.removeAll();
-        layout.show(panelmainer, "list");
+
         if(musiclist.size()!=0){
             mymusicsheet = sqliteTools.getMusicBySheet(musiclist.get(index));
             covertitle.setText(musiclist.get(index).get("name"));
@@ -95,8 +94,11 @@ public class Basicevent extends PlayerUi {
         }
         playerThread = new PlayerThread(0,mymusicsheet);
         if(mymusicsheet.size()!=0){
-//            String image = mymusicsheet.get(0).get("musicImage");
-            String image = playerThread.getImagePath();
+            String image = musiclist.get(index).get("imagePath");
+            if(image == "null" ||image.equals("")){
+                image = mymusicsheet.get(0).get("musicImage");
+            }
+//            String image = playerThread.getImagePath();
             System.out.println(image);
 //            String image = playerThread.getImagePath();
 
@@ -109,8 +111,7 @@ public class Basicevent extends PlayerUi {
             iconlist.setImage(iconlist.getImage().getScaledInstance(140, 140,Image.SCALE_DEFAULT ));
             listcover.setIcon(iconlist);
         }
-//        String image = playerThread.getImagePath();
-//            listcover.setIcon(new ImageIcon(image));
+
 
 
 
@@ -137,6 +138,7 @@ public class Basicevent extends PlayerUi {
 
 
         setmytable(detailtable);
+        layout.show(panelmainer, "list");
 
     }
 
@@ -175,6 +177,8 @@ public class Basicevent extends PlayerUi {
         pagewrap.add(lastpage,BorderLayout.WEST);
         pagewrap.add(nextpage,BorderLayout.EAST);
         containbottom.add(pagewrap,BorderLayout.SOUTH);
+
+        layout.show(panelmainer, "list");
 
 
     }
@@ -275,6 +279,7 @@ public class Basicevent extends PlayerUi {
 //                        threadscroll.interrupt();
 //                        System.out.println("stop11"+threadscroll.isInterrupted());
 
+
                     }else if(playflag == 0 && focusrowindex == -1){
                         //初次播放的时候设置默认值
                         playerThread.setMusicIndex(0);
@@ -285,8 +290,7 @@ public class Basicevent extends PlayerUi {
 //
                     settime();
                     playflag = 1;
-//                    thread = new Thread(playerThread);
-//                    thread.start();
+//
                     playerThread.setPlayThread(new Thread(playerThread));
                     playerThread.getPlayThread().start();
 
@@ -362,10 +366,10 @@ public class Basicevent extends PlayerUi {
         icondetail.setImage(icondetail.getImage().getScaledInstance(300, 300,Image.SCALE_DEFAULT ));
         detailcover.setIcon(icondetail);
         //设置背景
-        String str = "downloaddd";
-        Pattern p = Pattern.compile("\\download.*");
-        Matcher m = p.matcher(str);
-        System.out.println(m.group(1));
+//        String str = "downloaddd";
+//        Pattern p = Pattern.compile("\\download.*");
+//        Matcher m = p.matcher(str);
+//        System.out.println(m.group(1));
 //        jPanelBackground.url = gaosi.playmain(image);
 
         //设置歌词
@@ -506,6 +510,16 @@ public class Basicevent extends PlayerUi {
         //接下来为删除和编辑做对应的操作，添加对应的事件
         edit.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+
+                //将相片替换成当前的相片
+                coverimage = new ImageIcon(musiclist.get(focusmymenuindex).get("imagePath"));
+                System.out.println("coverimage"+coverimage);
+                coverimage.setImage(coverimage.getImage().getScaledInstance(240, 240,Image.SCALE_DEFAULT ));
+                indexcover.setIcon(coverimage);
+                //名字替换成当前歌单名
+                editlistname.setText(musiclist.get(focusmymenuindex).get("name"));
+
+
                 layout.show(panelmainer, "editlist");
 
             }
@@ -608,7 +622,7 @@ public class Basicevent extends PlayerUi {
     @Override
     public void playerlistedit() {
         super.playerlistedit();
-
+        url = musiclist.get(focusmymenuindex).get("imagePath");
         editcover.addActionListener(new ActionListener(){
 //            @Override
             public void actionPerformed(ActionEvent e) {
@@ -650,7 +664,25 @@ public class Basicevent extends PlayerUi {
     });
         editsave.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                //先把修改结果存入数据库
                 sqliteTools.updateSheetImage(musiclist.get(focusmymenuindex),url);
+              // public static void updateSheetName(HashMap<String,String> sheet, String name)
+                sqliteTools.updateSheetName(musiclist.get(focusmymenuindex),editlistname.getText());
+                //然后刷新一波
+                getmymusiclist();
+
+
+                    // 消息对话框无返回, 仅做通知作用
+                    JOptionPane.showMessageDialog(
+                            frame,
+                            "保存成功",
+                            "提示",
+                            JOptionPane.INFORMATION_MESSAGE
+                    );
+                getmusicsheet(focusmymenuindex);
+//                layout.show(panelmainer, "list");
+
+
 
             }
         });
@@ -676,7 +708,7 @@ public class Basicevent extends PlayerUi {
         detailtable.setRowHeight(30);
 //        JMenuItem download = new JMenuItem("下载");
         final JMenuItem del = new JMenuItem("删除");
-        JMenuItem play = new JMenuItem("播放");
+        final JMenuItem play = new JMenuItem("播放");
         JMenuItem stop = new JMenuItem("暂停");
         final JPopupMenu sheetpop = new JPopupMenu();
 //        sheetpop.add(download);
@@ -732,15 +764,7 @@ public class Basicevent extends PlayerUi {
 
         play.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-//                if(playflag == 1) {
-//                    playerThread.pause();
-//
-//                }
-//                playerThread.setMusicIndex(focusrowindex);
-//                playerThread.setMusicList(mymusicsheet);
-//                playflag = 1;
-//                thread = new Thread(playerThread);
-//                thread.start();
+
 //
 //                //播放按钮变成暂停
 //                playbutton.setText("暂停");
@@ -752,20 +776,29 @@ public class Basicevent extends PlayerUi {
                 if(playflag == 1) {
                     threadscroll.interrupt();
                     stoptime = 0;
-                    playerThread.pause();
-//                        //暂停拖动条的线程，isINterrupt不会清除，而
-//                        threadscroll.interrupt();
-//                        System.out.println("stop11"+threadscroll.isInterrupted());
+//                    playerThread.pause();
+
+
+
+
+                }else{
 
                 }
+                playerThread.stop();
+                System.out.println("多重走");
+
+
+                playerThread.setPlayThread(new Thread(playerThread));
+                playerThread.getPlayThread().start();
+
+
                  playerThread.setMusicIndex(focusrowindex);
                 playerThread.setMusicList(mymusicsheet);
                 settime();
 
                 playflag = 1;
-//
-                playerThread.setPlayThread(new Thread(playerThread));
-                playerThread.getPlayThread().start();
+
+
                 //播放按钮变成暂停
                 playbutton.setText("暂停");
                 System.out.println("现在播放到的时间"+playerThread.getNowMusicTime());
@@ -809,6 +842,8 @@ public class Basicevent extends PlayerUi {
                 }
 
             }
+
+
         });
         //如果有上一页下一页按钮的话
         lastpage.addActionListener(new ActionListener() {
@@ -966,6 +1001,13 @@ public class Basicevent extends PlayerUi {
                 });
 
 //                httpTools.downloadMusic(searchmusicsheet.get(focusrowindex),musiclist.get(0));
+                //卧槽在线播放
+                play.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+
+
+                    }
+                });
 
 
 

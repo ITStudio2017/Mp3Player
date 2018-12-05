@@ -22,13 +22,6 @@ public class PlayerUi {
     public JPanel panelleft = new JPanel();
     public JScrollPane scrollmenu = null;
     public DefaultTableModel defaultdetailtable = null;
-//    public JTable detailtable = new JTable(){
-//        @Override
-//        public boolean isCellEditable(int row, int column) {
-//            return false;
-//        }
-//
-//    };
 
     public JPanel panellefttop = new JPanel();
     public JPanel panelleftmiddle = new JPanel();
@@ -99,7 +92,8 @@ public class PlayerUi {
     public JButton editcancel = new JButton("取消");
     public JButton editcover = new JButton("编辑封面");
 
-    public ImageIcon icondetail = new ImageIcon("E:/图片素材/刘看山.png"); //放
+    //歌单详情页
+    public ImageIcon icondetail = new ImageIcon("E:/图片素材/刘看山.png"); //歌单详情页放
     public JLabel detailcover = new JLabel();  //歌词详情页的歌单封面！！
     public JTextArea musicwords =  new JTextArea(); //歌词！！！！
 
@@ -280,7 +274,7 @@ public class PlayerUi {
         mymenu.add(vbox);
 
 
-        mylist.setFixedCellWidth(360);
+        mylist.setFixedCellWidth(300);
 //        mymenutitle.setFont(new Font("宋体",Font.BOLD,20));
         mymenutitle.setFont(new Font("微软雅黑",Font.BOLD,16));
         mymenu.setBackground(new Color(245,245,247));
@@ -288,6 +282,7 @@ public class PlayerUi {
 //        mylist.setLayout(new GridLayout(1,1));
 //        mymenu.setLayout(new GridLayout(1,1));
         mylist.setBackground(new Color(245,245,247));
+        mymenutitle.setForeground(new Color(97,97,97));
         mylist.setFocusable(false);
 
 
@@ -625,7 +620,7 @@ public class PlayerUi {
         vbox.add(box5);
         vbox.add(box2);
         vbox.add(box3);
-        editlist.setBorder(BorderFactory.createLineBorder(new Color(250,250,250),50));
+        editlist.setBorder(BorderFactory.createLineBorder(new Color(238,238,238),50));
         editlist.setOpaque(false);
         indexcover.setPreferredSize(new Dimension(240,240));
 //        coverimage.setImage(coverimage.getImage().getScaledInstance(240, 240,Image.SCALE_DEFAULT ));
