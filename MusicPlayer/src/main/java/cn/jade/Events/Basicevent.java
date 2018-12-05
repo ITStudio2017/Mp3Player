@@ -8,6 +8,8 @@ import cn.ktchen.player.PlayerThread;
 import cn.ktchen.sqlite.SqliteTools;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -17,6 +19,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Vector;
 
@@ -32,6 +35,7 @@ public class Basicevent extends PlayerUi {
     public Vector<HashMap<String,String>> musiclist = new  Vector<HashMap<String,String>>();    //我的所有歌单
     public Vector<HashMap<String,String>> searchmusicsheet = new  Vector<HashMap<String,String>>();   //我的网络搜索下的所有歌曲
     public Vector<HashMap<String,String>> mymusicsheet = new  Vector<HashMap<String,String>>();   //我的某一个歌单下的所有歌曲
+    public Vector<HashMap<String,String>> nowplaysheet = new Vector<HashMap<String,String>>(); //现在正在播放的歌单
     public PlayerThread playerThread = new PlayerThread(0,mymusicsheet);
     public PlayerThread playerThreadnet = null;  //网络歌单那边的
     public int tableflag = 0;//判断此时有没有列表
@@ -92,7 +96,7 @@ public class Basicevent extends PlayerUi {
             covertitle.setText(musiclist.get(index).get("name"));
 
         }
-        playerThread = new PlayerThread(0,mymusicsheet);
+
         if(mymusicsheet.size()!=0){
             String image = musiclist.get(index).get("imagePath");
             if(image == "null" ||image.equals("")){
@@ -269,38 +273,26 @@ public class Basicevent extends PlayerUi {
 
 
                 if(playbutton.getText() == "播放"){
-                    playbutton.setText("暂停");
-
-
-
-                    if(playflag == 1) {
-                        playerThread.pause();
-//                        //暂停拖动条的线程，isINterrupt不会清除，而
-//                        threadscroll.interrupt();
-//                        System.out.println("stop11"+threadscroll.isInterrupted());
-
-
-                    }else if(playflag == 0 && focusrowindex == -1){
+//                    playbutton.setText("暂停");
+                    if(playflag == 0 && focusrowindex == -1){
                         //初次播放的时候设置默认值
+                        nowplaysheet = mymusicsheet ;
                         playerThread.setMusicIndex(0);
-                        playerThread.setMusicList(mymusicsheet);
+                        playerThread.setMusicList(nowplaysheet);
                         System.out.println("我运行啦");
-                        focusrowindex = playerThread.getMusicIndex();
+//                        focusrowindex = playerThread.getMusicIndex();
                     }
-//
-                    settime();
+
+
                     playflag = 1;
-//
                     playerThread.setPlayThread(new Thread(playerThread));
                     playerThread.getPlayThread().start();
+                    settime();
+                    setnew();
 
                     //播放按钮变成暂停
                     playbutton.setText("暂停");
-                    System.out.println("现在播放到的时间"+playerThread.getNowMusicTime());
-
-
-
-
+//                    System.out.println("现在播放到的时间"+playerThread.getNowMusicTime());
 
 
                 }else{
@@ -310,8 +302,7 @@ public class Basicevent extends PlayerUi {
 
                     //记录下这时候的时间，以便下一次开始'
                     stoptime = playerThread.getNowMusicTime();
-//                    System.out.println("stop22"+threadscroll.interrupted());
-
+                    //改变按钮
                     playbutton.setText("播放");
                     playerThread.pause();
                     playflag = 0;
@@ -322,25 +313,25 @@ public class Basicevent extends PlayerUi {
         //下一首上一首的切换
         nextbutton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-
+                playbutton.setText("暂停");
                 playerThread.nextMusic();
-//                if(focusrowindex!=mymusicsheet.size()){
-                    focusrowindex = playerThread.getMusicIndex();
-//                }
-                threadscroll.interrupt();
+
                 stoptime = 0;
+                threadscroll.interrupt();
+
                 settime();
+                setnew();
             }
         });
         lastbutton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                playbutton.setText("暂停");
                 playerThread.previousMusic();
-//                if(focusrowindex!=0){
-                    focusrowindex = playerThread.getMusicIndex();
-//                }
+
                 stoptime = 0;
                 threadscroll.interrupt();
                 settime();
+                setnew();
             }
         });
 
@@ -348,15 +339,36 @@ public class Basicevent extends PlayerUi {
 //        System.out
 
 
+        //然后我需要知道，呸，我要拖动滑动条
+//        musicslider.addChangeListener(new ChangeListener() {
+//            public void stateChanged(ChangeEvent e) {
+//                //首先 很明显我应该先把线程给停了
+//                threadscroll.interrupt();
+//                //再开一个新的
+//                settime();
+//            }
+//        });
+
+
 
 
 
     }
+
+    public void settime(){
+        Time t = new Time(playerThread.getMusicTime());
+        progresstotal.setText(t.getTime());
+        setotherfooter();
+//        setnew();
+    }
     //切换新歌的一些东东
     public void setnew(){
+        //!!严格获取当前歌曲和当前索引
+        nowplaysheet = playerThread.getMusicList();
+        focusrowindex = playerThread.getMusicIndex();
         //设置playnow的封面
         //首先获取当前播放歌曲的相关信息
-        String image = mymusicsheet.get(focusrowindex).get("musicImage");
+        String image = nowplaysheet.get(focusrowindex).get("musicImage");
         iconnow = new ImageIcon(image);
         iconnow.setImage(iconnow.getImage().getScaledInstance(80, 80,Image.SCALE_DEFAULT ));
         playnowcover.setIcon(iconnow);
@@ -395,12 +407,15 @@ public class Basicevent extends PlayerUi {
         threadscroll = new Thread(){
             public void run(){
                 try{
-                        int now =(int)(stoptime/pinjun);
+
+                        int now = (int)(playerThread.getNowMusicTime()/pinjun);
                         System.out.println("now"+now);
 
                     double m = playerThread.getMusicTime();
-                    for(double i = now;i < m; i=i+1){
-                        System.out.println(playerThread.getNowMusicTime());
+                    for(double i = now;i < m; ){
+                        System.out.println("现在播放到的时间"+playerThread.getNowMusicTime());
+                        //因为文件解码需要一些时间，所以前面一段时间或许要等待一下
+
 
                         if(this.interrupted()){
                             System.out.println("线程已经终止， for循环不再执行");
@@ -408,21 +423,21 @@ public class Basicevent extends PlayerUi {
                         }
                         System.out.println("i="+(i+1));
 
-
-
                         Thread.sleep(1000);
                         musicslider.setValue((int)(i/pinjun));
-//                        int temp = i;
-                        Time t = new Time(playerThread.getNowMusicTime());
+                        i =  playerThread.getNowMusicTime();
+                        Time t = new Time(i);
 
                         progressnow.setText(t.getTime());
-                        if(Math.ceil(i)==(int)m){
+                        if((int)Math.ceil(i) == (int)m){
                             System.out.println("切换啊冲啊！！！");
+                            threadscroll.interrupt();
                             playerThread.nextMusic();
                             focusrowindex = playerThread.getMusicIndex();
                             stoptime = 0;
-                            threadscroll.interrupt();
+
                             settime();
+                            setnew();
 
                         }
                     }
@@ -442,12 +457,189 @@ public class Basicevent extends PlayerUi {
         };
         threadscroll.start();
     }
-    public void settime(){
-        Time t = new Time(playerThread.getMusicTime());
-        progresstotal.setText(t.getTime());
-        setotherfooter();
-        setnew();
+    //设置表格相关参数,因为着急就先这样了
+    public void setmytable(final JTable detailtable){
+        //设置表格内容颜色
+
+        detailtable.setForeground(Color.BLACK);
+        detailtable.setBackground(new Color(250,250,250));
+        detailtable.setSelectionBackground(new Color(236,236,237));
+//        detailtable
+        //添加表头和表格内容
+        containbottom.add(detailtable.getTableHeader(),BorderLayout.NORTH);
+        containbottom.add(detailtable,BorderLayout.CENTER);
+
+
+        //设置表头
+//        detailtable.getTableHeader().setFocusTraversalKe;
+
+        //设置行高
+        detailtable.setRowHeight(30);
+//        JMenuItem download = new JMenuItem("下载");
+        final JMenuItem del = new JMenuItem("删除");
+        final JMenuItem play = new JMenuItem("播放");
+        JMenuItem stop = new JMenuItem("暂停");
+        final JPopupMenu sheetpop = new JPopupMenu();
+//        sheetpop.add(download);
+
+        sheetpop.add(play);
+        sheetpop.add(stop);
+        sheetpop.add(del);
+
+        detailtable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e ) {
+                super.mouseClicked(e);
+                if(e.getButton() == MouseEvent.BUTTON3) {
+                    focusrowindex = detailtable.rowAtPoint(e.getPoint());
+                    if (focusrowindex == -1) {
+                        return;
+                    }
+                    detailtable.setRowSelectionInterval(focusrowindex, focusrowindex);
+                    //弹出菜单
+                    sheetpop.show(detailtable, e.getX(), e.getY());
+                }
+
+
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                super.mousePressed(e);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                super.mouseReleased(e);
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                super.mouseEntered(e);
+            }
+        });
+        //接下来为删除和编辑做对应的操作，添加对应的事件
+//        download.addActionListener(new ActionListener() {
+//            public void actionPerformed(ActionEvent e) {
+////                layout.show(panelmainer, "editlist");.
+//                //现在应该选择下载到哪一个歌单 默认选则我喜欢的歌单
+//                //public static void downloadMusic(HashMap<String, String> music, HashMap<String,String> sheet)
+//                httpTools.downloadMusic(mymusicsheet.get(focusrowindex),musiclist.get(0));
+//                System.out.println("下载完成");
+//
+//            }
+//        });
+
+
+        play.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+
+
+//
+//                //播放按钮变成暂停
+
+                playbutton.setText("暂停");
+                //那么在每一次播放之前，都要把之前的线程给关掉，
+
+                if(focusrowindex != -1){
+
+                }
+                if(playflag == 1 ) {
+                    threadscroll.interrupt();
+                    stoptime = 0;
+//                    playerThread.pause();
+
+                }else{
+
+                }
+
+                //只有不同歌曲了或者不同歌单了才stop，所以首先就要判断是不是刚刚那首歌，也就是歌单相同然后索引也相同，而且之前是停止的状态
+                //如果还是同一首歌 无视
+                if((playerThread.getMusicList() == mymusicsheet) && (focusrowindex == playerThread.getMusicIndex()) && playflag == 0){
+
+                }else if((playerThread.getMusicList() == mymusicsheet) && (focusrowindex == playerThread.getMusicIndex()) && playflag == 1){
+                   return;
+                }else{
+                    playerThread.stop();
+                }
+
+
+                //点击右键的话，毫无疑问现在是什么歌单就放什么歌
+                nowplaysheet = mymusicsheet;
+                System.out.println("多重走");
+                playerThread.setMusicIndex(focusrowindex);
+                playerThread.setMusicList(nowplaysheet);
+                playerThread.setPlayThread(new Thread(playerThread));
+                playerThread.getPlayThread().start();
+                settime();
+                setnew();
+                playflag = 1;
+
+                //播放按钮变成暂停
+                playbutton.setText("暂停");
+
+            }
+        });
+        stop.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if(focusrowindex != playerThread.getMusicIndex()){
+                    return ;
+                }
+
+                //暂停拖动条的线程，isINterrupt不会清除，而
+                threadscroll.interrupt();
+
+                //记录下这时候的时间，以便下一次开始'
+                stoptime = playerThread.getNowMusicTime();
+                playbutton.setText("播放");
+                playerThread.pause();
+                playflag = 0;
+            }
+        });
+        //删除我的歌单中的歌曲
+        del.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                int result = JOptionPane.showConfirmDialog(
+                        frame,
+                        "确认删除？",
+                        "提示",
+                        JOptionPane.YES_NO_CANCEL_OPTION
+
+                );
+                System.out.println("选择结果:"+result);
+                //deleteSheet(HashMap<String, String> sheet)
+                if(result==0){
+                    //调用数据库方法
+                    sqliteTools.deleteMusic(mymusicsheet.get(focusrowindex));
+                    //重新绘制
+                    getmusicsheet(focusmymenuindex);
+                }
+
+            }
+
+
+        });
+        //如果有上一页下一页按钮的话
+        lastpage.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+
+                if(nowpage != 1){
+                    nowpage-=1;
+                    getsearchmusicsheet(searchinput.getText(),nowpage,10);
+                }
+            }
+        });
+        nextpage.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                nowpage+=1;
+                getsearchmusicsheet(searchinput.getText(),nowpage,10);
+            }
+        });
+
     }
+
+
+
     @Override
     public void playerMymenu() {
         super.playerMymenu();
@@ -563,9 +755,12 @@ public class Basicevent extends PlayerUi {
                 String inputContent = JOptionPane.showInputDialog(
                         frame,
                         "输入歌单名称:",
-                        "歌单名称"
-
+                        "歌单名称",
+                        JOptionPane.YES_NO_CANCEL_OPTION
                 );
+                if(inputContent == null){
+                    return;
+                }
                 //调用数据库方法创建歌单
 //                public static void createSheet(String name)
                 sqliteTools.createSheet(inputContent);
@@ -688,181 +883,7 @@ public class Basicevent extends PlayerUi {
         });
     }
 
-    //设置表格相关参数,因为着急就先这样了
-    public void setmytable(final JTable detailtable){
-        //设置表格内容颜色
 
-        detailtable.setForeground(Color.BLACK);
-        detailtable.setBackground(new Color(250,250,250));
-        detailtable.setSelectionBackground(new Color(236,236,237));
-//        detailtable
-        //添加表头和表格内容
-        containbottom.add(detailtable.getTableHeader(),BorderLayout.NORTH);
-        containbottom.add(detailtable,BorderLayout.CENTER);
-
-
-        //设置表头
-//        detailtable.getTableHeader().setFocusTraversalKe;
-
-        //设置行高
-        detailtable.setRowHeight(30);
-//        JMenuItem download = new JMenuItem("下载");
-        final JMenuItem del = new JMenuItem("删除");
-        final JMenuItem play = new JMenuItem("播放");
-        JMenuItem stop = new JMenuItem("暂停");
-        final JPopupMenu sheetpop = new JPopupMenu();
-//        sheetpop.add(download);
-
-        sheetpop.add(play);
-        sheetpop.add(stop);
-        sheetpop.add(del);
-
-        detailtable.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e ) {
-                super.mouseClicked(e);
-                if(e.getButton() == MouseEvent.BUTTON3) {
-                    focusrowindex = detailtable.rowAtPoint(e.getPoint());
-                    if (focusrowindex == -1) {
-                        return;
-                    }
-                    detailtable.setRowSelectionInterval(focusrowindex, focusrowindex);
-                    //弹出菜单
-                    sheetpop.show(detailtable, e.getX(), e.getY());
-                }
-
-
-            }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                super.mousePressed(e);
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                super.mouseReleased(e);
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                super.mouseEntered(e);
-            }
-        });
-        //接下来为删除和编辑做对应的操作，添加对应的事件
-//        download.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-////                layout.show(panelmainer, "editlist");.
-//                //现在应该选择下载到哪一个歌单 默认选则我喜欢的歌单
-//                //public static void downloadMusic(HashMap<String, String> music, HashMap<String,String> sheet)
-//                httpTools.downloadMusic(mymusicsheet.get(focusrowindex),musiclist.get(0));
-//                System.out.println("下载完成");
-//
-//            }
-//        });
-
-
-        play.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-
-//
-//                //播放按钮变成暂停
-//                playbutton.setText("暂停");
-//                settime();
-                playbutton.setText("暂停");
-
-
-
-                if(playflag == 1) {
-                    threadscroll.interrupt();
-                    stoptime = 0;
-//                    playerThread.pause();
-
-
-
-
-                }else{
-
-                }
-                playerThread.stop();
-                System.out.println("多重走");
-
-
-                playerThread.setPlayThread(new Thread(playerThread));
-                playerThread.getPlayThread().start();
-
-
-                 playerThread.setMusicIndex(focusrowindex);
-                playerThread.setMusicList(mymusicsheet);
-                settime();
-
-                playflag = 1;
-
-
-                //播放按钮变成暂停
-                playbutton.setText("暂停");
-                System.out.println("现在播放到的时间"+playerThread.getNowMusicTime());
-            }
-        });
-        stop.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-//                playflag = 0;
-//                playerThread.pause();
-//                playbutton.setText("播放");
-
-                //暂停拖动条的线程，isINterrupt不会清除，而
-                threadscroll.interrupt();
-
-                //记录下这时候的时间，以便下一次开始'
-                stoptime = playerThread.getNowMusicTime();
-//                    System.out.println("stop22"+threadscroll.interrupted());
-
-                playbutton.setText("播放");
-                playerThread.pause();
-                playflag = 0;
-            }
-        });
-        //删除我的歌单中的歌曲
-        del.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                int result = JOptionPane.showConfirmDialog(
-                        frame,
-                        "确认删除？",
-                        "提示",
-                        JOptionPane.YES_NO_CANCEL_OPTION
-
-                );
-                System.out.println("选择结果:"+result);
-                //deleteSheet(HashMap<String, String> sheet)
-                if(result==0){
-                    //调用数据库方法
-                    sqliteTools.deleteMusic(mymusicsheet.get(focusrowindex));
-                    //重新绘制
-                    getmusicsheet(focusmymenuindex);
-                }
-
-            }
-
-
-        });
-        //如果有上一页下一页按钮的话
-        lastpage.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-
-                if(nowpage != 1){
-                    nowpage-=1;
-                    getsearchmusicsheet(searchinput.getText(),nowpage,10);
-                }
-            }
-        });
-        nextpage.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                nowpage+=1;
-                getsearchmusicsheet(searchinput.getText(),nowpage,10);
-            }
-        });
-
-    }
 
     @Override
     public void playerNow() {
