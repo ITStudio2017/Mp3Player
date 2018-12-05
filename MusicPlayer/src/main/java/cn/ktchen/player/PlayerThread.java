@@ -328,6 +328,7 @@ public class PlayerThread implements Runnable {
         }
     }
 
+    //索引播放
     public void indexMusic(int index){
         this.pause();
         this.startPosition = 0;

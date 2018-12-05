@@ -145,7 +145,7 @@ public class HttpTools {
         list.add(new BasicNameValuePair("name", keyWord));
 
         //获取查询集
-        String result = doGet(mliAPI, list);
+        String result = doPost(itmxueAPI, list);
         if (result == null)
             return null;
         JSONArray jsonArray = new JSONArray(result);
@@ -213,7 +213,7 @@ public class HttpTools {
         list.add(new BasicNameValuePair("types", "url"));
         list.add(new BasicNameValuePair("id", hashMap.get("id")));
         list.add(new BasicNameValuePair("source", hashMap.get("source")));
-        return new JSONObject(doGet(mliAPI, list)).getString("url");
+        return new JSONObject(doPost(itmxueAPI, list)).getString("url");
     }
 
     //下载音乐文件
@@ -232,7 +232,7 @@ public class HttpTools {
         list.add(new BasicNameValuePair("types", "pic"));
         list.add(new BasicNameValuePair("id", hashMap.get("pic_id")));
         list.add(new BasicNameValuePair("source", hashMap.get("source")));
-        JSONObject jsonObject = new JSONObject(doGet(mliAPI, list));
+        JSONObject jsonObject = new JSONObject(doPost(itmxueAPI, list));
         String imgUrl = jsonObject.getString("url");
         if (hashMap.get("source").equals(Sources.netease.toString())) {
             //网易云封面url处理,下载高清版😄😄
@@ -259,7 +259,7 @@ public class HttpTools {
         list.add(new BasicNameValuePair("types", "lyric"));
         list.add(new BasicNameValuePair("id", hashMap.get("id")));
         list.add(new BasicNameValuePair("source", hashMap.get("source")));
-        JSONObject jsonObject = new JSONObject(doGet(mliAPI, list));
+        JSONObject jsonObject = new JSONObject(doPost(itmxueAPI, list));
         String lyric = jsonObject.getString("lyric");
         makeParentFolder(targetPath);
         try {
@@ -407,5 +407,10 @@ public class HttpTools {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static void main(String[] args) {
+        Vector<HashMap<String, String>> result = getInternetPlaylist(1,20);
+
     }
 }
