@@ -193,8 +193,12 @@ public class Basicevent extends PlayerUi {
         iconlist.setImage(iconlist.getImage().getScaledInstance(140, 140,Image.SCALE_DEFAULT ));
         listcover.setIcon(iconlist);
 
-        final Object[][] rowData = new Object[count][];
-        for(int i=0;i<count;i++) {
+//        if( != count){
+//            count = searchmusicsheet.size();
+//        }
+
+        final Object[][] rowData = new Object[searchmusicsheet.size()][];
+        for(int i=0;i<searchmusicsheet.size();i++) {
             Object[] temp = new Object[4];
             temp[0] = new Integer(i + 1);
             temp[1] = new String(searchmusicsheet.get(i).get("name"));
@@ -1222,7 +1226,12 @@ public class Basicevent extends PlayerUi {
 
                 // 显示输入对话框, 返回选择的内容, 点击取消或关闭, 则返回null
                 musiclist = sqliteTools.getSheetList();
+                if(musiclist.size() == 0){
+                    JOptionPane.showMessageDialog( frame, "请先创建一个歌单", "消息提示", JOptionPane.INFORMATION_MESSAGE );
+                    return;
+                }
                 //清空vector
+
                 Object inputContent = JOptionPane.showInputDialog(
                         frame,
                         "下载到歌单: ",
@@ -1233,16 +1242,18 @@ public class Basicevent extends PlayerUi {
                         selectionValues[0]
 //
                 );
+
                 System.out.println("输入的内容: " + inputContent);
                 //再去匹配看是歌单哪一个
                 for(int i=0;i<myv.size();i++)
                 {
                     if(inputContent == myv.get(i).toString()){
-                        httpTools.downloadMusic(searchmusicsheet.get(focusrowindex),musiclist.get(i));
+                        httpTools.downloadMusic(searchmusicsheet.get(focussearchindex),musiclist.get(i));
                         System.out.println("下载完成");
                         return;
                     }
                 }
+
             }
 
         });
