@@ -110,7 +110,7 @@ public class PlayerUi {
 //    public Object[][] rowData = null;
 
     //    public Vector<Object> rowData = new Vector<Object>();
-    public String[] columnNames = {"序号", "音乐标题", "歌手"};   //那个音乐列表的表格！！！
+    public String[] columnNames = {"序号", "音乐标题", "歌手","专辑"};   //那个音乐列表的表格！！！
     public JLabel downloadbutton =  new JLabel(new ImageIcon(System.getProperty("user.dir")+"/UIphotos/downloadmusic.png"));
     public JButton nextpage = new JButton("下一页");  //点击之后跳转到下一页！
     public JButton lastpage = new JButton("上一页"); //
@@ -154,6 +154,12 @@ public class PlayerUi {
     public JPanel hotlabelwrap4 = new JPanel();
     public JPanel hotlabelwrap5 = new JPanel();
     public JPanel hotlabelwrap6 = new JPanel();
+
+    //热门榜单的上一页下一页
+    public JPanel hotlisttop = new JPanel();  //上半块
+    public JPanel hotlistbottom = new JPanel(); //下板块
+    public JButton hotnextpage = new JButton("下一页");  //点击之后跳转到下一页！
+    public JButton hotlastpage = new JButton("上一页"); //
 
     public void initui(JFrame frame){
         layout();
@@ -740,9 +746,10 @@ public class PlayerUi {
         hotlabel4.setPreferredSize(new Dimension(240,240));
         hotlabel5.setPreferredSize(new Dimension(240,240));
         hotlabel6.setPreferredSize(new Dimension(240,240));
-        hotslist.setLayout(new GridLayout(2,3));
+
         hotslist.setBackground(new Color(250,250,250));
-        hotslist.setBorder(BorderFactory.createLineBorder(new Color(250,250,250),30));
+        hotlistbottom.setBackground(new Color(250,250,250));
+//        hotslist.setBorder(BorderFactory.createLineBorder(new Color(250,250,250),30));
         hotlabelwrap1.setBackground(new Color(250,250,250));
         hotlabelwrap2.setBackground(new Color(250,250,250));
         hotlabelwrap3.setBackground(new Color(250,250,250));
@@ -801,13 +808,22 @@ public class PlayerUi {
         hotlabelwrap5.add(hotlabelintro5,BorderLayout.SOUTH);
         hotlabelwrap6.add(hotlabelintro6,BorderLayout.SOUTH);
 //        hotlabelwrap1
+        hotlistbottom.setPreferredSize(new Dimension(900,30));
+        hotlisttop.setPreferredSize(new Dimension(900,570));
+        hotlisttop.setLayout(new GridLayout(2,3));
 
-        hotslist.add(hotlabelwrap1);
-        hotslist.add(hotlabelwrap2);
-        hotslist.add(hotlabelwrap3);
-        hotslist.add(hotlabelwrap4);
-        hotslist.add(hotlabelwrap5);
-        hotslist.add(hotlabelwrap6);
+        hotlisttop.add(hotlabelwrap1);
+        hotlisttop.add(hotlabelwrap2);
+        hotlisttop.add(hotlabelwrap3);
+        hotlisttop.add(hotlabelwrap4);
+        hotlisttop.add(hotlabelwrap5);
+        hotlisttop.add(hotlabelwrap6);
+        hotlistbottom.setLayout(new BorderLayout());
+        hotlistbottom.add(hotlastpage,BorderLayout.WEST);
+        hotlistbottom.add(hotnextpage,BorderLayout.EAST);
+
+        hotslist.add(hotlisttop);
+        hotslist.add(hotlistbottom);
 
 
 

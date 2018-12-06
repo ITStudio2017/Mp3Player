@@ -54,6 +54,7 @@ public class Basicevent extends PlayerUi {
     public double stoptime = 0; // 记录现在停止时的时间
     public int nowpage = 0; //记录当前所在页
     public int playnowclick = 0; //点击当前播放歌曲
+    public int hotlistpage = 1; //记录热门榜当前页
 
     String url=""; //保存修改过后的歌单路径
     public static Basicevent playerui;
@@ -140,6 +141,7 @@ public class Basicevent extends PlayerUi {
             temp[0] = new Integer(i + 1);
             temp[1] = new String(mymusicsheet.get(i).get("name"));
             temp[2] = new String(mymusicsheet.get(i).get("artist"));
+            temp[3] = new String(mymusicsheet.get(i).get("album"));
             rowData[i] = temp;
         }
 //        detailtable = new JTable(rowData,columnNames);
@@ -193,11 +195,11 @@ public class Basicevent extends PlayerUi {
 
         final Object[][] rowData = new Object[count][];
         for(int i=0;i<count;i++) {
-////            temp[0]
             Object[] temp = new Object[4];
             temp[0] = new Integer(i + 1);
             temp[1] = new String(searchmusicsheet.get(i).get("name"));
             temp[2] = new String(searchmusicsheet.get(i).get("artist"));
+            temp[3] = new String(searchmusicsheet.get(i).get("album"));
 //                temp[3] = new Label("下载");
             rowData[i] = temp;
         }
@@ -251,7 +253,7 @@ public class Basicevent extends PlayerUi {
             temp[0] = new Integer(i + 1);
             temp[1] = new String(searchmusicsheet.get(i).get("name"));
             temp[2] = new String(searchmusicsheet.get(i).get("artist"));
-//                temp[3] = new Label("下载");
+            temp[3] = new String(searchmusicsheet.get(i).get("album"));
             rowData[i] = temp;
         }
         defaultdetailtable = new DefaultTableModel(rowData,columnNames);
@@ -623,7 +625,7 @@ public class Basicevent extends PlayerUi {
                             songnowword.setText("该歌曲暂无歌词");
                         }
 
-               
+
 
 
                     }
@@ -1304,62 +1306,71 @@ public class Basicevent extends PlayerUi {
 
 
     }
-    //关于榜单的部分，一点点
-    @Override
-    public void playerhotlist() {
-        super.playerhotlist();
-
-      new Thread(){
+    public void sethotlist(final int page){
+        new Thread(){
             @Override
             public void run() {
                 super.run();
 
-        //public static Vector<HashMap<String,String>> getInternetPlaylist(int page, int count)
-        try {
+                //public static Vector<HashMap<String,String>> getInternetPlaylist(int page, int count)
+                try {
 
 
-            hostslist = httpTools.getInternetPlaylist(1, 6);
+                    hostslist = httpTools.getInternetPlaylist(page, 6);
 //         for(int i = 0;i<6;i++) {
 //             String temp = "hotlabelwrap"+i;
 
-            hotlabelword1.setText(hostslist.get(0).get("title"));
-            hotlabelword2.setText(hostslist.get(1).get("title"));
-            hotlabelword3.setText(hostslist.get(2).get("title"));
-            hotlabelword4.setText(hostslist.get(3).get("title"));
-            hotlabelword5.setText(hostslist.get(4).get("title"));
-            hotlabelword6.setText(hostslist.get(5).get("title"));
-            hotlabelintro1.setText(hostslist.get(0).get("description"));
-            hotlabelintro2.setText(hostslist.get(1).get("description"));
-            hotlabelintro3.setText(hostslist.get(2).get("description"));
-            hotlabelintro4.setText(hostslist.get(3).get("description"));
-            hotlabelintro5.setText(hostslist.get(4).get("description"));
-            hotlabelintro6.setText(hostslist.get(5).get("description"));
-            try {
-                hotcover1 = new ImageIcon(new URL(hostslist.get(0).get("coverImgUrl")));
-                hotcover2 = new ImageIcon(new URL(hostslist.get(1).get("coverImgUrl")));
-                hotcover3 = new ImageIcon(new URL(hostslist.get(2).get("coverImgUrl")));
-                hotcover4 = new ImageIcon(new URL(hostslist.get(3).get("coverImgUrl")));
-                hotcover5 = new ImageIcon(new URL(hostslist.get(4).get("coverImgUrl")));
-                hotcover6 = new ImageIcon(new URL(hostslist.get(5).get("coverImgUrl")));
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
+                    hotlabelword1.setText(hostslist.get(0).get("title"));
+                    hotlabelword2.setText(hostslist.get(1).get("title"));
+                    hotlabelword3.setText(hostslist.get(2).get("title"));
+                    hotlabelword4.setText(hostslist.get(3).get("title"));
+                    hotlabelword5.setText(hostslist.get(4).get("title"));
+                    hotlabelword6.setText(hostslist.get(5).get("title"));
+                    hotlabelintro1.setText(hostslist.get(0).get("description"));
+                    hotlabelintro2.setText(hostslist.get(1).get("description"));
+                    hotlabelintro3.setText(hostslist.get(2).get("description"));
+                    hotlabelintro4.setText(hostslist.get(3).get("description"));
+                    hotlabelintro5.setText(hostslist.get(4).get("description"));
+                    hotlabelintro6.setText(hostslist.get(5).get("description"));
+                    try {
+                        hotcover1 = new ImageIcon(new URL(hostslist.get(0).get("coverImgUrl")));
+                        hotcover2 = new ImageIcon(new URL(hostslist.get(1).get("coverImgUrl")));
+                        hotcover3 = new ImageIcon(new URL(hostslist.get(2).get("coverImgUrl")));
+                        hotcover4 = new ImageIcon(new URL(hostslist.get(3).get("coverImgUrl")));
+                        hotcover5 = new ImageIcon(new URL(hostslist.get(4).get("coverImgUrl")));
+                        hotcover6 = new ImageIcon(new URL(hostslist.get(5).get("coverImgUrl")));
+                    } catch (MalformedURLException e) {
+                        e.printStackTrace();
+                    }
 
-            hotcover1.setImage(hotcover1.getImage().getScaledInstance(240, 240, Image.SCALE_DEFAULT));
-            hotcover2.setImage(hotcover2.getImage().getScaledInstance(240, 240, Image.SCALE_DEFAULT));
-            hotcover3.setImage(hotcover3.getImage().getScaledInstance(240, 240, Image.SCALE_DEFAULT));
-            hotcover4.setImage(hotcover4.getImage().getScaledInstance(240, 240, Image.SCALE_DEFAULT));
-            hotcover5.setImage(hotcover5.getImage().getScaledInstance(240, 240, Image.SCALE_DEFAULT));
-            hotcover6.setImage(hotcover6.getImage().getScaledInstance(240, 240, Image.SCALE_DEFAULT));
-            hotlabel1.setIcon(hotcover1);
-            hotlabel2.setIcon(hotcover2);
-            hotlabel3.setIcon(hotcover3);
-            hotlabel4.setIcon(hotcover4);
-            hotlabel5.setIcon(hotcover5);
-            hotlabel6.setIcon(hotcover6);
+                    hotcover1.setImage(hotcover1.getImage().getScaledInstance(240, 240, Image.SCALE_DEFAULT));
+                    hotcover2.setImage(hotcover2.getImage().getScaledInstance(240, 240, Image.SCALE_DEFAULT));
+                    hotcover3.setImage(hotcover3.getImage().getScaledInstance(240, 240, Image.SCALE_DEFAULT));
+                    hotcover4.setImage(hotcover4.getImage().getScaledInstance(240, 240, Image.SCALE_DEFAULT));
+                    hotcover5.setImage(hotcover5.getImage().getScaledInstance(240, 240, Image.SCALE_DEFAULT));
+                    hotcover6.setImage(hotcover6.getImage().getScaledInstance(240, 240, Image.SCALE_DEFAULT));
+                    hotlabel1.setIcon(hotcover1);
+                    hotlabel2.setIcon(hotcover2);
+                    hotlabel3.setIcon(hotcover3);
+                    hotlabel4.setIcon(hotcover4);
+                    hotlabel5.setIcon(hotcover5);
+                    hotlabel6.setIcon(hotcover6);
 
 
 //         }
+                } catch (Exception e) {
+                    System.out.println("网络繁忙请稍后再试");
+                }
+            }
+        }.start();
+    }
+    //关于榜单的部分，一点点
+    @Override
+    public void playerhotlist() {
+        super.playerhotlist();
+        sethotlist(1);
+
+
             hotmenutitle.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
@@ -1405,12 +1416,22 @@ public class Basicevent extends PlayerUi {
                     gethotmusicsheet(5);
                 }
             });
+            hotlastpage.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    if(hotlistpage != 1){
+                        hotlistpage--;
+                        sethotlist(hotlistpage);
+                    }
+                }
+            });
+            hotnextpage.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    hotlistpage++;
+                    sethotlist(hotlistpage);
+                }
+            });
 
 
-        } catch (Exception e) {
-            System.out.println("网络繁忙请稍后再试");
-        }
-            }
-        }.start();
+
     }
 }
