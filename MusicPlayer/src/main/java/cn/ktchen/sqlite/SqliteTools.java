@@ -124,6 +124,17 @@ public class SqliteTools {
 
     //删除歌单
     public static void deleteSheet(HashMap<String, String> sheet) {
+
+        //删除歌曲
+        Vector<HashMap<String, String>> musicList = SqliteTools.getMusicBySheet(sheet);
+        for (HashMap<String, String> music :
+                musicList) {
+            try{
+                deleteMusic(music);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
         String id = sheet.get("id");
         String sql = "delete from sheet where id = " + id;
         try {
