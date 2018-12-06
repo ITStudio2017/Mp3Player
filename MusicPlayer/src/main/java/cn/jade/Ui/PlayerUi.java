@@ -44,7 +44,7 @@ public class PlayerUi {
     public Vector<String> myv = new Vector<String>(); //别my人的歌单
     public JPanel musicbuttons = new JPanel(); //所有的播放相关按键
     public JPanel pplaybutton = new JPanel();  //包裹播放按钮
-//    private JPanel pstopbutton = new JPanel();  //包裹暂停按钮
+    //    private JPanel pstopbutton = new JPanel();  //包裹暂停按钮
     public JPanel plastbutton = new JPanel(); //包裹上一首按钮
     public JPanel pnextbutton = new JPanel(); //包裹下一首按钮
     public JPanel pstylebutton = new JPanel(); //包裹播放方式按钮
@@ -53,18 +53,22 @@ public class PlayerUi {
     public JButton nextbutton = new NewButton("下"); //下一首按钮
     public JButton stylebutton = new JButton(); //播放方式切换按钮
     public JPanel listcoverwrap = new JPanel(); //
-    public ImageIcon iconlist = new ImageIcon("E:/图片素材/刘看山.png");
+    public ImageIcon iconlist = new ImageIcon(System.getProperty("user.dir")+"/UIphotos/刘看山.png");
     public JLabel listcover = new JLabel(iconlist); //歌单封面！！！！！
 
 
     public JPanel containtopright = new JPanel();
     public JLabel covertitle = new JLabel("每日歌曲更新");
 
-    public ImageIcon iconnow = new ImageIcon("E:/图片素材/刘看山.png");
+    public ImageIcon iconnow = new ImageIcon(System.getProperty("user.dir")+"/UIphotos/刘看山.png");
     public JLabel playnowcover = new JLabel(iconnow);
 
 
     public CardLayout layout = null; //这是为了歌单以及内容切换展示而设置的一种卡片布局
+    //当前播放状态！！！
+    public JLabel songtitle = new JLabel("歌曲名称");
+    public JLabel songsinger = new JLabel("歌手");
+    public JLabel songnowword = new JLabel("该歌曲没有歌词");
     public JButton changelist = new JButton("歌单"); //切换为展示清单
     public JButton changecontent = new JButton("歌词"); //切换为展示内容
     public int currentProgress = 0; //当前音乐播放进度
@@ -74,26 +78,26 @@ public class PlayerUi {
     public JLabel progressnow = new JLabel("00:00");   //现在播放到的位置
     public JLabel progresstotal = new JLabel("00:00"); //一共的播放长度
     public JPanel musicsliders = new JPanel();  //包裹进度块
-//    JPanel test = new JPanel(); //包裹切换方式
+    //    JPanel test = new JPanel(); //包裹切换方式
     public JLabel playstyle = null;  //包裹切换方式
     public int clickstyle = 1; //记录点击播放方式的次数，对应播放方式
     public ImageIcon playstyleicon = null; //放置播放方式
     public String playstylestring;  //记录播放方式，以字符串的形式
     public JLabel mymenuadd = null; //我的歌单的add按钮
     public JLabel othermenuadd = null; //别人听的add按钮
-//    E:\图片素材\刘看山.png
+    //    E:\图片素材\刘看山.png
 //    System.getProperty("user.dir") + "/UIphotos/indexcover.png")
     //编辑菜单区域
     public JTextField editlistname = new JTextField();
     public JLabel editlistlabel = new JLabel("歌单名：");
-    public ImageIcon coverimage = new ImageIcon("E:/图片素材/刘看山.png");
+    public ImageIcon coverimage = new ImageIcon(System.getProperty("user.dir")+"/UIphotos/刘看山.png");
     public JLabel indexcover = new JLabel(coverimage);
     public JButton editsave = new JButton("保存");
     public JButton editcancel = new JButton("取消");
     public JButton editcover = new JButton("编辑封面");
 
     //歌单详情页
-    public ImageIcon icondetail = new ImageIcon("E:/图片素材/刘看山.png"); //歌单详情页放
+    public ImageIcon icondetail = new ImageIcon(System.getProperty("user.dir")+"/UIphotos/刘看山.png"); //歌单详情页放
     public JLabel detailcover = new JLabel();  //歌词详情页的歌单封面！！
     public JTextArea musicwords =  new JTextArea(); //歌词！！！！
 
@@ -105,7 +109,7 @@ public class PlayerUi {
 
 //    public Object[][] rowData = null;
 
-//    public Vector<Object> rowData = new Vector<Object>();
+    //    public Vector<Object> rowData = new Vector<Object>();
     public String[] columnNames = {"序号", "音乐标题", "歌手"};   //那个音乐列表的表格！！！
     public JLabel downloadbutton =  new JLabel(new ImageIcon(System.getProperty("user.dir")+"/UIphotos/downloadmusic.png"));
     public JButton nextpage = new JButton("下一页");  //点击之后跳转到下一页！
@@ -137,6 +141,12 @@ public class PlayerUi {
     public JLabel hotlabelword4 = new JLabel("这是一段示范文字");
     public JLabel hotlabelword5 = new JLabel("这是一段示范文字");
     public JLabel hotlabelword6 = new JLabel("这是一段示范文字");
+    public JLabel hotlabelintro1 = new JLabel("这是一段示范文字");
+    public JLabel hotlabelintro2 = new JLabel("这是一段示范文字");
+    public JLabel hotlabelintro3 = new JLabel("这是一段示范文字");
+    public JLabel hotlabelintro4 = new JLabel("这是一段示范文字");
+    public JLabel hotlabelintro5 = new JLabel("这是一段示范文字");
+    public JLabel hotlabelintro6 = new JLabel("这是一段示范文字");
 
     public JPanel hotlabelwrap1 = new JPanel();
     public JPanel hotlabelwrap2 = new JPanel();
@@ -156,7 +166,7 @@ public class PlayerUi {
         playercontaindetail();
         playerlistedit();
         playerhotlist();
-        layout.show(panelmainer,"hotslist") ;//先显示快快
+//        layout.show(panelmainer,"hotslist") ;//先显示快快
     }
     //切换内容页的方法
 
@@ -190,7 +200,7 @@ public class PlayerUi {
 //        panelleft.setLayout(null);
 //
         panelleft.setLayout(new GridLayout(4,1));
-;       panelleft.add(playintroduce);
+        ;       panelleft.add(playintroduce);
         panelleft.add(panelleftmiddle);
         panelleft.add(panellefttop);
         panelleft.add(playnow);
@@ -280,7 +290,7 @@ public class PlayerUi {
     //实现上面的头
     public void playerNav(){
 
-        Object[] sources = {"网易云音乐","QQ音乐","酷我音乐"};
+        Object[] sources = {"网易云音乐","QQ音乐","虾米音乐","酷狗音乐"};
         searchsource = new JComboBox(sources);
         searchinput.setPreferredSize(new Dimension(300,30));
 //        searchbutton.setFocusable(false);
@@ -555,17 +565,33 @@ public class PlayerUi {
     public void playerNow() {
 
 
-        playnow.setLayout(new FlowLayout(FlowLayout.LEFT));
+//        playnow.setLayout(new FlowLayout(FlowLayout.LEFT));
+        playnow.setLayout(new BorderLayout());
 
         playnowcover.setBackground(Color.PINK);
         playnowcover.setPreferredSize(new Dimension(80,80));
 
         iconnow.setImage(iconnow.getImage().getScaledInstance(80, 80,Image.SCALE_DEFAULT ));
-        playnow.add(playnowcover);
+
         playnow.setBackground(new Color(245,245,247));
 
-        playnow.add(changecontent);
-        playnow.add(changelist);
+        JPanel temp = new JPanel();
+        temp.setLayout(new GridLayout(2,1));
+        temp.setBorder(BorderFactory.createLineBorder(new Color(245,245,247)));
+        temp.setBorder(BorderFactory.createEmptyBorder(20,0,20,0));
+        temp.setPreferredSize(new Dimension(150,80));
+        temp.setBackground(new Color(245,245,247));
+        temp.add(songtitle);
+        temp.add(songsinger);
+//        songtitle.ma
+
+        playnow.add(playnowcover,BorderLayout.WEST);
+        playnow.add(temp,BorderLayout.EAST);
+        playnow.add(songnowword,BorderLayout.SOUTH);
+
+//        playnow.add(changecontent);
+//        playnow.add(changelist);
+//        playnow.add(songnowword);
         changecontent.setFocusPainted(false);
         changelist.setFocusPainted(false);
 
@@ -598,7 +624,7 @@ public class PlayerUi {
 
 
         String url = "/downloads/cover.png";
-        JLabel back = new JLabel(new ImageIcon("E:/图片素材/刘看山.png"));
+        JLabel back = new JLabel(new ImageIcon(System.getProperty("user.dir")+"/UIphotos/刘看山.png"));
         back.setPreferredSize(new Dimension(containwrap2.getWidth(),containtop.getHeight()));
 
 
@@ -715,17 +741,24 @@ public class PlayerUi {
         hotlabel5.setPreferredSize(new Dimension(240,240));
         hotlabel6.setPreferredSize(new Dimension(240,240));
         hotslist.setLayout(new GridLayout(2,3));
-//        hotslist.setBackground(Color.red);
+        hotslist.setBackground(new Color(250,250,250));
+        hotslist.setBorder(BorderFactory.createLineBorder(new Color(250,250,250),30));
+        hotlabelwrap1.setBackground(new Color(250,250,250));
+        hotlabelwrap2.setBackground(new Color(250,250,250));
+        hotlabelwrap3.setBackground(new Color(250,250,250));
+        hotlabelwrap4.setBackground(new Color(250,250,250));
+        hotlabelwrap5.setBackground(new Color(250,250,250));
+        hotlabelwrap6.setBackground(new Color(250,250,250));
 //        hotlabelwrap1.setBackground(Color.black);
 
 
 
-        hotcover1 = new ImageIcon("E:/图片素材/刘看山.png");
-        hotcover2 = new ImageIcon("E:/图片素材/刘看山.png");
-        hotcover3 = new ImageIcon("E:/图片素材/刘看山.png");
-        hotcover4 = new ImageIcon("E:/图片素材/刘看山.png");
-        hotcover5 = new ImageIcon("E:/图片素材/刘看山.png");
-        hotcover6 = new ImageIcon("E:/图片素材/刘看山.png");
+        hotcover1 = new ImageIcon(System.getProperty("user.dir")+"/UIphotos/刘看山.png");
+        hotcover2 = new ImageIcon(System.getProperty("user.dir")+"/UIphotos/刘看山.png");
+        hotcover3 = new ImageIcon(System.getProperty("user.dir")+"/UIphotos/刘看山.png");
+        hotcover4 = new ImageIcon(System.getProperty("user.dir")+"/UIphotos/刘看山.png");
+        hotcover5 = new ImageIcon(System.getProperty("user.dir")+"/UIphotos/刘看山.png");
+        hotcover6 = new ImageIcon(System.getProperty("user.dir")+"/UIphotos/刘看山.png");
         hotcover1.setImage(hotcover1.getImage().getScaledInstance(240, 240,Image.SCALE_DEFAULT ));
         hotcover2.setImage(hotcover2.getImage().getScaledInstance(240, 240,Image.SCALE_DEFAULT ));
         hotcover3.setImage(hotcover3.getImage().getScaledInstance(240, 240,Image.SCALE_DEFAULT ));
@@ -753,12 +786,20 @@ public class PlayerUi {
         hotlabelwrap4.add(hotlabel4,BorderLayout.NORTH);
         hotlabelwrap5.add(hotlabel5,BorderLayout.NORTH);
         hotlabelwrap6.add(hotlabel6,BorderLayout.NORTH);
-        hotlabelwrap1.add(hotlabelword1,BorderLayout.SOUTH);
-        hotlabelwrap2.add(hotlabelword2,BorderLayout.SOUTH);
-        hotlabelwrap3.add(hotlabelword3,BorderLayout.SOUTH);
-        hotlabelwrap4.add(hotlabelword4,BorderLayout.SOUTH);
-        hotlabelwrap5.add(hotlabelword5,BorderLayout.SOUTH);
-        hotlabelwrap6.add(hotlabelword6,BorderLayout.SOUTH);
+
+        hotlabelwrap1.add(hotlabelword1,BorderLayout.CENTER);
+        hotlabelwrap2.add(hotlabelword2,BorderLayout.CENTER);
+        hotlabelwrap3.add(hotlabelword3,BorderLayout.CENTER);
+        hotlabelwrap4.add(hotlabelword4,BorderLayout.CENTER);
+        hotlabelwrap5.add(hotlabelword5,BorderLayout.CENTER);
+        hotlabelwrap6.add(hotlabelword6,BorderLayout.CENTER);
+
+        hotlabelwrap1.add(hotlabelintro1,BorderLayout.SOUTH);
+        hotlabelwrap2.add(hotlabelintro2,BorderLayout.SOUTH);
+        hotlabelwrap3.add(hotlabelintro3,BorderLayout.SOUTH);
+        hotlabelwrap4.add(hotlabelintro4,BorderLayout.SOUTH);
+        hotlabelwrap5.add(hotlabelintro5,BorderLayout.SOUTH);
+        hotlabelwrap6.add(hotlabelintro6,BorderLayout.SOUTH);
 //        hotlabelwrap1
 
         hotslist.add(hotlabelwrap1);

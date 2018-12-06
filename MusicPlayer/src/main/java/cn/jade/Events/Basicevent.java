@@ -18,8 +18,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Vector;
 
@@ -28,7 +29,7 @@ import java.util.Vector;
 //import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class Basicevent extends PlayerUi {
-//    public static PlayerThread playerThread = null;
+    //    public static PlayerThread playerThread = null;
     private static PlayerUi playerUi = new PlayerUi();
     public static SqliteTools sqliteTools = new SqliteTools();
     public static HttpTools httpTools = new HttpTools();
@@ -38,16 +39,21 @@ public class Basicevent extends PlayerUi {
     public Vector<HashMap<String,String>> nowplaysheet = new Vector<HashMap<String,String>>(); //现在正在播放的歌单
 
     public Vector<HashMap<String,String>> hostslist = new Vector<HashMap<String, String>>();  //存放热门榜单相关
+    public Vector<Double> songtime = new Vector<Double>();  //存放 所有的歌词的时间
+    public Vector<String> songword = new Vector<String>(); //存放所有的歌词对应的一段一段
+
     public PlayerThread playerThread = new PlayerThread(0,mymusicsheet);
     public PlayerThread playerThreadnet = null;  //网络歌单那边的
     public int tableflag = 0;//判断此时有没有列表
     public int focusrowindex = -1;  //歌单内音乐当前选中项
     public int focusmymenuindex = 0;
+    public int focussearchindex = -1;
     public Thread thread = null;   //这个是播放音乐的线程
     public Thread threadscroll = null; //这个是滚动条的线程
     public int playflag = 0;//判断有没有歌正在播放
     public double stoptime = 0; // 记录现在停止时的时间
     public int nowpage = 0; //记录当前所在页
+    public int playnowclick = 0; //点击当前播放歌曲
 
     String url=""; //保存修改过后的歌单路径
     public static void main(String[] args){
@@ -63,7 +69,7 @@ public class Basicevent extends PlayerUi {
 
 
         frame.setVisible(true);
-        System.out.println("xxx");
+
     }
     Basicevent(PlayerUi playerUi){
         this.playerUi = playerUi;
@@ -77,7 +83,6 @@ public class Basicevent extends PlayerUi {
     public void getmusicsheet(int index){
         //        public static Vector<HashMap<String, String>> getMusicBySheet(HashMap<String, String> sheet)
 
-//    System.out.println(image);
 
         //初始化歌单名称！！！
 
@@ -96,7 +101,7 @@ public class Basicevent extends PlayerUi {
 
         if(mymusicsheet.size()!=0){
             String image = musiclist.get(index).get("imagePath");
-            if(image == "null" ||image.equals("")){
+            if(image == "null" ||image.equals("null")){
                 image = mymusicsheet.get(0).get("musicImage");
             }
 //            String image = playerThread.getImagePath();
@@ -108,7 +113,7 @@ public class Basicevent extends PlayerUi {
             listcover.setIcon(iconlist);
         }else{
 
-            iconlist = new ImageIcon("E:/图片素材/刘看山.png");
+            iconlist = new ImageIcon(System.getProperty("user.dir")+"/UIphotos/刘看山.png");
             iconlist.setImage(iconlist.getImage().getScaledInstance(140, 140,Image.SCALE_DEFAULT ));
             listcover.setIcon(iconlist);
         }
@@ -151,17 +156,39 @@ public class Basicevent extends PlayerUi {
 
 
         containbottom.removeAll();
-        searchmusicsheet = httpTools.search(keyWord,page,count);
+        //看看它选了什么音乐
+        int choose = searchsource.getSelectedIndex();
+        System.out.println("choose"+choose);
+        String source = "";
+        switch (choose){
+            case 0:
+                source = "netease";
+            case 1:
+                source = "tencent";
+            case 2:
+                source = "xiami";
+            case 3:
+                source = "kugou";
+
+        }
+        searchmusicsheet = httpTools.search(keyWord,page,count,source);
+
+
+
+        iconlist = new ImageIcon(System.getProperty("user.dir")+"/UIphotos/刘看山.png");
+        covertitle.setText("搜索结果");
+        iconlist.setImage(iconlist.getImage().getScaledInstance(140, 140,Image.SCALE_DEFAULT ));
+        listcover.setIcon(iconlist);
 
         final Object[][] rowData = new Object[count][];
         for(int i=0;i<count;i++) {
 ////            temp[0]
-                Object[] temp = new Object[4];
-                temp[0] = new Integer(i + 1);
-                temp[1] = new String(searchmusicsheet.get(i).get("name"));
-                temp[2] = new String(searchmusicsheet.get(i).get("artist"));
+            Object[] temp = new Object[4];
+            temp[0] = new Integer(i + 1);
+            temp[1] = new String(searchmusicsheet.get(i).get("name"));
+            temp[2] = new String(searchmusicsheet.get(i).get("artist"));
 //                temp[3] = new Label("下载");
-                rowData[i] = temp;
+            rowData[i] = temp;
         }
         defaultdetailtable = new DefaultTableModel(rowData,columnNames);
         JTable detailtable = new JTable(defaultdetailtable){
@@ -183,7 +210,59 @@ public class Basicevent extends PlayerUi {
 
 
     }
+//获取我的热门列表
 
+    public void gethotmusicsheet(int index){
+
+
+        containbottom.removeAll();
+        //public static Vector<HashMap<String,String>> getMusicListByInternetPlaylist(
+        //      HashMap<String, String> playlist)
+        //获取歌单
+        searchmusicsheet = httpTools.getMusicListByInternetPlaylist(hostslist.get(index));
+
+        try{
+            iconlist = new ImageIcon(new URL(hostslist.get(index).get("coverImgUrl")));
+        }catch (Exception e){
+            System.out.println("网络繁忙，图片下载失败");
+            iconlist = new ImageIcon(System.getProperty("user.dir")+"/UIphotos/刘看山.png");
+
+        }
+
+        covertitle.setText(hostslist.get(index).get("title"));
+        iconlist.setImage(iconlist.getImage().getScaledInstance(140, 140,Image.SCALE_DEFAULT ));
+        listcover.setIcon(iconlist);
+        int count = 10;
+        final Object[][] rowData = new Object[count][];
+        for(int i=0;i<count;i++) {
+////            temp[0]
+            Object[] temp = new Object[4];
+            temp[0] = new Integer(i + 1);
+            temp[1] = new String(searchmusicsheet.get(i).get("name"));
+            temp[2] = new String(searchmusicsheet.get(i).get("artist"));
+//                temp[3] = new Label("下载");
+            rowData[i] = temp;
+        }
+        defaultdetailtable = new DefaultTableModel(rowData,columnNames);
+        JTable detailtable = new JTable(defaultdetailtable){
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+
+        };
+        detailtable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        settable(detailtable);
+        pagewrap.setLayout(new BorderLayout());
+//        pagewrap.add(lastpage,BorderLayout.WEST);
+//        pagewrap.add(nextpage,BorderLayout.EAST);
+        containbottom.add(pagewrap,BorderLayout.SOUTH);
+
+        layout.show(panelmainer, "list");
+
+
+    }
     //获取我的歌单列表
     public void getmymusiclist(){
         mylist.removeAll();
@@ -361,11 +440,12 @@ public class Basicevent extends PlayerUi {
                 threadscroll.interrupt();
                 playerThread.pause();
                 //当然拖的过程中当然要显示现在的时间啦
+                //现在时间的计算方式有点诡异
                 musicslider.addChangeListener(new ChangeListener() {
                     public void stateChanged(ChangeEvent e) {
+                        musicslider.setMaximum((int)playerThread.getMusicTime());
                         int temp = musicslider.getValue();
-                        int pinjun = (int)(playerThread.getMusicTime())/100;
-                        temp = pinjun*temp;
+
                         Time t = new Time(temp);
                         progressnow.setText(t.getTime());
 
@@ -385,10 +465,8 @@ public class Basicevent extends PlayerUi {
                 int temp = musicslider.getValue();
 
                 //获得value之后再重新设置
-                //但是首先这个value需要转换一下
-                int pinjun = (int)(playerThread.getMusicTime())/100;
-                temp = pinjun*temp;
-               // public boolean setTime(int seconds)
+
+                // public boolean setTime(int seconds)
                 playerThread.setTime(temp,true);
 //                playerThread.getPlayThread().start();
                 //再开一个新的
@@ -417,8 +495,20 @@ public class Basicevent extends PlayerUi {
         focusrowindex = playerThread.getMusicIndex();
         //设置playnow的封面
         //首先获取当前播放歌曲的相关信息
-        String image = nowplaysheet.get(focusrowindex).get("musicImage");
+        //如果是网络来源那么应该把图片换成url，如果没有图片 应该是默认图片，如果如果
+
+        String image ="";
+        if(nowplaysheet == searchmusicsheet){
+            image = playerThread.getImagePath(true);
+
+        }else{
+            image = nowplaysheet.get(focusrowindex).get("musicImage");
+        }
+
+
         iconnow = new ImageIcon(image);
+
+
         iconnow.setImage(iconnow.getImage().getScaledInstance(80, 80,Image.SCALE_DEFAULT ));
         playnowcover.setIcon(iconnow);
 
@@ -426,6 +516,10 @@ public class Basicevent extends PlayerUi {
         icondetail = new ImageIcon(image);
         icondetail.setImage(icondetail.getImage().getScaledInstance(300, 300,Image.SCALE_DEFAULT ));
         detailcover.setIcon(icondetail);
+
+        //设置歌手和歌名信息
+        songtitle.setText(nowplaysheet.get(focusrowindex).get("name"));
+        songsinger.setText(nowplaysheet.get(focusrowindex).get("artist"));
         //设置背景
 //        String str = "downloaddd";
 //        Pattern p = Pattern.compile("\\download.*");
@@ -439,20 +533,27 @@ public class Basicevent extends PlayerUi {
 //                    System.out.println(word);
         LrcAnalyze l = new LrcAnalyze(word);
         List<LrcAnalyze.LrcData> list = l.LrcGetList();
+        Time t2 = null;
+        songtime.removeAllElements();
+        songword.removeAllElements();
 
         for(LrcAnalyze.LrcData o:list){
-            System.out.println(o.Time);
+
+            songtime.add(new Time(o.Time).getSeconds());
+//            System.out.println(o.Time);
+            songword.add(o.LrcLine);
             musicwords.append(o.LrcLine+"\n");
 
         }
+//        musicwords.append(<span style=\"color:red\">测试文本</span>);
 
         playbutton.setText("暂停");
     }
     public void setotherfooter(){
         //设置拖动条的速度
         final double pinjun = playerThread.getMusicTime()/100;
-        System.out.println("pinjun"+pinjun);
-        System.out.println("totaltime"+playerThread.getMusicTime());
+//        System.out.println("pinjun"+pinjun);
+//        System.out.println("totaltime"+playerThread.getMusicTime());
         threadscroll = new Thread(){
             public void run(){
                 try{
@@ -462,7 +563,7 @@ public class Basicevent extends PlayerUi {
                     musicslider.setMaximum((int)m);
                     int now = (int)(playerThread.getNowMusicTime());
                     for(double i = now;i < m+30; ){
-                        System.out.println("现在播放到的时间"+playerThread.getNowMusicTime());
+//                        System.out.println("现在播放到的时间"+playerThread.getNowMusicTime());
                         //因为文件解码需要一些时间，所以前面一段时间或许要等待一下
 
 
@@ -479,6 +580,31 @@ public class Basicevent extends PlayerUi {
                         Time t = new Time(i);
 
                         progressnow.setText(t.getTime());
+
+                        //现在一个重大的任务就是，歌词！！换 给我换，首先，要有歌词
+                        int size = songtime.size();
+                        if(size != 0){
+                            for(int j = 0;j < size;j++ ){
+                                try{
+                                    if(j < size -1){
+                                        if(i>songtime.get(j) && i<songtime.get(j+1))
+                                        {
+//                                    musicwords.setText("");
+//                                    musicwords.append(songword.get(j));
+                                            songnowword.setText(songword.get(j));
+                                            break;
+                                        }
+                                    }else{
+                                        songnowword.setText(songword.get(j));
+                                    }
+
+                                }catch (Exception e){
+                                    System.out.println("系统繁忙请稍后再试");
+                                }
+
+
+                            }
+                        }
 
                         if(Math.ceil(i) == (int)m){
 
@@ -498,15 +624,15 @@ public class Basicevent extends PlayerUi {
                         }
                     }
 
-                            //假如播完了怎么办?现在正常停止了并且应该重新开始,那么就应该根据播放模式进行切换
+                    //假如播完了怎么办?现在正常停止了并且应该重新开始,那么就应该根据播放模式进行切换
 
 
 
 
-                        }catch (InterruptedException e){
-                            System.out.println("本次拖动条线程已暂停");
+                }catch (InterruptedException e){
+                    System.out.println("本次拖动条线程已暂停");
 //                            e.printStackTrace();
-                        }
+                }
 
 
             }
@@ -590,8 +716,7 @@ public class Basicevent extends PlayerUi {
         play.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
 
-
-//
+                //如何去判断当前播放
 //                //播放按钮变成暂停
 
                 playbutton.setText("暂停");
@@ -614,7 +739,7 @@ public class Basicevent extends PlayerUi {
                 if((playerThread.getMusicList() == mymusicsheet) && (focusrowindex == playerThread.getMusicIndex()) && playflag == 0){
 
                 }else if((playerThread.getMusicList() == mymusicsheet) && (focusrowindex == playerThread.getMusicIndex()) && playflag == 1){
-                   return;
+                    return;
                 }else{
                     playerThread.stop();
                 }
@@ -747,10 +872,10 @@ public class Basicevent extends PlayerUi {
 //                        getmusicsheet(mylist.getSelectedIndex());
 //                        System.out.println("打开歌词内容");
 //                    }else if(e.getClickCount() == 1) {
-                        //获取选择项的值
-                        Object selected = mylist.getModel().getElementAt(mylist.getSelectedIndex());
-                        System.out.println(selected);
-                        pop.show(e.getComponent(), e.getX(), e.getY());
+                    //获取选择项的值
+                    Object selected = mylist.getModel().getElementAt(mylist.getSelectedIndex());
+                    System.out.println(selected);
+                    pop.show(e.getComponent(), e.getX(), e.getY());
 //                    }
                 }
             }
@@ -785,7 +910,7 @@ public class Basicevent extends PlayerUi {
                 System.out.println("选择结果:"+result);
                 if(result == 0){
                     //调用数据库方法
-                   // public static void deleteSheet(HashMap<String, String> sheet)
+                    // public static void deleteSheet(HashMap<String, String> sheet)
                     sqliteTools.deleteSheet(musiclist.get(focusmymenuindex));
                     getmymusiclist();
 
@@ -796,7 +921,7 @@ public class Basicevent extends PlayerUi {
             public void actionPerformed(ActionEvent e) {
 //                getmusicsheet(mylist.getSelectedIndex());
                 getmusicsheet(focusmymenuindex);
-                        System.out.println("打开歌词内容");
+                System.out.println("打开歌词内容");
             }
         });
 
@@ -855,27 +980,27 @@ public class Basicevent extends PlayerUi {
         super.playercontaindetail();
 //        System.out.println(playerThread.getLrcPath());
 
-        LrcAnalyze l = new LrcAnalyze(System.getProperty("user.dir") + "/downloads/test.lrc");
-        List<LrcAnalyze.LrcData> list = l.LrcGetList();
-        String s ="";
-        for(LrcAnalyze.LrcData o:list){
-            System.out.println(o.Time);
-            musicwords.append(o.LrcLine+"\n");
-
-        }
+//        LrcAnalyze l = new LrcAnalyze(System.getProperty("user.dir") + "/downloads/test.lrc");
+//        List<LrcAnalyze.LrcData> list = l.LrcGetList();
+//        String s ="";
+//        for(LrcAnalyze.LrcData o:list){
+////            System.out.println(o.Time);
+//            musicwords.append(o.LrcLine+"\n");
+//
+//        }
 
 
 
 
     }
 
-//编辑歌单信息
+    //编辑歌单信息
     @Override
     public void playerlistedit() {
         super.playerlistedit();
         url = musiclist.get(focusmymenuindex).get("imagePath");
         editcover.addActionListener(new ActionListener(){
-//            @Override
+            //            @Override
             public void actionPerformed(ActionEvent e) {
 
                 JFileChooser chooser = new JFileChooser();             //设置选择器
@@ -912,24 +1037,24 @@ public class Basicevent extends PlayerUi {
 
 
             }
-    });
+        });
         editsave.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 //先把修改结果存入数据库
                 sqliteTools.updateSheetImage(musiclist.get(focusmymenuindex),url);
-              // public static void updateSheetName(HashMap<String,String> sheet, String name)
+                // public static void updateSheetName(HashMap<String,String> sheet, String name)
                 sqliteTools.updateSheetName(musiclist.get(focusmymenuindex),editlistname.getText());
                 //然后刷新一波
                 getmymusiclist();
 
 
-                    // 消息对话框无返回, 仅做通知作用
-                    JOptionPane.showMessageDialog(
-                            frame,
-                            "保存成功",
-                            "提示",
-                            JOptionPane.INFORMATION_MESSAGE
-                    );
+                // 消息对话框无返回, 仅做通知作用
+                JOptionPane.showMessageDialog(
+                        frame,
+                        "保存成功",
+                        "提示",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
                 getmusicsheet(focusmymenuindex);
 //                layout.show(panelmainer, "list");
 
@@ -945,11 +1070,26 @@ public class Basicevent extends PlayerUi {
     public void playerNow() {
         //切换歌单的封面，这时候
         super.playerNow();
+        playnowcover.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                playnowclick++;
+                if(playnowclick == 2){
+                    layout.show(panelmainer, "content");
+                    playnowclick = 0;
+                }else if(playnowclick == 1){
+                    layout.show(panelmainer, "list");
+                }
+
+
+            }
+        });
         changecontent.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
 
-                layout.show(panelmainer, "content");
+
 
             }
         });
@@ -957,7 +1097,7 @@ public class Basicevent extends PlayerUi {
 
             public void actionPerformed(ActionEvent e) {
 
-                layout.show(panelmainer, "list");
+
 
             }
         });
@@ -993,7 +1133,7 @@ public class Basicevent extends PlayerUi {
 
 
 
-    //设置表头
+        //设置表头
 //        detailtable.getTableHeader().setFocusTraversalKe;
 
         //设置行高
@@ -1009,11 +1149,11 @@ public class Basicevent extends PlayerUi {
             public void mouseClicked(MouseEvent e ) {
                 super.mouseClicked(e);
                 if(e.getButton() == MouseEvent.BUTTON3) {
-                    focusrowindex = detailtable.rowAtPoint(e.getPoint());
-                    if (focusrowindex == -1) {
+                    focussearchindex = detailtable.rowAtPoint(e.getPoint());
+                    if (focussearchindex == -1) {
                         return;
                     }
-                    detailtable.setRowSelectionInterval(focusrowindex, focusrowindex);
+                    detailtable.setRowSelectionInterval(focussearchindex, focussearchindex);
                     //弹出菜单
                     sheetpop.show(detailtable, e.getX(), e.getY());
                 }
@@ -1046,63 +1186,202 @@ public class Basicevent extends PlayerUi {
 
                 //先弹出框选择想下载到的歌单
 
-                    Object[] selectionValues = null;
-                    selectionValues = myv .toArray( new Object[myv .size()]);// vector ->array
+                Object[] selectionValues = null;
+                selectionValues = myv .toArray( new Object[myv .size()]);// vector ->array
 
 
-                    // 显示输入对话框, 返回选择的内容, 点击取消或关闭, 则返回null
-                    musiclist = sqliteTools.getSheetList();
-                    //清空vector
-                    Object inputContent = JOptionPane.showInputDialog(
-                            frame,
-                            "下载到歌单: ",
-                            "选择项",
-                            JOptionPane.PLAIN_MESSAGE,
-                            null,
-                            selectionValues,
-                            selectionValues[0]
+                // 显示输入对话框, 返回选择的内容, 点击取消或关闭, 则返回null
+                musiclist = sqliteTools.getSheetList();
+                //清空vector
+                Object inputContent = JOptionPane.showInputDialog(
+                        frame,
+                        "下载到歌单: ",
+                        "选择项",
+                        JOptionPane.PLAIN_MESSAGE,
+                        null,
+                        selectionValues,
+                        selectionValues[0]
 //
-                    );
-                    System.out.println("输入的内容: " + inputContent);
-                    //再去匹配看是歌单哪一个
-                    for(int i=0;i<myv.size();i++)
-                    {
-                        if(inputContent == myv.get(i).toString()){
-                            httpTools.downloadMusic(searchmusicsheet.get(focusrowindex),musiclist.get(i));
-                            System.out.println("下载完成");
-                            return;
-                        }
+                );
+                System.out.println("输入的内容: " + inputContent);
+                //再去匹配看是歌单哪一个
+                for(int i=0;i<myv.size();i++)
+                {
+                    if(inputContent == myv.get(i).toString()){
+                        httpTools.downloadMusic(searchmusicsheet.get(focusrowindex),musiclist.get(i));
+                        System.out.println("下载完成");
+                        return;
                     }
-                    }
+                }
+            }
 
-                });
+        });
 
 //                httpTools.downloadMusic(searchmusicsheet.get(focusrowindex),musiclist.get(0));
-                //卧槽在线播放
-                play.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
+        //卧槽在线播放
+        play.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+
+                //好de非常艰巨的开始在线播放
+//                        if(focussearchindex == -1){
+//                            nowplaysheet = searchmusicsheet;
+//                            playerThread.setMusicList(nowplaysheet);
+//                            playerThread.setMusicIndex(0);
+//                            playerThread.setPlayThread(new Thread(playerThread));
+//                            playerThread.getPlayThread().start();
+//                        }
+
+                playbutton.setText("暂停");
+                //那么在每一次播放之前，都要把之前的线程给关掉，
+
+                if(focusrowindex != -1){
+
+                }
+                if(playflag == 1 ) {
+                    threadscroll.interrupt();
+                    stoptime = 0;
+//                    playerThread.pause();
+
+                }else{
+
+                }
+
+                //只有不同歌曲了或者不同歌单了才stop，所以首先就要判断是不是刚刚那首歌，也就是歌单相同然后索引也相同，而且之前是停止的状态
+                //如果还是同一首歌 无视
+                if((playerThread.getMusicList() == searchmusicsheet) && (focussearchindex == playerThread.getMusicIndex()) && playflag == 0){
+
+                }else if((playerThread.getMusicList() == searchmusicsheet) && (focussearchindex == playerThread.getMusicIndex()) && playflag == 1){
+                    return;
+                }else{
+                    playerThread.stop();
+                }
 
 
-                    }
-                });
+                //点击右键的话，毫无疑问现在是什么歌单就放什么歌
+                nowplaysheet = searchmusicsheet;
+                System.out.println("多重走");
+                playerThread.setMusicIndex(focussearchindex);
+                playerThread.setMusicList(nowplaysheet);
+                playerThread.setPlayThread(new Thread(playerThread));
+                playerThread.getPlayThread().start();
+                settime();
+                setnew();
+                playflag = 1;
+
+                //播放按钮变成暂停
+                playbutton.setText("暂停");
+
+
+
+
+            }
+        });
 
 
 
 
 
     }
-//关于榜单的部分，一点点
+    //关于榜单的部分，一点点
     @Override
     public void playerhotlist() {
         super.playerhotlist();
 
         //public static Vector<HashMap<String,String>> getInternetPlaylist(int page, int count)
-         hostslist = httpTools.getInternetPlaylist(1,6);
-         for(int i = 0;i<6;i++) {
-             hotlabelword1.setText(hostslist.get(0).get("title"));
-             hotcover1 = new ImageIcon(hostslist.get(0).get("coverImgUrl"));
-             hotlabel1.setIcon(hotcover1);
-         }
+        try {
 
+
+            hostslist = httpTools.getInternetPlaylist(1, 6);
+//         for(int i = 0;i<6;i++) {
+//             String temp = "hotlabelwrap"+i;
+
+            hotlabelword1.setText(hostslist.get(0).get("title"));
+            hotlabelword2.setText(hostslist.get(1).get("title"));
+            hotlabelword3.setText(hostslist.get(2).get("title"));
+            hotlabelword4.setText(hostslist.get(3).get("title"));
+            hotlabelword5.setText(hostslist.get(4).get("title"));
+            hotlabelword6.setText(hostslist.get(5).get("title"));
+            hotlabelintro1.setText(hostslist.get(0).get("description"));
+            hotlabelintro2.setText(hostslist.get(1).get("description"));
+            hotlabelintro3.setText(hostslist.get(2).get("description"));
+            hotlabelintro4.setText(hostslist.get(3).get("description"));
+            hotlabelintro5.setText(hostslist.get(4).get("description"));
+            hotlabelintro6.setText(hostslist.get(5).get("description"));
+            try {
+                hotcover1 = new ImageIcon(new URL(hostslist.get(0).get("coverImgUrl")));
+                hotcover2 = new ImageIcon(new URL(hostslist.get(1).get("coverImgUrl")));
+                hotcover3 = new ImageIcon(new URL(hostslist.get(2).get("coverImgUrl")));
+                hotcover4 = new ImageIcon(new URL(hostslist.get(3).get("coverImgUrl")));
+                hotcover5 = new ImageIcon(new URL(hostslist.get(4).get("coverImgUrl")));
+                hotcover6 = new ImageIcon(new URL(hostslist.get(5).get("coverImgUrl")));
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+
+            hotcover1.setImage(hotcover1.getImage().getScaledInstance(240, 240, Image.SCALE_DEFAULT));
+            hotcover2.setImage(hotcover2.getImage().getScaledInstance(240, 240, Image.SCALE_DEFAULT));
+            hotcover3.setImage(hotcover3.getImage().getScaledInstance(240, 240, Image.SCALE_DEFAULT));
+            hotcover4.setImage(hotcover4.getImage().getScaledInstance(240, 240, Image.SCALE_DEFAULT));
+            hotcover5.setImage(hotcover5.getImage().getScaledInstance(240, 240, Image.SCALE_DEFAULT));
+            hotcover6.setImage(hotcover6.getImage().getScaledInstance(240, 240, Image.SCALE_DEFAULT));
+            hotlabel1.setIcon(hotcover1);
+            hotlabel2.setIcon(hotcover2);
+            hotlabel3.setIcon(hotcover3);
+            hotlabel4.setIcon(hotcover4);
+            hotlabel5.setIcon(hotcover5);
+            hotlabel6.setIcon(hotcover6);
+
+
+//         }
+            hotmenutitle.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    super.mouseClicked(e);
+                    playerhotlist();
+                    layout.show(panelmainer, "hotslist");
+
+                }
+            });
+            hotlabelwrap1.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    super.mouseClicked(e);
+                    gethotmusicsheet(0);
+                }
+            });
+
+            hotlabelwrap2.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    super.mouseClicked(e);
+                    gethotmusicsheet(1);
+                }
+            });
+            hotlabelwrap4.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    super.mouseClicked(e);
+                    gethotmusicsheet(3);
+                }
+            });
+            hotlabelwrap5.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    super.mouseClicked(e);
+                    gethotmusicsheet(4);
+                }
+            });
+            hotlabelwrap6.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    super.mouseClicked(e);
+                    gethotmusicsheet(5);
+                }
+            });
+
+
+        } catch (Exception e) {
+            System.out.println("网络繁忙请稍后再试");
+        }
     }
 }
