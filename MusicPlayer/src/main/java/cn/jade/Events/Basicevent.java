@@ -162,13 +162,13 @@ public class Basicevent extends PlayerUi {
         String source = "";
         switch (choose){
             case 0:
-                source = "netease";
+                source = "netease";break;
             case 1:
-                source = "tencent";
+                source = "tencent";break;
             case 2:
-                source = "xiami";
+                source = "xiami";break;
             case 3:
-                source = "kugou";
+                source = "kugou";break;
 
         }
         searchmusicsheet = httpTools.search(keyWord,page,count,source);
@@ -530,27 +530,27 @@ public class Basicevent extends PlayerUi {
         //设置歌词
         musicwords.setText("");
         String word = playerThread.getLrcPath();
-//                    System.out.println(word);
-        try{
-            LrcAnalyze l = new LrcAnalyze(word);
-            List<LrcAnalyze.LrcData> list = l.LrcGetList();
-            Time t2 = null;
-            songtime.removeAllElements();
-            songword.removeAllElements();
 
-            for(LrcAnalyze.LrcData o:list){
 
-                songtime.add(new Time(o.Time).getSeconds());
-//            System.out.println(o.Time);
-                songword.add(o.LrcLine);
-                musicwords.append(o.LrcLine+"\n");
+        LrcAnalyze l = new LrcAnalyze(word);
+        List<LrcAnalyze.LrcData> list = l.LrcGetList();
+        Time t2 = null;
+        songtime.removeAllElements();
+        songword.removeAllElements();
 
+        for(LrcAnalyze.LrcData o:list){
+            try{
+
+            songtime.add(new Time(o.Time).getSeconds());
+            songword.add(o.LrcLine);
+            musicwords.append(o.LrcLine+"\n");
+                }catch (Exception e){
+                System.out.println("歌词解析错误");
             }
-        }catch (Exception e){
-            System.out.println("歌词解析异常");
+
         }
 
-//        musicwords.append(<span style=\"color:red\">测试文本</span>);
+
 
         playbutton.setText("暂停");
     }
@@ -576,8 +576,11 @@ public class Basicevent extends PlayerUi {
                             System.out.println("线程已经终止， for循环不再执行");
                             throw new InterruptedException();
                         }
+//                        System.out.println("i="+(i+1));
                         musicslider.setValue((int)i);
-                        Thread.sleep(700);
+                        Thread.sleep(500);
+//                        musicslider.setValue((int)(i/pinjun));
+
                         i =  playerThread.getNowMusicTime();
                         Time t = new Time(i);
 
@@ -591,8 +594,7 @@ public class Basicevent extends PlayerUi {
                                     if(j < size -1){
                                         if(i>songtime.get(j) && i<songtime.get(j+1))
                                         {
-//                                    musicwords.setText("");
-//                                    musicwords.append(songword.get(j));
+//
                                             songnowword.setText(songword.get(j));
                                             break;
                                         }
@@ -661,15 +663,14 @@ public class Basicevent extends PlayerUi {
 
         //设置行高
         detailtable.setRowHeight(30);
-//        JMenuItem download = new JMenuItem("下载");
+
         final JMenuItem del = new JMenuItem("删除");
         final JMenuItem play = new JMenuItem("播放");
 //        JMenuItem stop = new JMenuItem("暂停");
         final JPopupMenu sheetpop = new JPopupMenu();
-//        sheetpop.add(download);
+
 
         sheetpop.add(play);
-//        sheetpop.add(stop);
         sheetpop.add(del);
 
         detailtable.addMouseListener(new MouseAdapter() {
@@ -712,30 +713,29 @@ public class Basicevent extends PlayerUi {
             }
         });
         //接下来为删除和编辑做对应的操作，添加对应的事件
-//        download.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-////                layout.show(panelmainer, "editlist");.
-//                //现在应该选择下载到哪一个歌单 默认选则我喜欢的歌单
-//                //public static void downloadMusic(HashMap<String, String> music, HashMap<String,String> sheet)
-//                httpTools.downloadMusic(mymusicsheet.get(focusrowindex),musiclist.get(0));
-//                System.out.println("下载完成");
-//
-//            }
-//        });
+
 
 
         play.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
 
-                //如何去判断当前播放
-//                //播放按钮变成暂停
+
+
+
+
+                //只有不同歌曲了或者不同歌单了才stop，所以首先就要判断是不是刚刚那首歌，也就是歌单相同然后索引也相同，而且之前是停止的状态
+                //如果还是同一首歌 无视
+                if((playerThread.getMusicList() == mymusicsheet) && (focusrowindex == playerThread.getMusicIndex()) && playflag == 0){
+
+
+                }else if((playerThread.getMusicList() == mymusicsheet) && (focusrowindex == playerThread.getMusicIndex()) && playflag == 1){
+                    return;
+                }else{
+                    playerThread.stop();
+                }
 
                 playbutton.setText("暂停");
                 //那么在每一次播放之前，都要把之前的线程给关掉，
-
-                if(focusrowindex != -1){
-
-                }
                 if(playflag == 1 ) {
                     threadscroll.interrupt();
                     stoptime = 0;
@@ -744,17 +744,6 @@ public class Basicevent extends PlayerUi {
                 }else{
 
                 }
-
-                //只有不同歌曲了或者不同歌单了才stop，所以首先就要判断是不是刚刚那首歌，也就是歌单相同然后索引也相同，而且之前是停止的状态
-                //如果还是同一首歌 无视
-                if((playerThread.getMusicList() == mymusicsheet) && (focusrowindex == playerThread.getMusicIndex()) && playflag == 0){
-
-                }else if((playerThread.getMusicList() == mymusicsheet) && (focusrowindex == playerThread.getMusicIndex()) && playflag == 1){
-                    return;
-                }else{
-                    playerThread.stop();
-                }
-
 
                 //点击右键的话，毫无疑问现在是什么歌单就放什么歌
                 nowplaysheet = mymusicsheet;
@@ -1090,6 +1079,11 @@ public class Basicevent extends PlayerUi {
 
             }
         });
+        editcancel.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                layout.show(panelmainer,"list");
+            }
+        });
     }
 
 
@@ -1258,14 +1252,18 @@ public class Basicevent extends PlayerUi {
         play.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
 
-                //好de非常艰巨的开始在线播放
-//                        if(focussearchindex == -1){
-//                            nowplaysheet = searchmusicsheet;
-//                            playerThread.setMusicList(nowplaysheet);
-//                            playerThread.setMusicIndex(0);
-//                            playerThread.setPlayThread(new Thread(playerThread));
-//                            playerThread.getPlayThread().start();
-//                        }
+
+
+
+                //只有不同歌曲了或者不同歌单了才stop，所以首先就要判断是不是刚刚那首歌，也就是歌单相同然后索引也相同，而且之前是停止的状态
+                //如果还是同一首歌 无视
+                if((playerThread.getMusicList() == searchmusicsheet) && (focussearchindex == playerThread.getMusicIndex()) && playflag == 0){
+
+                }else if((playerThread.getMusicList() == searchmusicsheet) && (focussearchindex == playerThread.getMusicIndex()) && playflag == 1){
+                    return;
+                }else{
+                    playerThread.stop();
+                }
 
                 playbutton.setText("暂停");
                 //那么在每一次播放之前，都要把之前的线程给关掉，
@@ -1281,17 +1279,6 @@ public class Basicevent extends PlayerUi {
                 }else{
 
                 }
-
-                //只有不同歌曲了或者不同歌单了才stop，所以首先就要判断是不是刚刚那首歌，也就是歌单相同然后索引也相同，而且之前是停止的状态
-                //如果还是同一首歌 无视
-                if((playerThread.getMusicList() == searchmusicsheet) && (focussearchindex == playerThread.getMusicIndex()) && playflag == 0){
-
-                }else if((playerThread.getMusicList() == searchmusicsheet) && (focussearchindex == playerThread.getMusicIndex()) && playflag == 1){
-                    return;
-                }else{
-                    playerThread.stop();
-                }
-
 
                 //点击右键的话，毫无疑问现在是什么歌单就放什么歌
                 nowplaysheet = searchmusicsheet;
@@ -1323,11 +1310,10 @@ public class Basicevent extends PlayerUi {
     public void playerhotlist() {
         super.playerhotlist();
 
-        new Thread(){
+      new Thread(){
             @Override
             public void run() {
                 super.run();
-
 
         //public static Vector<HashMap<String,String>> getInternetPlaylist(int page, int count)
         try {
