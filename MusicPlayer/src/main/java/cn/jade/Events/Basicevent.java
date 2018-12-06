@@ -531,20 +531,25 @@ public class Basicevent extends PlayerUi {
         musicwords.setText("");
         String word = playerThread.getLrcPath();
 //                    System.out.println(word);
-        LrcAnalyze l = new LrcAnalyze(word);
-        List<LrcAnalyze.LrcData> list = l.LrcGetList();
-        Time t2 = null;
-        songtime.removeAllElements();
-        songword.removeAllElements();
+        try{
+            LrcAnalyze l = new LrcAnalyze(word);
+            List<LrcAnalyze.LrcData> list = l.LrcGetList();
+            Time t2 = null;
+            songtime.removeAllElements();
+            songword.removeAllElements();
 
-        for(LrcAnalyze.LrcData o:list){
+            for(LrcAnalyze.LrcData o:list){
 
-            songtime.add(new Time(o.Time).getSeconds());
+                songtime.add(new Time(o.Time).getSeconds());
 //            System.out.println(o.Time);
-            songword.add(o.LrcLine);
-            musicwords.append(o.LrcLine+"\n");
+                songword.add(o.LrcLine);
+                musicwords.append(o.LrcLine+"\n");
 
+            }
+        }catch (Exception e){
+            System.out.println("歌词解析异常");
         }
+
 //        musicwords.append(<span style=\"color:red\">测试文本</span>);
 
         playbutton.setText("暂停");
@@ -571,11 +576,8 @@ public class Basicevent extends PlayerUi {
                             System.out.println("线程已经终止， for循环不再执行");
                             throw new InterruptedException();
                         }
-//                        System.out.println("i="+(i+1));
                         musicslider.setValue((int)i);
                         Thread.sleep(700);
-//                        musicslider.setValue((int)(i/pinjun));
-
                         i =  playerThread.getNowMusicTime();
                         Time t = new Time(i);
 
