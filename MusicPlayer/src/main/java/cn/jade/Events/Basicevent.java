@@ -56,8 +56,9 @@ public class Basicevent extends PlayerUi {
     public int playnowclick = 0; //点击当前播放歌曲
 
     String url=""; //保存修改过后的歌单路径
+    public static Basicevent playerui;
     public static void main(String[] args){
-        Basicevent playerui = new Basicevent(playerUi);
+        playerui = new Basicevent(playerUi);
         frame = new JFrame("一个美丽的音乐播放器");
         frame.setSize(1200,800);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -622,6 +623,8 @@ public class Basicevent extends PlayerUi {
                             songnowword.setText("该歌曲暂无歌词");
                         }
 
+               
+
 
                     }
 
@@ -629,11 +632,11 @@ public class Basicevent extends PlayerUi {
 
 
 
-
                 }catch (InterruptedException e){
                     System.out.println("本次拖动条线程已暂停");
 //                            e.printStackTrace();
                 }
+
 
 
             }
