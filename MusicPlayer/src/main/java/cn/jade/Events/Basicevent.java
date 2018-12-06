@@ -573,7 +573,7 @@ public class Basicevent extends PlayerUi {
                         }
 //                        System.out.println("i="+(i+1));
                         musicslider.setValue((int)i);
-                        Thread.sleep(1000);
+                        Thread.sleep(700);
 //                        musicslider.setValue((int)(i/pinjun));
 
                         i =  playerThread.getNowMusicTime();
@@ -604,6 +604,8 @@ public class Basicevent extends PlayerUi {
 
 
                             }
+                        }else{
+                            songnowword.setText("该歌曲暂无歌词");
                         }
 
                         if(Math.ceil(i) == (int)m){
@@ -660,23 +662,30 @@ public class Basicevent extends PlayerUi {
 //        JMenuItem download = new JMenuItem("下载");
         final JMenuItem del = new JMenuItem("删除");
         final JMenuItem play = new JMenuItem("播放");
-        JMenuItem stop = new JMenuItem("暂停");
+//        JMenuItem stop = new JMenuItem("暂停");
         final JPopupMenu sheetpop = new JPopupMenu();
 //        sheetpop.add(download);
 
         sheetpop.add(play);
-        sheetpop.add(stop);
+//        sheetpop.add(stop);
         sheetpop.add(del);
 
         detailtable.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e ) {
                 super.mouseClicked(e);
-                if(e.getButton() == MouseEvent.BUTTON3) {
-                    focusrowindex = detailtable.rowAtPoint(e.getPoint());
-                    if (focusrowindex == -1) {
-                        return;
-                    }
+                focusrowindex = detailtable.rowAtPoint(e.getPoint());
+                if (focusrowindex == -1) {
+                    return;
+                }
+                if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
+
+
+                    play.doClick();
+
+                }
+                else if(e.getButton() == MouseEvent.BUTTON3) {
+
                     detailtable.setRowSelectionInterval(focusrowindex, focusrowindex);
                     //弹出菜单
                     sheetpop.show(detailtable, e.getX(), e.getY());
@@ -761,22 +770,22 @@ public class Basicevent extends PlayerUi {
 
             }
         });
-        stop.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if(focusrowindex != playerThread.getMusicIndex()){
-                    return ;
-                }
-
-                //暂停拖动条的线程，isINterrupt不会清除，而
-                threadscroll.interrupt();
-
-                //记录下这时候的时间，以便下一次开始'
-                stoptime = playerThread.getNowMusicTime();
-                playbutton.setText("播放");
-                playerThread.pause();
-                playflag = 0;
-            }
-        });
+//        stop.addActionListener(new ActionListener() {
+//            public void actionPerformed(ActionEvent e) {
+//                if(focusrowindex != playerThread.getMusicIndex()){
+//                    return ;
+//                }
+//
+//                //暂停拖动条的线程，isINterrupt不会清除，而
+//                threadscroll.interrupt();
+//
+//                //记录下这时候的时间，以便下一次开始'
+//                stoptime = playerThread.getNowMusicTime();
+//                playbutton.setText("播放");
+//                playerThread.pause();
+//                playflag = 0;
+//            }
+//        });
         //删除我的歌单中的歌曲
         del.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -831,7 +840,7 @@ public class Basicevent extends PlayerUi {
         //鼠标右键出现对歌单的删除和编辑
         JMenuItem edit = new JMenuItem("编辑");
         JMenuItem del = new JMenuItem("删除");
-        JMenuItem open = new JMenuItem("打开");
+        final JMenuItem open = new JMenuItem("打开");
         final JPopupMenu pop = new JPopupMenu();
         pop.add(edit);
         pop.add(del);
@@ -847,15 +856,31 @@ public class Basicevent extends PlayerUi {
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
+                focusmymenuindex = mylist.locationToIndex(e.getPoint());
                 showpop(e);
+                if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
+
+                    if (focusmymenuindex == -1) {
+                        return;
+                    }
+                    open.doClick();
+
+                }else{
+//                    showpop(e);
+                }
+
             }
 
             @Override
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e);
+
+//                focusmymenuindex = mylist.locationToIndex(e.getPoint());
+//                mylist.setSelectedIndex(focusmymenuindex);  //获取鼠标点击的项
                 focusmymenuindex = mylist.locationToIndex(e.getPoint());
                 mylist.setSelectedIndex(focusmymenuindex);  //获取鼠标点击的项
                 showpop(e);
+//
 
             }
 
@@ -864,10 +889,11 @@ public class Basicevent extends PlayerUi {
                 super.mouseReleased(e);
                 mylist.setSelectionBackground(new Color(230,231,234));
                 showpop(e);
+//           ;
             }
             //弹出菜单
             private void showpop(MouseEvent e){
-                if(e.isPopupTrigger()&&mylist.getSelectedIndex()!=-1){
+                if(e.isPopupTrigger()&&mylist.getSelectedIndex()!=-1 && e.getButton() == MouseEvent.BUTTON3){
 //                    if(e.getClickCount() == 2){
 //                        getmusicsheet(mylist.getSelectedIndex());
 //                        System.out.println("打开歌词内容");
@@ -876,9 +902,9 @@ public class Basicevent extends PlayerUi {
                     Object selected = mylist.getModel().getElementAt(mylist.getSelectedIndex());
                     System.out.println(selected);
                     pop.show(e.getComponent(), e.getX(), e.getY());
-//                    }
+                    }
                 }
-            }
+
         });
         //接下来为删除和编辑做对应的操作，添加对应的事件
         edit.addActionListener(new ActionListener() {
@@ -1148,15 +1174,23 @@ public class Basicevent extends PlayerUi {
             @Override
             public void mouseClicked(MouseEvent e ) {
                 super.mouseClicked(e);
-                if(e.getButton() == MouseEvent.BUTTON3) {
-                    focussearchindex = detailtable.rowAtPoint(e.getPoint());
-                    if (focussearchindex == -1) {
-                        return;
-                    }
+                focussearchindex = detailtable.rowAtPoint(e.getPoint());
+                if (focussearchindex == -1) {
+                    return;
+                }
+                if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
+
+
+                    play.doClick();
+
+                }
+                else if(e.getButton() == MouseEvent.BUTTON3) {
+
                     detailtable.setRowSelectionInterval(focussearchindex, focussearchindex);
                     //弹出菜单
                     sheetpop.show(detailtable, e.getX(), e.getY());
                 }
+
 
 
             }
@@ -1287,6 +1321,12 @@ public class Basicevent extends PlayerUi {
     public void playerhotlist() {
         super.playerhotlist();
 
+        new Thread(){
+            @Override
+            public void run() {
+                super.run();
+
+
         //public static Vector<HashMap<String,String>> getInternetPlaylist(int page, int count)
         try {
 
@@ -1337,7 +1377,7 @@ public class Basicevent extends PlayerUi {
                 @Override
                 public void mouseClicked(MouseEvent e) {
                     super.mouseClicked(e);
-                    playerhotlist();
+//                    playerhotlist();
                     layout.show(panelmainer, "hotslist");
 
                 }
@@ -1383,5 +1423,7 @@ public class Basicevent extends PlayerUi {
         } catch (Exception e) {
             System.out.println("网络繁忙请稍后再试");
         }
+            }
+        }.start();
     }
 }
