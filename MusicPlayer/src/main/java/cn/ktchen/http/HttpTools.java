@@ -43,7 +43,6 @@ public class HttpTools {
 
 
     public static Vector<HashMap<String,String>> getInternetPlaylist(int page, int count){
-
         //首页固定了四个歌单
         if (page == 1)
             count -= 4;
@@ -53,7 +52,7 @@ public class HttpTools {
         list.add(new BasicNameValuePair("key","579621905"));
         list.add(new BasicNameValuePair("cat","全部"));
         list.add(new BasicNameValuePair("limit",Integer.toString(count)));
-        list.add(new BasicNameValuePair("offset",Integer.toString(page)));
+        list.add(new BasicNameValuePair("offset",Integer.toString( count * (page-1) - 2)));
         JSONObject jsonObject = new JSONObject(doGet(bzqllAPI,list));
 
         Vector<HashMap<String,String>> playList = (page == 1)
