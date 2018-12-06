@@ -1,5 +1,6 @@
 package cn.ktchen.player;
 
+import cn.jade.Events.Basicevent;
 import cn.ktchen.download.DownloadFile;
 import cn.ktchen.download.DownloadSingle;
 import cn.ktchen.http.HttpTools;
@@ -39,7 +40,7 @@ public class PlayerThread implements Runnable {
     }
 
     private volatile boolean isPaused;                          //当前是否已暂停
-    private int musicIndex;                                     //当前播放单曲
+    private volatile int musicIndex;                                     //当前播放单曲
 
     public Vector<HashMap<String, String>> getMusicList() {
         return musicList;
@@ -209,6 +210,13 @@ public class PlayerThread implements Runnable {
                     //播放下一首
                     this.startPosition = 0;
                     this.musicIndex = autoNextMusicIndex();
+
+                    //界面的封面和时长调整
+                    try{
+                        Basicevent.playerui.changemusic();
+                    }catch (Exception e){
+                        //啥都不用做
+                    }
 
 
                 } catch (Exception e)
