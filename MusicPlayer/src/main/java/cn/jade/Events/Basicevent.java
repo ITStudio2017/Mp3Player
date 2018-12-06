@@ -359,6 +359,9 @@ public class Basicevent extends PlayerUi {
         playbutton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
+                if(mymusicsheet.size() == 0 && searchmusicsheet.size() == 0){
+                    return;
+                }
 
 
                 if(playbutton.getText() == "播放"){
@@ -402,6 +405,9 @@ public class Basicevent extends PlayerUi {
         //下一首上一首的切换
         nextbutton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                if(mymusicsheet.size() == 0 && searchmusicsheet.size() == 0){
+                    return;
+                }
                 playbutton.setText("暂停");
                 playerThread.nextMusic();
 
@@ -414,6 +420,9 @@ public class Basicevent extends PlayerUi {
         });
         lastbutton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                if(mymusicsheet.size() == 0 && searchmusicsheet.size() == 0){
+                    return;
+                }
                 playbutton.setText("暂停");
                 playerThread.previousMusic();
 
@@ -479,12 +488,16 @@ public class Basicevent extends PlayerUi {
 
                 //获得value之后再重新设置
 
-                // public boolean setTime(int seconds)
-                playerThread.setTime(temp,true);
-//                playerThread.getPlayThread().start();
+
                 //再开一个新的
-                settime();
-                setnew();
+                if(playflag == 1){
+                    playerThread.setTime(temp,true);
+                    settime();
+                    setnew();
+                }else{
+                    playerThread.setTime(temp,false);
+                }
+
 
             }
 
@@ -999,7 +1012,10 @@ public class Basicevent extends PlayerUi {
     @Override
     public void playerlistedit() {
         super.playerlistedit();
-        url = musiclist.get(focusmymenuindex).get("imagePath");
+        if(musiclist.size() != 0){
+            url = musiclist.get(focusmymenuindex).get("imagePath");
+        }
+
         editcover.addActionListener(new ActionListener(){
             //            @Override
             public void actionPerformed(ActionEvent e) {
@@ -1420,6 +1436,7 @@ public class Basicevent extends PlayerUi {
                 public void actionPerformed(ActionEvent e) {
                     if(hotlistpage != 1){
                         hotlistpage--;
+                        System.out.println(hotlistpage);
                         sethotlist(hotlistpage);
                     }
                 }
@@ -1427,6 +1444,7 @@ public class Basicevent extends PlayerUi {
             hotnextpage.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     hotlistpage++;
+                    System.out.println(hotlistpage);
                     sethotlist(hotlistpage);
                 }
             });

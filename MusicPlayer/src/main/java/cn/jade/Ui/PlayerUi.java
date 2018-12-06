@@ -68,7 +68,7 @@ public class PlayerUi {
     //当前播放状态！！！
     public JLabel songtitle = new JLabel("歌曲名称");
     public JLabel songsinger = new JLabel("歌手");
-    public JLabel songnowword = new JLabel("该歌曲没有歌词");
+    public JLabel songnowword = new JLabel();
     public JButton changelist = new JButton("歌单"); //切换为展示清单
     public JButton changecontent = new JButton("歌词"); //切换为展示内容
     public int currentProgress = 0; //当前音乐播放进度
