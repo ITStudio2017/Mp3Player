@@ -74,10 +74,20 @@ public class Basicevent extends PlayerUi {
     Basicevent(PlayerUi playerUi){
         this.playerUi = playerUi;
     }
+    public Basicevent(){};
 
 
 //初始化我的歌单 内容
 
+    //歌曲切换
+    public void changemusic(){
+//        Thread.sleep(2000);
+        System.out.println("切换啊冲啊！！！");
+        threadscroll.interrupt();
+        stoptime = 0;
+        settime();
+        setnew();
+    }
 
     //获取某歌单下的所有歌曲,传入的参数为歌单的索引
     public void getmusicsheet(int index){
@@ -255,8 +265,8 @@ public class Basicevent extends PlayerUi {
 
         settable(detailtable);
         pagewrap.setLayout(new BorderLayout());
-//        pagewrap.add(lastpage,BorderLayout.WEST);
-//        pagewrap.add(nextpage,BorderLayout.EAST);
+        pagewrap.add(lastpage,BorderLayout.WEST);
+        pagewrap.add(nextpage,BorderLayout.EAST);
         containbottom.add(pagewrap,BorderLayout.SOUTH);
 
         layout.show(panelmainer, "list");
@@ -567,7 +577,7 @@ public class Basicevent extends PlayerUi {
                     double m = playerThread.getMusicTime();
                     musicslider.setMaximum((int)m);
                     int now = (int)(playerThread.getNowMusicTime());
-                    for(double i = now;i < m+30; ){
+                    for(double i = now;i < m+50; ){
 //                        System.out.println("现在播放到的时间"+playerThread.getNowMusicTime());
                         //因为文件解码需要一些时间，所以前面一段时间或许要等待一下
 
@@ -612,22 +622,7 @@ public class Basicevent extends PlayerUi {
                             songnowword.setText("该歌曲暂无歌词");
                         }
 
-                        if(Math.ceil(i) == (int)m){
 
-                            System.out.println("切换啊冲啊！！！");
-
-//                            playerThread.nextMusic();
-
-                            threadscroll.interrupt();
-//                            Thread.sleep(200);
-//                            focusrowindex = playerThread.getMusicIndex();
-                            stoptime = 0;
-                            settime();
-                            setnew();
-
-
-
-                        }
                     }
 
                     //假如播完了怎么办?现在正常停止了并且应该重新开始,那么就应该根据播放模式进行切换
@@ -799,22 +794,6 @@ public class Basicevent extends PlayerUi {
             }
 
 
-        });
-        //如果有上一页下一页按钮的话
-        lastpage.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-
-                if(nowpage != 1){
-                    nowpage-=1;
-                    getsearchmusicsheet(searchinput.getText(),nowpage,10);
-                }
-            }
-        });
-        nextpage.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                nowpage+=1;
-                getsearchmusicsheet(searchinput.getText(),nowpage,10);
-            }
         });
 
     }
@@ -1299,6 +1278,23 @@ public class Basicevent extends PlayerUi {
 
             }
         });
+        //如果有上一页下一页按钮的话
+        lastpage.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+
+                if(nowpage != 1){
+                    nowpage-=1;
+                    getsearchmusicsheet(searchinput.getText(),nowpage,10);
+                }
+            }
+        });
+        nextpage.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                nowpage+=1;
+                getsearchmusicsheet(searchinput.getText(),nowpage,10);
+            }
+        });
+
 
 
 
