@@ -37,6 +37,7 @@ public class Basicevent extends PlayerUi {
     public Vector<HashMap<String,String>> searchmusicsheet = new  Vector<HashMap<String,String>>();   //我的网络搜索下的所有歌曲
     public Vector<HashMap<String,String>> mymusicsheet = new  Vector<HashMap<String,String>>();   //我的某一个歌单下的所有歌曲
     public Vector<HashMap<String,String>> nowplaysheet = new Vector<HashMap<String,String>>(); //现在正在播放的歌单
+    public Vector<HashMap<String,String>> tempsheet = new Vector<HashMap<String,String>>();   //就借放一下
 
     public Vector<HashMap<String,String>> hostslist = new Vector<HashMap<String, String>>();  //存放热门榜单相关
     public Vector<Double> songtime = new Vector<Double>();  //存放 所有的歌词的时间
@@ -96,6 +97,7 @@ public class Basicevent extends PlayerUi {
         //        public static Vector<HashMap<String, String>> getMusicBySheet(HashMap<String, String> sheet)
 
 
+
         //初始化歌单名称！！！
 
 
@@ -105,20 +107,48 @@ public class Basicevent extends PlayerUi {
 
         containbottom.removeAll();
 
+        //当传入不符合预期的时候，换成初始状态
+//        if(index == -1){
+//            iconlist = new ImageIcon(System.getProperty("user.dir")+"/UIphotos/刘看山.png");
+//            iconlist.setImage(iconlist.getImage().getScaledInstance(140, 140,Image.SCALE_DEFAULT ));
+//            listcover.setIcon(iconlist);
+//            covertitle.setText("每日歌曲更新");
+//            coverdescribe.setText("创建者");
+//            return;
+//        }
+
+        //判断歌单数是否为0，如果为0，回到初始状态
         if(musiclist.size()!=0){
             mymusicsheet = sqliteTools.getMusicBySheet(musiclist.get(index));
             covertitle.setText(musiclist.get(index).get("name"));
+            coverdescribe.setText(musiclist.get(index).get("owner"));
 
+        }else{
+            iconlist = new ImageIcon(System.getProperty("user.dir")+"/UIphotos/刘看山.png");
+            iconlist.setImage(iconlist.getImage().getScaledInstance(140, 140,Image.SCALE_DEFAULT ));
+            listcover.setIcon(iconlist);
+            covertitle.setText("每日歌曲更新");
+            coverdescribe.setText("创建者");
+            Object rowData2[][] = null;
+            defaultdetailtable = new DefaultTableModel(rowData2,columnNames);
+            JTable detailtable = new JTable(defaultdetailtable){
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+
+            };
+            detailtable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            setmytable(detailtable);
+            return;
         }
 
+        //判断歌单中是否有歌曲
         if(mymusicsheet.size()!=0){
             String image = musiclist.get(index).get("imagePath");
             if(image == "null" ||image.equals("null")){
                 image = mymusicsheet.get(0).get("musicImage");
             }
-//            String image = playerThread.getImagePath();
-            System.out.println(image);
-//            String image = playerThread.getImagePath();
 
             iconlist = new ImageIcon(image);
             iconlist.setImage(iconlist.getImage().getScaledInstance(140, 140,Image.SCALE_DEFAULT ));
@@ -144,7 +174,7 @@ public class Basicevent extends PlayerUi {
             temp[3] = new String(mymusicsheet.get(i).get("album"));
             rowData[i] = temp;
         }
-//        detailtable = new JTable(rowData,columnNames);
+
         defaultdetailtable = new DefaultTableModel(rowData,columnNames);
         JTable detailtable = new JTable(defaultdetailtable){
             @Override
@@ -154,8 +184,6 @@ public class Basicevent extends PlayerUi {
 
         };
         detailtable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-
         setmytable(detailtable);
         layout.show(panelmainer, "list");
 
@@ -190,6 +218,7 @@ public class Basicevent extends PlayerUi {
 
         iconlist = new ImageIcon(System.getProperty("user.dir")+"/UIphotos/刘看山.png");
         covertitle.setText("搜索结果");
+        coverdescribe.setText("");
         iconlist.setImage(iconlist.getImage().getScaledInstance(140, 140,Image.SCALE_DEFAULT ));
         listcover.setIcon(iconlist);
 
@@ -236,7 +265,10 @@ public class Basicevent extends PlayerUi {
         //public static Vector<HashMap<String,String>> getMusicListByInternetPlaylist(
         //      HashMap<String, String> playlist)
         //获取歌单
+        try{
+
         searchmusicsheet = httpTools.getMusicListByInternetPlaylist(hostslist.get(index));
+
 
         try{
             iconlist = new ImageIcon(new URL(hostslist.get(index).get("coverImgUrl")));
@@ -247,8 +279,11 @@ public class Basicevent extends PlayerUi {
         }
 
         covertitle.setText(hostslist.get(index).get("title"));
+        coverdescribe.setText(hostslist.get(index).get("owner"));
         iconlist.setImage(iconlist.getImage().getScaledInstance(140, 140,Image.SCALE_DEFAULT ));
         listcover.setIcon(iconlist);
+
+
         int count = 10;
         final Object[][] rowData = new Object[count][];
         for(int i=0;i<count;i++) {
@@ -272,11 +307,14 @@ public class Basicevent extends PlayerUi {
 
         settable(detailtable);
         pagewrap.setLayout(new BorderLayout());
-        pagewrap.add(lastpage,BorderLayout.WEST);
-        pagewrap.add(nextpage,BorderLayout.EAST);
+//        pagewrap.add(lastpage,BorderLayout.WEST);
+//        pagewrap.add(nextpage,BorderLayout.EAST);
         containbottom.add(pagewrap,BorderLayout.SOUTH);
 
         layout.show(panelmainer, "list");
+        }catch (Exception b){
+            System.out.println("网络繁忙，请稍后再试");
+        }
 
 
     }
@@ -363,6 +401,7 @@ public class Basicevent extends PlayerUi {
         playbutton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
+                //这是为了什么来着
                 if(mymusicsheet.size() == 0 && searchmusicsheet.size() == 0){
                     return;
                 }
@@ -370,9 +409,14 @@ public class Basicevent extends PlayerUi {
 
                 if(playbutton.getText() == "播放"){
 //                    playbutton.setText("暂停");
-                    if(playflag == 0 && focusrowindex == -1){
-                        //初次播放的时候设置默认值
-                        nowplaysheet = mymusicsheet ;
+                    if(playflag == 0 && focusrowindex == -1 && focussearchindex == -1){
+                        //初次播放的时候设置默认值，那么看是哪个歌单初始化了
+                        if(searchmusicsheet.size() != 0){
+                            nowplaysheet = searchmusicsheet;
+                        }else if(mymusicsheet.size() != 0){
+                            nowplaysheet = mymusicsheet ;
+                        }
+
                         playerThread.setMusicIndex(0);
                         playerThread.setMusicList(nowplaysheet);
                         System.out.println("我运行啦");
@@ -804,12 +848,13 @@ public class Basicevent extends PlayerUi {
                         JOptionPane.YES_NO_CANCEL_OPTION
 
                 );
-                System.out.println("选择结果:"+result);
+//                System.out.println("选择结果:"+result);
                 //deleteSheet(HashMap<String, String> sheet)
                 if(result==0){
                     //调用数据库方法
                     sqliteTools.deleteMusic(mymusicsheet.get(focusrowindex));
                     //重新绘制
+                    containbottom.removeAll();
                     getmusicsheet(focusmymenuindex);
                 }
 
@@ -903,8 +948,19 @@ public class Basicevent extends PlayerUi {
             public void actionPerformed(ActionEvent e) {
 
                 //将相片替换成当前的相片
-                coverimage = new ImageIcon(musiclist.get(focusmymenuindex).get("imagePath"));
-                System.out.println("coverimage"+coverimage);
+                //如果当前相片是默认第一张？
+                String image = musiclist.get(focusmymenuindex).get("imagePath");
+                if(image.equals("null")){
+                    tempsheet = sqliteTools.getMusicBySheet(musiclist.get(focusmymenuindex));
+
+                    if(tempsheet.size() == 0){
+                        image = System.getProperty("user.dir")+"/UIphotos/刘看山.png";
+                    }else{
+                        image = tempsheet.get(0).get("musicImage");
+                    }
+
+                }
+                coverimage = new ImageIcon(image);
                 coverimage.setImage(coverimage.getImage().getScaledInstance(240, 240,Image.SCALE_DEFAULT ));
                 indexcover.setIcon(coverimage);
                 //名字替换成当前歌单名
@@ -925,12 +981,16 @@ public class Basicevent extends PlayerUi {
                         JOptionPane.YES_NO_CANCEL_OPTION
 
                 );
-                System.out.println("选择结果:"+result);
+//                System.out.println("选择结果:"+result);
                 if(result == 0){
                     //调用数据库方法
                     // public static void deleteSheet(HashMap<String, String> sheet)
                     sqliteTools.deleteSheet(musiclist.get(focusmymenuindex));
+                    containbottom.removeAll();
                     getmymusiclist();
+                    getmusicsheet(0);
+
+
 
                 }
             }
@@ -957,7 +1017,11 @@ public class Basicevent extends PlayerUi {
                         "歌单名称",
                         JOptionPane.YES_NO_CANCEL_OPTION
                 );
-                if(inputContent == null){
+                //若输入为空 提示
+
+                if(inputContent == null || inputContent.equals("")){
+                    JOptionPane.showMessageDialog( frame, "输入不可为空", "消息提示", JOptionPane.INFORMATION_MESSAGE );
+
                     return;
                 }
                 //调用数据库方法创建歌单
@@ -1334,6 +1398,21 @@ public class Basicevent extends PlayerUi {
 
     }
     public void sethotlist(final int page){
+        //先填充本地的
+        hotcover1 = new ImageIcon(System.getProperty("user.dir")+"/UIphotos/刘看山.png");
+        hotcover2 = new ImageIcon(System.getProperty("user.dir")+"/UIphotos/刘看山.png");
+        hotcover3 = new ImageIcon(System.getProperty("user.dir")+"/UIphotos/刘看山.png");
+        hotcover4 = new ImageIcon(System.getProperty("user.dir")+"/UIphotos/刘看山.png");
+        hotcover5 = new ImageIcon(System.getProperty("user.dir")+"/UIphotos/刘看山.png");
+        hotcover6 = new ImageIcon(System.getProperty("user.dir")+"/UIphotos/刘看山.png");
+        hotcover1.setImage(hotcover1.getImage().getScaledInstance(240, 240,Image.SCALE_DEFAULT ));
+        hotcover2.setImage(hotcover2.getImage().getScaledInstance(240, 240,Image.SCALE_DEFAULT ));
+        hotcover3.setImage(hotcover3.getImage().getScaledInstance(240, 240,Image.SCALE_DEFAULT ));
+        hotcover4.setImage(hotcover4.getImage().getScaledInstance(240, 240,Image.SCALE_DEFAULT ));
+        hotcover5.setImage(hotcover5.getImage().getScaledInstance(240, 240,Image.SCALE_DEFAULT ));
+        hotcover6.setImage(hotcover6.getImage().getScaledInstance(240, 240,Image.SCALE_DEFAULT ));
+        //再开一个线程下载
+
         new Thread(){
             @Override
             public void run() {
@@ -1344,8 +1423,7 @@ public class Basicevent extends PlayerUi {
 
 
                     hostslist = httpTools.getInternetPlaylist(page, 6);
-//         for(int i = 0;i<6;i++) {
-//             String temp = "hotlabelwrap"+i;
+
 
                     hotlabelword1.setText(hostslist.get(0).get("title"));
                     hotlabelword2.setText(hostslist.get(1).get("title"));
@@ -1367,7 +1445,8 @@ public class Basicevent extends PlayerUi {
                         hotcover5 = new ImageIcon(new URL(hostslist.get(4).get("coverImgUrl")));
                         hotcover6 = new ImageIcon(new URL(hostslist.get(5).get("coverImgUrl")));
                     } catch (MalformedURLException e) {
-                        e.printStackTrace();
+//                        e.printStackTrace();
+                        System.out.println("网络情况不佳，请稍后再试");
                     }
 
                     hotcover1.setImage(hotcover1.getImage().getScaledInstance(240, 240, Image.SCALE_DEFAULT));
@@ -1422,6 +1501,13 @@ public class Basicevent extends PlayerUi {
                     gethotmusicsheet(1);
                 }
             });
+            hotlabelwrap3.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                gethotmusicsheet(2);
+            }
+        });
             hotlabelwrap4.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
@@ -1447,7 +1533,6 @@ public class Basicevent extends PlayerUi {
                 public void actionPerformed(ActionEvent e) {
                     if(hotlistpage != 1){
                         hotlistpage--;
-                        System.out.println(hotlistpage);
                         sethotlist(hotlistpage);
                     }
                 }
@@ -1455,7 +1540,6 @@ public class Basicevent extends PlayerUi {
             hotnextpage.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     hotlistpage++;
-                    System.out.println(hotlistpage);
                     sethotlist(hotlistpage);
                 }
             });

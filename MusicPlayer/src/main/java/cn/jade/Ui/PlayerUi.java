@@ -59,6 +59,7 @@ public class PlayerUi {
 
     public JPanel containtopright = new JPanel();
     public JLabel covertitle = new JLabel("每日歌曲更新");
+    public JLabel coverdescribe = new JLabel("创建者");
 
     public ImageIcon iconnow = new ImageIcon(System.getProperty("user.dir")+"/UIphotos/刘看山.png");
     public JLabel playnowcover = new JLabel(iconnow);
@@ -248,7 +249,7 @@ public class PlayerUi {
         panelmainer.add(hotslist,"hotslist");
 //        layout.show(panelmainer, "editlist");
 //        layout.show(panelmainer, "content");
-        layout.show(panelmainer,"hotslist") ;//先显示快快
+        layout.show(panelmainer,"list") ;//先显示快快
 
         //menu上下分隔
         menu.setLayout(new GridLayout(1,1));
@@ -315,13 +316,14 @@ public class PlayerUi {
 
 
 
-
+        mymenu.setLayout(new FlowLayout(FlowLayout.LEFT));
         Box box1 = Box.createHorizontalBox();
         mymenuadd = new JLabel(new ImageIcon(System.getProperty("user.dir") + "/UIphotos/listadd.png"));
         JPanel temp = new JPanel(new FlowLayout(FlowLayout.LEFT));
         temp.setOpaque(false);
         temp.add(mymenutitle);
         temp.add(mymenuadd);
+
         box1.add(temp);
         box1.add(Box.createHorizontalGlue());
         Box box2 = Box.createHorizontalBox();
@@ -420,13 +422,9 @@ public class PlayerUi {
 
         containtop.setSize(700,600);
         containtop.setBackground(new Color(248,244,245));
-//        contain.add(containtop);
         containbottom.setSize(700,200);
-        containbottom.setBackground(Color.green);
-//        containbottom.setLayout(new GridLayout(1,1));
-        containbottom.setLayout(new BorderLayout());
-//        containtop.setLayout();
 
+        containbottom.setLayout(new BorderLayout());
         lastpage.setPreferredSize(new Dimension(100,30));
         nextpage.setPreferredSize(new Dimension(100,30));
 
@@ -444,7 +442,17 @@ public class PlayerUi {
         containtop.setLayout(new FlowLayout(FlowLayout.LEFT));
 
         containtop.add(listcover);
-        containtop.add(covertitle);
+        JPanel temp = new JPanel();
+        Box box3 = Box.createHorizontalBox();
+        box3.add(covertitle);
+        box3.add(Box.createHorizontalGlue());
+        Box box4 = Box.createHorizontalBox();
+        box4.add(coverdescribe);
+        box4.add(Box.createHorizontalGlue());
+        Box vbox2 = Box.createVerticalBox();
+        vbox2.add(box3);
+        vbox2.add(box4);
+        containtop.add(vbox2);
 //        listcoverwrap.add(listcover);
         //
 //        containwrap.add(contain);
