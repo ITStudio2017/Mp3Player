@@ -1411,6 +1411,12 @@ public class Basicevent extends PlayerUi {
         hotcover4.setImage(hotcover4.getImage().getScaledInstance(240, 240,Image.SCALE_DEFAULT ));
         hotcover5.setImage(hotcover5.getImage().getScaledInstance(240, 240,Image.SCALE_DEFAULT ));
         hotcover6.setImage(hotcover6.getImage().getScaledInstance(240, 240,Image.SCALE_DEFAULT ));
+        hotlabel1.setIcon(hotcover1);
+        hotlabel2.setIcon(hotcover2);
+        hotlabel3.setIcon(hotcover3);
+        hotlabel4.setIcon(hotcover4);
+        hotlabel5.setIcon(hotcover5);
+        hotlabel6.setIcon(hotcover6);
         //再开一个线程下载
 
         new Thread(){
